@@ -1,0 +1,237 @@
+package dal;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import bll.Besitzer;
+import bll.Branche;
+import bll.Location;
+import bll.Point;
+import bll.Location;
+
+public class LocationDAL {
+
+	public static List<Location> getAll() throws SQLException {
+		Connection conn = Database.connect();
+
+		System.out.println("connected");
+		String query = "SELECT  id, id_besitzer, bezeichnung, punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
+				+ "tl.koordinaten.SDO_POINT.Y as Y FROM TravelLocation tl";
+		Statement st = conn.createStatement();
+
+		ResultSet rs = st.executeQuery(query);
+
+		// iterate through the java resultset
+		List<Location> Locationn = new ArrayList<Location>();
+
+		while (rs.next()) {
+			// Bezeichnung
+			String id = rs.getString("id");
+			String bezeichnung = rs.getString("bezeichnung");
+			String id_besitzer = rs.getString("id_besitzer");
+			int punkte = rs.getInt("punkte");
+			String aktiv = rs.getString("aktiv");
+			double X = rs.getDouble("X");
+			double Y = rs.getDouble("Y");
+
+			Location l = new Location();
+			l.setId(id);
+			// ToDO:
+			l.setBesitzer(null);
+			l.setBezeichnung(bezeichnung);
+			l.setPunkte(punkte);
+			if (aktiv.equals("J"))
+				l.setAktiv(true);
+			else
+				l.setAktiv(false);
+
+			l.setKoordinaten(new Point(X, Y));
+
+			System.out.println(":" + aktiv + ":");
+			Locationn.add(l);
+		}
+		st.close();
+		conn.close();
+
+		return Locationn;
+	}
+
+	public static List<Location> test() {
+
+		List<Location> Locationn = new ArrayList<Location>();
+
+		Location l = new Location();
+		l.setId(UUID.randomUUID().toString());
+		l.setBesitzer(new Besitzer(UUID.randomUUID().toString()));
+		l.setBezeichnung("Raceres");
+		l.setBeschreibung("Essen");
+		l.setPunkte(9500);
+		l.setAktiv(true);
+		List<Branche> branchen = new ArrayList<Branche>();
+		branchen.add(new Branche(UUID.randomUUID().toString(), "Gastronomie"));
+		l.setBranchen(branchen);
+		l.setKoordinaten(new Point(46.604887, 13.869746));
+
+		Locationn.add(l);
+
+		return Locationn;
+	}
+
+	public static Location getById(String id) throws Exception {
+		Connection conn = Database.connect();
+
+		String query = "SELECT  id, id_besitzer, bezeichnung, punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
+				+ "tl.koordinaten.SDO_POINT.Y as Y FROM TravelLocation tl WHERE tl.id = '" + id + "'";
+
+		Statement st = conn.createStatement();
+
+		ResultSet rs = st.executeQuery(query);
+
+		// iterate through the java resultset
+		Location result = null;
+		while (rs.next()) {
+			String bezeichnung = rs.getString("Bezeichnung");
+			String id_besitzer = rs.getString("id_besitzer");
+			int punkte = rs.getInt("punkte");
+			String aktiv = rs.getString("aktiv");
+			double X = rs.getDouble("X");
+			double Y = rs.getDouble("Y");
+
+			Location l = new Location();
+			l.setId(id);
+			// ToDO:
+			l.setBesitzer(null);
+			l.setBezeichnung(bezeichnung);
+			l.setPunkte(punkte);
+			if (aktiv.equals("J"))
+				l.setAktiv(true);
+			else
+				l.setAktiv(false);
+
+			l.setKoordinaten(new Point(X, Y));
+
+			result = l;
+		}
+		st.close();
+
+		if (result == null)
+			throw new Exception("Branche nicht gefunden");
+		return result;
+	}
+
+	public static void update(String id, Location new_loc) throws Exception {
+		int result = 0;
+		try {
+			Location old_loc = getById(new_loc.getId());
+			Connection conn = Database.connect();
+
+			String koordinaten = "SDO_GEOMETRY( " + "2001, -- point" + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
+					+ "NULL)";
+
+			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, punkte = ?, aktiv = ?, "
+					+ " koordinaten = " + koordinaten + " where id = ?";
+			PreparedStatement preparedStmt = conn.prepareStatement(query);
+
+			/*
+			 * 
+			 * if else struktur überdenken
+			 */
+			if (new_loc.getBesitzer() != null)
+				preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
+			else
+				preparedStmt.setString(1, old_loc.getBesitzer().getId().toString());
+
+			if (new_loc.getBezeichnung() != null)
+				preparedStmt.setString(2, new_loc.getBezeichnung());
+			else
+				preparedStmt.setString(2, old_loc.getBezeichnung());
+
+			if (new_loc.getPunkte() != 0)
+				preparedStmt.setInt(3, new_loc.getPunkte());
+			else
+				preparedStmt.setInt(3, old_loc.getPunkte());
+
+			if (new_loc.isAktiv() != false)
+				preparedStmt.setBoolean(4, new_loc.isAktiv());
+			else
+				preparedStmt.setBoolean(4, old_loc.isAktiv());
+
+			if (new_loc.getKoordinaten() != null) {
+				preparedStmt.setDouble(5, new_loc.getKoordinaten().getX());
+				preparedStmt.setDouble(6, new_loc.getKoordinaten().getY());
+			} else {
+				preparedStmt.setDouble(5, old_loc.getKoordinaten().getX());
+				preparedStmt.setDouble(6, old_loc.getKoordinaten().getY());
+			}
+
+			preparedStmt.setString(7, new_loc.getId());
+
+			result = preparedStmt.executeUpdate();
+
+			conn.close();
+
+			if (result == 0)
+				throw new Exception("Fehler beim Updaten der Location mit der ID " + new_loc.getId());
+		} catch (Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten! ");
+			System.err.println(e.getMessage());
+			throw e;
+		}
+
+	}
+
+	public static void delete(String id) {
+		try {
+			Connection conn = Database.connect();
+
+			String query = "delete from TravelLocation where id = ?";
+			PreparedStatement preparedStmt = conn.prepareStatement(query);
+			preparedStmt.setString(1, id);
+
+			preparedStmt.execute();
+
+			conn.close();
+		} catch (Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten! ");
+			System.err.println(e.getMessage());
+		}
+	}
+
+	public static void create(Location new_loc) {
+		try {
+			Connection conn = Database.connect();
+
+			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
+					+ "NULL)";
+
+			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, " + koordinaten + ")";
+
+			PreparedStatement preparedStmt = conn.prepareStatement(query);
+			preparedStmt.setString(1, new_loc.getId());
+			preparedStmt.setString(2, new_loc.getBesitzer().getId().toString());
+			preparedStmt.setString(3, new_loc.getBezeichnung());
+			preparedStmt.setInt(4, new_loc.getPunkte());
+			if(new_loc.isAktiv())
+				preparedStmt.setString(5, "J");
+			else
+				preparedStmt.setString(5, "N");
+			
+			preparedStmt.setDouble(6, new_loc.getKoordinaten().getX());
+			preparedStmt.setDouble(7, new_loc.getKoordinaten().getY());
+
+			System.out.println(preparedStmt.toString());
+			preparedStmt.execute();
+
+			conn.close();
+		} catch (Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten!");
+			System.err.println(e.getMessage());
+		}
+	}
+}
