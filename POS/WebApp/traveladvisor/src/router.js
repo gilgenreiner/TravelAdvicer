@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/views/Home.vue'
+import MapView from '@/views/MapView.vue'
 import Account from '@/views/Account.vue'
 import Location from '@/views/Location.vue'
+import LocationDetails from '@/views/LocationDetails.vue'
 
 Vue.use(Router)
 
@@ -11,18 +12,24 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
+      name: 'Map',
+      component: MapView
     },
     {
       path: '/account',
-      name: 'account',
+      name: 'Account',
       component: Account
     },
     {
       path: '/locations',
-      name: 'locations',
+      name: 'Locations',
       component: Location
+    },
+    {
+      path: '/locations/:id',
+      name: 'Location-details',
+      component: LocationDetails,
+      props: true
     }
   ]
 })

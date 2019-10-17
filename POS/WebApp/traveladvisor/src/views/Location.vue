@@ -1,56 +1,36 @@
 <template>
-  <div class="locations">
-    <h1 class="heading">Locations:</h1>
-    <v-list class="list">
-      <v-list-item v-for="location in locations" :key="location.name">
-        <v-list-item-content>
-            <LocationListItem :location=location />
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
+  <div class="locations" style="margin-left: 20px;">
+    <v-container fluid>
+      <v-row>
+        <v-col v-for="location in allLocations" :key="location.id" lg="3" md="4" sm="6">
+          <LocationListItem :location="location" />
+        </v-col>
+      </v-row>
+       <v-btn
+        :to="{ name: 'Location-details', params: { id: 'newLocation', mode: 'create' }}"
+      >Add Location</v-btn>
+    </v-container>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 import LocationListItem from "@/components/LocationListItem";
 
 export default {
   components: {
     LocationListItem
   },
-  data() {
-    return {
-      locations: [
-        {
-          name: "Museum",
-          beschreibung: "das ist ein sehr schönes Musuem"
-        },
-        {
-          name: "Theater",
-          beschreibung: "das ist ein sehr schönes Theater"
-        },
-        {
-          name: "Restaurant",
-          beschreibung: "das ist ein sehr schönes Restaurant"
-        },
-        {
-          name: "Kino",
-          beschreibung: "das ist ein sehr schönes Kino"
-        }
-      ]
-    };
+  methods: {
+    ...mapActions(["loadLocations"])
+  },
+  computed: mapGetters(["allLocations"]),
+  created() {
+    this.loadLocations();
   }
 };
 </script>
 
 <style scoped>
-.list {
-  display: flex;
-}
-
-.heading {
-  padding-left: 1%;
-  padding-top: 1%;
-  color: grey;
-}
 </style>

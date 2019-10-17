@@ -1,22 +1,19 @@
 <template>
   <v-app>
-    <Navbar />
-    <v-content>
-      <router-view />
-    </v-content>
+    <core-app-bar />
+
+    <core-drawer />
+
+    <core-view />
   </v-app>
 </template>
 
 <script>
-import Navbar from "./components/Navbar";
-
 export default {
-  name: "App",
   components: {
-    Navbar
+    CoreDrawer: () => import("@/components/core/Drawer"),
+    CoreAppBar: () => import("@/components/core/AppBar"),
+    CoreView: () => import("@/components/core/View")
   }
 };
 </script>
-
-<style>
-</style>
