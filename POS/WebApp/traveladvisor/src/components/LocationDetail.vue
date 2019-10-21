@@ -1,13 +1,128 @@
 <template>
-<p> Test</p>
+  <div>
+    <v-hover v-slot:default="{ hover }">
+      <v-card :elevation="hover ? 12 : 4">
+        <v-img
+          class="white--text align-end"
+          height="200px"
+          :src="selectedLocation.img || 'https://aliceasmartialarts.com/wp-content/uploads/2017/04/default-image.jpg'"
+          :key="selectedLocation.img"
+          @click="pickFile"
+          aspect-ratio="2"
+        ></v-img>
+        <input
+          type="file"
+          style="display: none"
+          ref="image"
+          accept="image/*"
+          @change="onFilePicked"
+        />
+      </v-card>
+    </v-hover>
+    <v-hover v-slot:default="{ hover }">
+      <v-card :elevation="hover ? 12 : 4" class="mx-auto mt-5">
+        <v-card-text>
+          <v-form ref="form" v-model="valid">
+            <v-text-field
+              v-model="selectedLocation.bezeichnung"
+              @change="$emit('update:selectedLocation.bezeichnung', selectedLocation.bezeichnung)"
+              label="Bezeichnung"
+              :readonly="mode === 'show'"
+              :rules="[rules.required, rules.length(100)]"
+              counter="100"
+            />
+            <v-textarea
+              v-model="selectedLocation.beschreibung"
+              @change="$emit('update:selectedLocation.beschreibung', selectedLocation.beschreibung)"
+              label="Beschreibung"
+              :readonly="mode === 'show'"
+              :rules="[rules.required, rules.length(400)]"
+              counter="400"
+            />
+            <v-combobox
+              v-model="selectedLocation.branchen"
+              @change="$emit('update:selectedLocation.branchen', selectedLocation.branchen)"
+              :items="allBranchen"
+              item-text="bezeichnung"
+              label="Branch(en)"
+              multiple
+              return-object
+              :readonly="mode === 'show'"
+              :rules="[rules.emptyArray]"
+            />
+            <v-text-field
+              v-model="selectedLocation.punkte"
+              @change="$emit('update:selectedLocation.punkte', selectedLocation.punkte)"
+              label="Punkte pro Besuch"
+              type="number"
+              :readonly="mode === 'show'"
+              :rules="[rules.required]"
+            />
+            <v-checkbox
+              v-model="selectedLocation.aktiv"
+              @change="$emit('update:selectedLocation.aktiv', selectedLocation.aktiv)"
+              :label="`Die Location ist ${(selectedLocation.aktiv === true) ? 'aktiviert' : 'deaktiviert'}`"
+              type="checkbox"
+              v-show="mode !== 'show'"
+            ></v-checkbox>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-hover>
+  </div>
 </template>
 
 <script>
-export default {
+import { mapGetters, mapActions } from "vuex";
 
-}
+export default {
+  name: "LocationDetail",
+  data() {
+    return {
+      valid: false,
+      rules: {
+        length: len => v =>
+          (v || "").length <= len ||
+          `Zu viele Zeichen, es dürfen höchstens ${len} sein`,
+        required: v => !!v || "Dieses Feld ist verpflichtend",
+        emptyArray: v => v.length != 0 || "Dieses Feld ist verpflichtend"
+      }
+    };
+  },
+  props: {
+    selectedLocation: Object,
+    mode: String
+  },
+  methods: {
+    ...mapActions(["loadBranchen"]),
+    pickFile() {
+      if (this.mode !== "show") {
+        this.$refs.image.click();
+      }
+    },
+    onFilePicked(e) {
+      const files = e.target.files;
+      let filename = files[0].name;
+      if (filename.lastIndexOf(".") <= 0) {
+        return;
+      }
+      const fileReader = new FileReader();
+      fileReader.addEventListener("load", () => {
+        this.selectedLocation.img = fileReader.result;
+        this.$forceUpdate();
+      });
+      fileReader.readAsDataURL(files[0]);
+    },
+    validate() {
+      this.$refs.form.validate();
+    }
+  },
+  computed: mapGetters(["allBranchen"]),
+  created() {
+    this.loadBranchen();
+  }
+};
 </script>
 
 <style>
-
 </style>
