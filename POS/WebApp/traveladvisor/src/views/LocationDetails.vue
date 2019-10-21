@@ -1,84 +1,39 @@
 <template>
   <div>
     <v-row>
-      <v-col cols="4">
-        <v-card>
-          <v-img
-            class="white--text align-end"
-            height="200px"
-            src="https://picsum.photos/510/300?random"
-            aspect-ratio="2"
-          ></v-img>
-        </v-card>
-
-        <v-card class="mt-5">
-          <v-card-text>
-            <v-text-field
-              v-model="selectedLocation.bezeichnung"
-              label="Bezeichnung"
-              required
-              :readonly="mode === 'show'"
-            />
-            <v-textarea
-              v-model="selectedLocation.beschreibung"
-              label="Beschreibung"
-              required
-              :readonly="mode === 'show'"
-            />
-            <v-combobox
-              v-model="selectedLocation.branchen"
-              :items="items"
-              item-text="bezeichnung"
-              label="Branch(en)"
-              multiple
-               return-object
-              :readonly="mode === 'show'"
-            />
-            <v-text-field
-              v-model="selectedLocation.punkte"
-              label="Punkte pro Besuch"
-              required
-              type="number"
-              :readonly="mode === 'show'"
-            />
-            <v-checkbox
-              v-model="selectedLocation.aktiv"
-              label="Soll diese Location für alle angezeigt werden"
-              type="checkbox"
-              required
-              v-show="mode !== 'show'"
-            ></v-checkbox>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="8">
-        <Map :width="'100%'" :height="'670px'" />
+      <v-col cols="12">
+        <v-btn class="ml-0" @click="$router.push({name: component})">
+          <v-icon left>arrow_back</v-icon>Zurück
+        </v-btn>
       </v-col>
     </v-row>
     <v-row>
+      <v-col cols="4">
+        <LocationDetail
+          ref="details"
+          :selectedLocation.sync="(mode==='create') ? defaultLocation: selectedLocation"
+          :mode="mode"
+        />
+      </v-col>
+      <v-col cols="8">
+        <Map
+          :width="'100%'"
+          :height="(mode === 'show') ? '606px' : '676px'"
+          :locations="(mode==='create') ? new Array(defaultLocation): new Array(selectedLocation)"
+          :mode="(mode == 'create') ? 'createNew': 'update'"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-show="mode !== 'show'" class="buttons">
       <v-col cols="12">
-        <v-expansion-panels accordion v-show="mode === 'show'">
-          <v-expansion-panel v-for="(item,i) in 5" :key="i">
-            <v-expansion-panel-header>
-              <v-row no-gutters align="center" align-content="start">
-                <v-col cols="2">
-                  <v-list-item-avatar color="white">
-                    <v-img
-                      src="https://i.pinimg.com/originals/89/46/db/8946dbf52cc180dd12b084300dfa04f5.jpg"
-                      height="30"
-                      contain
-                      align-start
-                    />
-                  </v-list-item-avatar>
-                </v-col>
-                <v-col cols="10" style="margin-left: -200px;">
-                  <v-rating :value="4.5" color="amber" dense half-increments readonly></v-rating>
-                </v-col>
-              </v-row>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
+        <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
+        <v-btn v-show="mode === 'update'" @click="doUpdateLocation">Location aktualisieren</v-btn>
+        <v-btn v-show="mode === 'create'" @click="doAddLocation">Location hinzufügen</v-btn>
+      </v-col>
+    </v-row>
+    <v-row v-show="mode === 'show'">
+      <v-col cols="12">
+        <Rezensionen />
       </v-col>
     </v-row>
   </div>
@@ -88,24 +43,65 @@
 import { mapGetters, mapActions } from "vuex";
 
 import Map from "@/components/Map";
+import LocationDetail from "@/components/LocationDetail";
+import Rezensionen from "@/components/Rezensionen";
 
 export default {
-  name: "LocationDetail",
+  name: "LocationDetails",
   components: {
-    Map
+    Map,
+    Rezensionen,
+    LocationDetail
+  },
+  data() {
+    return {
+      defaultLocation: {
+        id: "newLocation",
+        bezeichnung: "",
+        beschreibung: "",
+        aktiv: false,
+        punkte: 0,
+        branchen: [],
+        besitzer: { id: "" },
+        koordinaten: { X: 0, Y: 0 }
+      },
+      backup: {}
+    };
   },
   methods: {
-    ...mapActions(["loadLocationById"])
+    ...mapActions(["loadLocationById", "updateLocationById", "addLocation"]),
+    doUpdateLocation() {
+      this.$refs.details.validate();
+      if (this.$refs.details.valid === true) {
+        this.updateLocationById(this.selectedLocation);
+        this.$router.push({ name: this.component });
+      }
+    },
+    doAddLocation() {
+      this.$refs.details.validate();
+      if (this.$refs.details.valid === true) {
+        this.addLocation(this.defaultLocation);
+        this.$router.push({ name: this.component });
+      }
+    },
+    doCancel() {
+      this.$router.push({ name: this.component });
+    }
   },
   props: {
     mode: {
-      default: 'show',
+      default: "show",
+      type: String
+    },
+    component: {
+      default: "Map",
       type: String
     }
   },
   computed: mapGetters(["selectedLocation"]),
   created() {
     this.loadLocationById(this.$route.params.id);
+    this.backup = this.selectedLocation;
   }
 };
 </script>

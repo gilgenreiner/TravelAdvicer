@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import MapView from '@/views/MapView.vue'
 import Account from '@/views/Account.vue'
-import Location from '@/views/Location.vue'
+import Locations from '@/views/Locations.vue'
 import LocationDetails from '@/views/LocationDetails.vue'
 
 Vue.use(Router)
@@ -23,7 +23,7 @@ export default new Router({
     {
       path: '/locations',
       name: 'Locations',
-      component: Location
+      component: Locations
     },
     {
       path: '/locations/:id',
