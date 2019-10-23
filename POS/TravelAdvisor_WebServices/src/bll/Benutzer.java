@@ -18,7 +18,7 @@ public class Benutzer {
 			return id.toString();
 		}
 		catch(Exception ex) {
-			throw new Exception("Location hat keine gülige UUID");
+			throw new Exception("Benutzer hat keine gülige UUID");
 		}
 	}
 

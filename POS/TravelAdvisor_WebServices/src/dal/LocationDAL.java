@@ -1,5 +1,6 @@
 package dal;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,11 +14,12 @@ import bll.Besitzer;
 import bll.Branche;
 import bll.Location;
 import bll.Point;
+import bll.UUIDParseException;
 import bll.Location;
 
 public class LocationDAL {
 
-	public static List<Location> getAll() throws SQLException {
+	public static List<Location> getAll() throws SQLException, UUIDParseException {
 		Connection conn = Database.connect();
 
 		System.out.println("connected");
@@ -53,7 +55,6 @@ public class LocationDAL {
 
 			l.setKoordinaten(new Point(X, Y));
 
-			System.out.println(":" + aktiv + ":");
 			Locationn.add(l);
 		}
 		st.close();
@@ -62,7 +63,7 @@ public class LocationDAL {
 		return Locationn;
 	}
 
-	public static List<Location> test() {
+	public static List<Location> test() throws UUIDParseException {
 
 		List<Location> Locationn = new ArrayList<Location>();
 
@@ -128,49 +129,32 @@ public class LocationDAL {
 	public static void update(String id, Location new_loc) throws Exception {
 		int result = 0;
 		try {
-			Location old_loc = getById(new_loc.getId());
 			Connection conn = Database.connect();
 
-			String koordinaten = "SDO_GEOMETRY( " + "2001, -- point" + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
+			System.out.println("X: " + new_loc.getKoordinaten().getX());
+        	System.out.println("Y: " + new_loc.getKoordinaten().getY());
+        	
+			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
 					+ "NULL)";
 
 			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, punkte = ?, aktiv = ?, "
-					+ " koordinaten = " + koordinaten + " where id = ?";
+					+ " set koordinaten = " + koordinaten + " where id = ?";
+			
+			
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 
-			/*
-			 * 
-			 * if else struktur überdenken
-			 */
-			if (new_loc.getBesitzer() != null)
-				preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
+			preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
+			preparedStmt.setString(2, new_loc.getBezeichnung());
+			preparedStmt.setInt(3, new_loc.getPunkte());
+			if (new_loc.isAktiv())
+				preparedStmt.setString(4, "J");
 			else
-				preparedStmt.setString(1, old_loc.getBesitzer().getId().toString());
-
-			if (new_loc.getBezeichnung() != null)
-				preparedStmt.setString(2, new_loc.getBezeichnung());
-			else
-				preparedStmt.setString(2, old_loc.getBezeichnung());
-
-			if (new_loc.getPunkte() != 0)
-				preparedStmt.setInt(3, new_loc.getPunkte());
-			else
-				preparedStmt.setInt(3, old_loc.getPunkte());
-
-			if (new_loc.isAktiv() != false)
-				preparedStmt.setBoolean(4, new_loc.isAktiv());
-			else
-				preparedStmt.setBoolean(4, old_loc.isAktiv());
-
-			if (new_loc.getKoordinaten() != null) {
-				preparedStmt.setDouble(5, new_loc.getKoordinaten().getX());
-				preparedStmt.setDouble(6, new_loc.getKoordinaten().getY());
-			} else {
-				preparedStmt.setDouble(5, old_loc.getKoordinaten().getX());
-				preparedStmt.setDouble(6, old_loc.getKoordinaten().getY());
-			}
+				preparedStmt.setString(4, "N");
+			preparedStmt.setBigDecimal(5, new BigDecimal("10.000"));
+			preparedStmt.setBigDecimal(6, new BigDecimal("10.000"));
 
 			preparedStmt.setString(7, new_loc.getId());
+			
 
 			result = preparedStmt.executeUpdate();
 
@@ -217,11 +201,11 @@ public class LocationDAL {
 			preparedStmt.setString(2, new_loc.getBesitzer().getId().toString());
 			preparedStmt.setString(3, new_loc.getBezeichnung());
 			preparedStmt.setInt(4, new_loc.getPunkte());
-			if(new_loc.isAktiv())
+			if (new_loc.isAktiv())
 				preparedStmt.setString(5, "J");
 			else
 				preparedStmt.setString(5, "N");
-			
+
 			preparedStmt.setDouble(6, new_loc.getKoordinaten().getX());
 			preparedStmt.setDouble(7, new_loc.getKoordinaten().getY());
 

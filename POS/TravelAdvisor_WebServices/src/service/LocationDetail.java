@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -100,6 +101,8 @@ public class LocationDetail {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         
         try {                    	
+        	
+
         	LocationDAL.update(new_loc.getId(), new_loc);
         	response.status(Response.Status.OK);
             response.entity(LocationDAL.getById(new_loc.getId()));
@@ -127,4 +130,15 @@ public class LocationDetail {
 
         return response.build();
     }
+    
+    
+    @OPTIONS
+    public Response preflight() {
+    	Response.ResponseBuilder response = Response.status(Response.Status.OK);
+
+        return response.build();
+    }
+    
+    
+    
 }
