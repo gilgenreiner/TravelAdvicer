@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://192.168.179.132:8080';
+const baseURL = 'http://172.16.204.131:8080';
 
 const state = {
     locations: [],
@@ -29,25 +29,12 @@ const actions = {
         const response = await axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
 
         commit('setSingleLocation', response.data);
-        // commit('setSingleLocation', state.locations[0]);
+        //commit('setSingleLocation', state.locations[0]);
     },
     async addLocation({ commit }, location) {
-        //axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, location).then(data => commit('addLocation', data)).catch(err => console.log(err));
-        fetch(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(location)
-        })
-            .then(data => {
-                return data.json()
-            })
-            .then(data => commit('addLocation', data))
-            .catch(err => console.log(err));
+        const response = await axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/`, location);
 
-
+        commit('addLocation', response.data)
         //commit('addLocation', location);
     },
     async updateLocationById({ commit }, location) {

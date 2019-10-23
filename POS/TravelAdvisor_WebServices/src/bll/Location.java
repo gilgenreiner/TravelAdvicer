@@ -31,8 +31,13 @@ public class Location {
 			throw new Exception("Location hat keine gülige UUID");
 		}
 	}
-	public void setId(String id) {
-		this.id = UUID.fromString(id);
+	public void setId(String id) throws UUIDParseException {
+		try {
+			this.id = UUID.fromString(id);
+		} 
+		catch(Exception ex) {
+			throw new UUIDParseException("UUID hat kein gültiges Format");
+		}
 	}
 	public String getBezeichnung() {
 		return bezeichnung;

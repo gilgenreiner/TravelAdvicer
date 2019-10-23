@@ -10,78 +10,52 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import bll.Aktion;
 import bll.Besitzer;
 import bll.Branche;
 import bll.Location;
 import bll.Point;
 import bll.UUIDParseException;
-import bll.Location;
 
-public class LocationDAL {
+public class PraemienDAL {
 
-	public static List<Location> getAll() throws SQLException, UUIDParseException {
+	public static List<Aktion> getAll() throws SQLException, UUIDParseException {
 		Connection conn = Database.connect();
 
 		System.out.println("connected");
-		String query = "SELECT  id, id_besitzer, bezeichnung, punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
-				+ "tl.koordinaten.SDO_POINT.Y as Y FROM TravelLocation tl";
+		String query = "SELECT id_aktion, id_location, beschreibung, punkte, aktiv FROM Aktion";
 		Statement st = conn.createStatement();
 
 		ResultSet rs = st.executeQuery(query);
 
 		// iterate through the java resultset
-		List<Location> Locationn = new ArrayList<Location>();
+		List<Aktion> aktionen = new ArrayList<Aktion>();
 
 		while (rs.next()) {
 			// Bezeichnung
-			String id = rs.getString("id");
-			String bezeichnung = rs.getString("bezeichnung");
-			String id_besitzer = rs.getString("id_besitzer");
+			String id = rs.getString("id_aktion");
+			String bezeichnung = rs.getString("beschreibung");
+			String id_location = rs.getString("id_location");
 			int punkte = rs.getInt("punkte");
 			String aktiv = rs.getString("aktiv");
-			double X = rs.getDouble("X");
-			double Y = rs.getDouble("Y");
 
-			Location l = new Location();
-			l.setId(id);
-			// ToDO:
-			l.setBesitzer(null);
-			l.setBezeichnung(bezeichnung);
-			l.setPunkte(punkte);
+			Aktion a = new Aktion();
+			a.setId(id);
+			a.setLocation(id_location);
+			a.setBezeichnung(bezeichnung);
+			a.setPunkte(punkte);
 			if (aktiv.equals("J"))
-				l.setAktiv(true);
+				a.setAktiv(true);
 			else
-				l.setAktiv(false);
+				a.setAktiv(false);
 
-			l.setKoordinaten(new Point(X, Y));
 
-			Locationn.add(l);
+			aktionen.add(a);
 		}
 		st.close();
 		conn.close();
 
-		return Locationn;
-	}
-
-	public static List<Location> test() throws UUIDParseException {
-
-		List<Location> Locationn = new ArrayList<Location>();
-
-		Location l = new Location();
-		l.setId(UUID.randomUUID().toString());
-		l.setBesitzer(new Besitzer(UUID.randomUUID().toString()));
-		l.setBezeichnung("Raceres");
-		l.setBeschreibung("Essen");
-		l.setPunkte(9500);
-		l.setAktiv(true);
-		List<Branche> branchen = new ArrayList<Branche>();
-		branchen.add(new Branche(UUID.randomUUID().toString(), "Gastronomie"));
-		l.setBranchen(branchen);
-		l.setKoordinaten(new Point(46.604887, 13.869746));
-
-		Locationn.add(l);
-
-		return Locationn;
+		return aktionen;
 	}
 
 	public static Location getById(String id) throws Exception {
