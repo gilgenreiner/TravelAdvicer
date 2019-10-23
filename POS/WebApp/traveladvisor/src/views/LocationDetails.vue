@@ -28,7 +28,7 @@
       <v-col cols="12">
         <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
         <v-btn v-show="mode === 'update'" @click="doUpdateLocation">Location aktualisieren</v-btn>
-        <v-btn v-show="mode === 'create'" @click="doAddLocation">Location hinzufügen</v-btn>
+        <v-btn v-show="mode === 'create'" @click="doAddLocation()">Location hinzufügen</v-btn>
       </v-col>
     </v-row>
     <v-row v-show="mode === 'show'">
@@ -56,13 +56,12 @@ export default {
   data() {
     return {
       defaultLocation: {
-        id: "newLocation",
         bezeichnung: "",
         beschreibung: "",
         aktiv: false,
         punkte: 0,
         branchen: [],
-        besitzer: { id: "" },
+        besitzer: { id: "b717f71a-a902-4c1a-9fa9-659fc8c" },
         koordinaten: { X: 0, Y: 0 }
       },
       backup: {}
@@ -100,7 +99,9 @@ export default {
   },
   computed: mapGetters(["selectedLocation"]),
   created() {
-    this.loadLocationById(this.$route.params.id);
+    if (this.mode !== "create") {
+      this.loadLocationById(this.$route.params.id);
+    }
     this.backup = this.selectedLocation;
   }
 };

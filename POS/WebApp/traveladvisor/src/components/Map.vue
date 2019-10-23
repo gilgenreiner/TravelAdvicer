@@ -47,7 +47,7 @@ export default {
       }
     );
 
-    window.addEventListener("resize", () => map.getViewPort().resize());
+    window.addEventListener("resize", () => this.map.getViewPort().resize());
 
     this.mapEvents = new H.mapevents.MapEvents(this.map);
     this.behavior = new H.mapevents.Behavior(this.mapEvents);
