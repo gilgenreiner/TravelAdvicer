@@ -3,19 +3,23 @@ package bll;
 public class Aktion {
 	private String id;
 	private String bezeichnung;
-	private String punkte;
+	private int punkte;
 	private boolean aktiv;
-	private Location location;
+	private String locationId;
 	
-	public Aktion(String id, Location location, String bezeichnung, String punkte, boolean aktiv) {
+	public Aktion(String id, String locationId, String bezeichnung, int punkte, boolean aktiv) {
 		super();
 		this.id = id;
 		this.bezeichnung = bezeichnung;
 		this.punkte = punkte;
 		this.aktiv = aktiv;
-		this.location = location;
+		this.locationId = locationId;
 	}
 	
+	public Aktion() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -28,10 +32,10 @@ public class Aktion {
 	public void setBezeichnung(String bezeichnung) {
 		this.bezeichnung = bezeichnung;
 	}
-	public String getPunkte() {
+	public int getPunkte() {
 		return punkte;
 	}
-	public void setPunkte(String punkte) {
+	public void setPunkte(int punkte) {
 		this.punkte = punkte;
 	}
 	public boolean isAktiv() {
@@ -40,11 +44,11 @@ public class Aktion {
 	public void setAktiv(boolean aktiv) {
 		this.aktiv = aktiv;
 	}
-	public Location getLocation() {
-		return location;
+	public String getLocation() {
+		return locationId;
 	}
-	public void setLocation(Location location) {
-		this.location = location;
+	public void setLocation(String locationId) {
+		this.locationId = locationId;
 	}
 	
 	
