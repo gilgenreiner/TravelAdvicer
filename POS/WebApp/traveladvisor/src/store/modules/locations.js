@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://172.16.204.131:8080';
+const baseURL = 'http://192.168.179.132:8080';
 
 const state = {
     locations: [],
@@ -13,23 +13,15 @@ const getters = {
 };
 
 const actions = {
-    async loadLocations({ commit }) {
-        //const response = await axios.get(baseURL + "/TravelAdvisor_WebServices/TravelGuide/locationList");
-        fetch(baseURL + "/TravelAdvisor_WebServices/TravelGuide/locationList", {
-            method: 'GET', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors' // no-cors, *cors, same-origin
-        }).then(data => { return data.json() }).then(data => commit('setLocations', data)).catch(err => console.log(err));
-
-
-
-        //commit('setLocations', await response.json());
-        //commit('setLocations', []);
+    loadLocations({ commit }) {
+        axios.get(baseURL + "/TravelAdvisor_WebServices/TravelGuide/locationList")
+            .then(response => commit('setLocations', response.data))
+            .catch(err => console.log(err));
     },
-    async loadLocationById({ commit }, id) {
-        const response = await axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
-
-        commit('setSingleLocation', response.data);
-        //commit('setSingleLocation', state.locations[0]);
+    loadLocationById({ commit }, id) {
+        axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`)
+            .then(response => commit('setSingleLocation', response.data))
+            .catch(err => console.log(err));
     },
     async addLocation({ commit }, location) {
         const response = await axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/`, location);
@@ -38,7 +30,7 @@ const actions = {
         //commit('addLocation', location);
     },
     async updateLocationById({ commit }, location) {
-        const response = await axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${location.id}`, location);
+        const response = await axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/`, location);
 
         commit('updateLocation', response.data)
         //commit('updateLocation', location);
@@ -46,8 +38,8 @@ const actions = {
     async deleteLocation({ commit }, id) {
         const response = await axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
 
-        // commit('deleteLocation', id)
-        commit('deleteLocation', id);
+        commit('deleteLocation', id)
+        //commit('deleteLocation', id);
     }
 };
 

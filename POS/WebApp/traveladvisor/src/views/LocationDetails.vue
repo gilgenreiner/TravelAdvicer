@@ -27,7 +27,7 @@
     <v-row v-show="mode !== 'show'" class="buttons">
       <v-col cols="12">
         <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
-        <v-btn v-show="mode === 'update'" @click="doUpdateLocation">Location aktualisieren</v-btn>
+        <v-btn v-show="mode === 'update'" @click="doUpdateLocation()">Location aktualisieren</v-btn>
         <v-btn v-show="mode === 'create'" @click="doAddLocation()">Location hinzufügen</v-btn>
       </v-col>
     </v-row>
