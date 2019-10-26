@@ -12,16 +12,10 @@
       <v-card-text class="black--text">
         <p>{{ location.beschreibung }}</p>
         <div class="btn">
-          <v-btn
-            icon
-            :to="{ name: 'Location-details', params: { id: location.id, mode: 'show', component: 'Locations' }}"
-          >
+          <v-btn icon :to="{ name: 'Location aktualisieren', params: { id: location.id }}">
             <v-icon>expand_more</v-icon>
           </v-btn>
-          <v-btn
-            icon
-            :to="{ name: 'Location-details', params: { id: location.id, mode: 'update', component: 'Locations'}}"
-          >
+          <v-btn icon :to="{ name: 'Location aktualisieren', params: { id: location.id }}">
             <v-icon>edit</v-icon>
           </v-btn>
           <v-btn icon @click="dialog = true">

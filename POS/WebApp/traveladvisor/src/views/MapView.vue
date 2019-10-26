@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Map :width="'100%'" :height="'800px'" :locations="allLocations" :mode="'showDetails'" />
+    <Map :width="'100%'" :height="'87vh'" :locations.sync="allLocations" :mode="'show'" />
   </div>
 </template>
 

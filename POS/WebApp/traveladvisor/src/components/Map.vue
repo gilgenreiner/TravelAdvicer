@@ -1,9 +1,16 @@
 <template>
-  <v-card :elevation="4">
-    <div class="map">
-      <div :style="`width: ${this.width}; height: ${this.height}; z-index=auto`" id="mapContainer" />
-    </div>
-  </v-card>
+  <div>
+    <v-form ref="form" v-model="valid">
+      <v-card :elevation="4" :rules="[rules.required]">
+        <div class="map">
+          <div
+            :style="`width: ${this.width}; height: ${this.height}; z-index=auto`"
+            id="mapContainer"
+          />
+        </div>
+      </v-card>
+    </v-form>
+  </div>
 </template>
 
 <script>
@@ -13,14 +20,20 @@ export default {
   name: "Map",
   data: function() {
     return {
+      valid: false,
       platform: null,
       map: null,
       behavior: null,
       ui: null,
       defaultLayers: null,
       mapEvents: null,
-      lat: 46.608449,
-      lng: 13.850268
+      center_lat: 46.608449,
+      center_lng: 13.850268,
+      rules: {
+        required: v =>
+          (this.allLocations[0].X != 0 && this.allLocations.Y != 0) ||
+          "Dieses Feld ist verpflichtend"
+      }
     };
   },
   props: {
@@ -29,7 +42,7 @@ export default {
     locations: Array,
     mode: {
       type: String,
-      default: "showDetails"
+      default: "show"
     }
   },
   mounted: function() {
@@ -43,7 +56,7 @@ export default {
       this.defaultLayers.vector.normal.map,
       {
         zoom: 14,
-        center: { lat: this.lat, lng: this.lng }
+        center: { lat: this.center_lat, lng: this.center_lng }
       }
     );
 
@@ -52,18 +65,26 @@ export default {
     this.mapEvents = new H.mapevents.MapEvents(this.map);
     this.behavior = new H.mapevents.Behavior(this.mapEvents);
     this.ui = H.ui.UI.createDefault(this.map, this.defaultLayers);
-    if (this.mode === "showDetails") {
-      this.drawPoints();
-    }
-    if (this.mode === "createNew") {
-      this.setUpClickListener(this.map, this.locations);
-    }
-    if (this.mode === "update") {
-      this.addDraggableMarker(this.map, this.behavior, this.locations);
+  },
+  watch: {
+    locations() {
+      if (this.mode === "show") {
+        this.drawPoints();
+      }
+      if (this.mode === "create") {
+        this.setUpClickListener(this.map, this.locations);
+      }
+      if (this.mode === "update") {
+        this.addDraggableMarker(this.map, this.behavior, this.locations);
+      }
     }
   },
   methods: {
+    validate() {
+      this.$refs.form.validate();
+    },
     drawPoints: function() {
+      this.map.removeObjects(this.map.getObjects());
       for (let i = 0; i < this.locations.length; i++) {
         if (this.locations[i].aktiv === true) {
           let coords = {
@@ -75,23 +96,26 @@ export default {
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" fill="blue" /></svg>';
           let icon = new H.map.Icon(svgMarkup);
           let marker = new H.map.Marker(coords, { icon: icon });
-          marker.setData(
-            `<div width="300px" style="background-color: transparent;">
+
+          if (this.mode === "show") {
+            marker.setData(
+              `<div width="300px" style="background-color: transparent;">
             <img src="${this.locations[i].img}" width="350" height="200">
             <h2>${this.locations[i].bezeichnung}</h2>
             <a style="border: 0; background: none; box-shadow: none; border-radius: 0px;" 
             href="http://localhost:8081/locations/${this.locations[i].id}">Mehr details anzeigen</a></div>`
-          );
-          marker.addEventListener(
-            "tap",
-            event => {
-              var bubble = new H.ui.InfoBubble(event.target.getGeometry(), {
-                content: event.target.getData()
-              });
-              this.ui.addBubble(bubble);
-            },
-            false
-          );
+            );
+            marker.addEventListener(
+              "tap",
+              event => {
+                var bubble = new H.ui.InfoBubble(event.target.getGeometry(), {
+                  content: event.target.getData()
+                });
+                this.ui.addBubble(bubble);
+              },
+              false
+            );
+          }
           this.map.addObject(marker);
         }
       }
@@ -104,8 +128,8 @@ export default {
           evt.currentPointer.viewportY
         );
 
-        locations[0].koordinaten.X = coord.lat;
-        locations[0].koordinaten.Y = coord.lng;
+        locations[0].koordinaten.x = coord.lat;
+        locations[0].koordinaten.y = coord.lng;
 
         let svgMarkup =
           '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" fill="blue" /></svg>';
@@ -172,8 +196,8 @@ export default {
             );
             target.setGeometry(coord);
 
-            locations[0].koordinaten.X = coord.lat;
-            locations[0].koordinaten.Y = coord.lng;
+            locations[0].koordinaten.x = coord.lat;
+            locations[0].koordinaten.y = coord.lng;
           }
         },
         false

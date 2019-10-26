@@ -5,7 +5,7 @@
         <v-img
           class="white--text align-end"
           height="200px"
-          :src="selectedLocation.img || 'https://aliceasmartialarts.com/wp-content/uploads/2017/04/default-image.jpg'"
+          :src="selectedLocation.img || `https://x.kinja-static.com/assets/images/logos/placeholders/default.png`"
           :key="selectedLocation.img"
           @click="pickFile"
           aspect-ratio="2"

@@ -3,9 +3,7 @@
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <v-btn
-            :to="{ name: 'Location-details', params: { id: 'newLocation', mode: 'create', component: 'Locations'}}"
-          >Location hinzufügen</v-btn>
+          <v-btn :to="{ name: 'Location erstellen' }">Location hinzufügen</v-btn>
         </v-col>
       </v-row>
       <v-row>
