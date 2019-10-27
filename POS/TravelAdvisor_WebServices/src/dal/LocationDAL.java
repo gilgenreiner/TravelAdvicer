@@ -22,9 +22,8 @@ public class LocationDAL {
 	public static List<Location> getAll() throws SQLException, UUIDParseException {
 		Connection conn = Database.connect();
 
-		System.out.println("connected");
-		String query = "SELECT  id, id_besitzer, bezeichnung, punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
-				+ "tl.koordinaten.SDO_POINT.Y as Y FROM TravelLocation tl";
+		String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
+				+ "tl.koordinaten.SDO_POINT.Y as Y, UTL_RAW.CAST_TO_VARCHAR2(bild) as img FROM TravelLocation tl";
 		Statement st = conn.createStatement();
 
 		ResultSet rs = st.executeQuery(query);
@@ -33,20 +32,24 @@ public class LocationDAL {
 		List<Location> Locationn = new ArrayList<Location>();
 
 		while (rs.next()) {
-			// Bezeichnung
+
 			String id = rs.getString("id");
 			String bezeichnung = rs.getString("bezeichnung");
+			String beschreibung = rs.getString("beschreibung");
+
 			String id_besitzer = rs.getString("id_besitzer");
 			int punkte = rs.getInt("punkte");
 			String aktiv = rs.getString("aktiv");
 			double X = rs.getDouble("X");
 			double Y = rs.getDouble("Y");
-
+			String img = rs.getString("img");
+			
 			Location l = new Location();
 			l.setId(id);
 			// ToDO:
 			l.setBesitzer(null);
 			l.setBezeichnung(bezeichnung);
+			l.setBeschreibung(beschreibung);
 			l.setPunkte(punkte);
 			if (aktiv.equals("J"))
 				l.setAktiv(true);
@@ -54,6 +57,9 @@ public class LocationDAL {
 				l.setAktiv(false);
 
 			l.setKoordinaten(new Point(X, Y));
+			System.out.println(l.getId().toString());
+			l.setBranchen(BrancheDAL.get(l));
+			l.setImg(img);
 
 			Locationn.add(l);
 		}
@@ -117,6 +123,7 @@ public class LocationDAL {
 
 			l.setKoordinaten(new Point(X, Y));
 
+			l.setBranchen(BrancheDAL.get(l));
 			result = l;
 		}
 		st.close();
@@ -131,30 +138,29 @@ public class LocationDAL {
 		try {
 			Connection conn = Database.connect();
 
-			System.out.println("X: " + new_loc.getKoordinaten().getX());
-        	System.out.println("Y: " + new_loc.getKoordinaten().getY());
-        	
+			System.out.println("Besitzer: " + new_loc.getBesitzer().getId().toString());
+			System.out.println("Bezeichnung: " + new_loc.getBezeichnung());
+			System.out.println("Punkte: " + new_loc.getPunkte());
+
 			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
 					+ "NULL)";
 
-			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, punkte = ?, aktiv = ?, "
-					+ " set koordinaten = " + koordinaten + " where id = ?";
-			
-			
+			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, beschreibung = ?, punkte = ?, aktiv = ? where id = ?";
+
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 
 			preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
 			preparedStmt.setString(2, new_loc.getBezeichnung());
-			preparedStmt.setInt(3, new_loc.getPunkte());
+			preparedStmt.setString(3, new_loc.getBeschreibung());
+			preparedStmt.setInt(4, new_loc.getPunkte());
 			if (new_loc.isAktiv())
-				preparedStmt.setString(4, "J");
+				preparedStmt.setString(5, "J");
 			else
-				preparedStmt.setString(4, "N");
-			preparedStmt.setBigDecimal(5, new BigDecimal("10.000"));
-			preparedStmt.setBigDecimal(6, new BigDecimal("10.000"));
+				preparedStmt.setString(5, "N");
+			// preparedStmt.setBigDecimal(5, new BigDecimal("10.000"));
+			// preparedStmt.setBigDecimal(6, new BigDecimal("10.000"));
 
-			preparedStmt.setString(7, new_loc.getId());
-			
+			preparedStmt.setString(6, id);
 
 			result = preparedStmt.executeUpdate();
 
@@ -162,6 +168,14 @@ public class LocationDAL {
 
 			if (result == 0)
 				throw new Exception("Fehler beim Updaten der Location mit der ID " + new_loc.getId());
+
+			new_loc.setId(id);
+			
+			BrancheDAL.removeBranchen(id);
+
+			for(Branche b : new_loc.getBranchen()) 
+				LocationDAL.addBranche(new_loc, b);
+			
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten! ");
 			System.err.println(e.getMessage());
@@ -194,28 +208,62 @@ public class LocationDAL {
 			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
 					+ "NULL)";
 
-			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, " + koordinaten + ")";
+			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, ?, " + koordinaten + ", utl_raw.cast_to_raw(?))";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
-			preparedStmt.setString(1, new_loc.getId());
+			preparedStmt.setString(1, new_loc.getId().toString());
 			preparedStmt.setString(2, new_loc.getBesitzer().getId().toString());
 			preparedStmt.setString(3, new_loc.getBezeichnung());
-			preparedStmt.setInt(4, new_loc.getPunkte());
+			preparedStmt.setString(4, new_loc.getBeschreibung());
+			preparedStmt.setInt(5, new_loc.getPunkte());
 			if (new_loc.isAktiv())
-				preparedStmt.setString(5, "J");
+				preparedStmt.setString(6, "J");
 			else
-				preparedStmt.setString(5, "N");
+				preparedStmt.setString(6, "N");
 
-			preparedStmt.setDouble(6, new_loc.getKoordinaten().getX());
-			preparedStmt.setDouble(7, new_loc.getKoordinaten().getY());
-
-			System.out.println(preparedStmt.toString());
+			preparedStmt.setDouble(7, new_loc.getKoordinaten().getX());
+			preparedStmt.setDouble(8, new_loc.getKoordinaten().getY());
+			String img = new_loc.getImg();
+			if(img != null)
+				preparedStmt.setString(9, img);
+			else
+				preparedStmt.setString(9, "empty blob");
+			
 			preparedStmt.execute();
 
+			
 			conn.close();
+
+			System.out.println("Location erstellt!");
+			for (Branche b : new_loc.getBranchen()) {
+				System.out.println("Branche " + b + " wird zur Location " + new_loc + " hinzugefügt . . . ");
+				LocationDAL.addBranche(new_loc, b);
+				
+			}
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten!");
 			System.err.println(e.getMessage());
 		}
 	}
+
+	public static void addBranche(Location l, Branche branche) {
+		try {
+			Connection conn = Database.connect();
+
+			String query = " insert into Location_Branche_Zuordnung values (?, ?)";
+
+			PreparedStatement preparedStmt = conn.prepareStatement(query);
+			preparedStmt.setString(1, l.getId().toString());
+			preparedStmt.setString(2, branche.getId().toString());
+
+			preparedStmt.execute();
+
+			conn.close();
+			System.out.println("Branche " + branche+ " erfolgreich zur Location " + l + " hinzugefügt!");
+		} catch (Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten!");
+			System.err.println(e.getMessage());
+		}
+	}
+
 }

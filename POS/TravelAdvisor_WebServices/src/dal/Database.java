@@ -32,7 +32,9 @@ public class Database {
  	public static Connection connect() {
 	      try {
 		      String myDriver = "oracle.jdbc.driver.OracleDriver";
-		      String myUrl = "jdbc:oracle:thin:@192.168.128.152:1521:ora11g";
+		      //212.152.179.117
+		      //192.168.128.152
+		      String myUrl = "jdbc:oracle:thin:@212.152.179.117:1521:ora11g";
 		      Class.forName(myDriver);
 		      return DriverManager.getConnection(myUrl, "d5a17", "d5a");
 		} catch (Exception e) {

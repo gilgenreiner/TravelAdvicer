@@ -13,6 +13,7 @@ public class Location {
 	private List<Branche> branchen;
 	private Besitzer besitzer;
 	private Point koordinaten;
+	private String img;
 	
 	//image[]	
 	
@@ -23,20 +24,15 @@ public class Location {
 		koordinaten = new Point();
 	}
 	
-	public String getId() throws Exception {
-		try {
-			return id.toString();
-		}
-		catch(Exception ex) {
-			throw new Exception("Location hat keine gülige UUID");
-		}
+	public UUID getId() {
+		return id;
 	}
-	public void setId(String id) throws UUIDParseException {
+	public void setId(String id) {
 		try {
 			this.id = UUID.fromString(id);
 		} 
 		catch(Exception ex) {
-			throw new UUIDParseException("UUID hat kein gültiges Format");
+			this.id = null;
 		}
 	}
 	public String getBezeichnung() {
@@ -87,6 +83,19 @@ public class Location {
 	
 	public void generateUUID() {
 		this.id = UUID.randomUUID();
+	}
+
+	public String getImg() {
+		return img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
+	}
+	
+	@Override
+	public String toString() {
+		return this.bezeichnung + " mit der id: " + this.id;
 	}
 	
 }

@@ -44,7 +44,7 @@ public class LocationDetail {
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     public Response newBook(Location new_loc) throws Exception {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
-        System.out.println("======================NEW Location: ");
+        
         
         /*
          * Pflichfelder
@@ -53,14 +53,13 @@ public class LocationDetail {
          */
         new_loc.generateUUID();
         
-        System.out.println("ID: " + new_loc.getId());
-        System.out.println("Besitzer: " + new_loc.getBesitzer());
         try {
         	if(new_loc.getBesitzer() == null)
         		throw new Exception("Location braucht einen Besitzer");
+        	System.out.println("Location wird eingefügt . . . ");
         	LocationDAL.create(new_loc);
         	response.status(Response.Status.CREATED);
-            response.entity(LocationDAL.getById(new_loc.getId()));
+            response.entity(LocationDAL.getById(new_loc.getId().toString()));
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());
@@ -80,10 +79,8 @@ public class LocationDetail {
         
         System.out.println("ID: " + new_loc.getId());
         System.out.println("Besitzer: " + new_loc.getBesitzer());
-
+        System.out.println("Image: " + new_loc.getImg());
         try {
-        	if(new_loc.getBesitzer() == null || new_loc.getBesitzer().getId() == null)
-        		throw new Exception("Location braucht einen Besitzer mit gültiger UUID");
         	response.status(Response.Status.CREATED);
             response.entity(new_loc);
         } catch (Exception e) {
@@ -95,17 +92,16 @@ public class LocationDetail {
     }
     
     
+    
     @PUT
+    @Path("{id}")
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response updateBook(Location new_loc) throws IOException {
+    public Response updateBook(@PathParam("id") String update_id, Location new_loc) throws IOException {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
-        
-        try {                    	
-        	
-
-        	LocationDAL.update(new_loc.getId(), new_loc);
+        try {
+        	LocationDAL.update(update_id, new_loc);
         	response.status(Response.Status.OK);
-            response.entity(LocationDAL.getById(new_loc.getId()));
+            response.entity(LocationDAL.getById(update_id));
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());

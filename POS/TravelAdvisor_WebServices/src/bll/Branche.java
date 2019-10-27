@@ -23,10 +23,8 @@ public class Branche {
 		super();
 		this.bezeichnung = bezeichnung;
 	}
-	public String getId() {
-		if(id == null)
-			return "";
-		return id.toString();
+	public UUID getId() {
+		return id;
 	}
 	public void setId(String id) {
 		this.id = UUID.fromString(id);
@@ -40,4 +38,10 @@ public class Branche {
 	public void generateUUID() {
 		this.id = UUID.randomUUID();
 	}
+	
+	@Override
+	public String toString() {
+		return this.bezeichnung + " mit der id: " + this.id;
+	}
+	
 }

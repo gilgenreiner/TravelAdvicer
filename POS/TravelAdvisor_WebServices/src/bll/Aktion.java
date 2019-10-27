@@ -1,29 +1,25 @@
 package bll;
 
+import java.util.UUID;
+
 public class Aktion {
-	private String id;
+	private UUID id;
 	private String bezeichnung;
 	private int punkte;
 	private boolean aktiv;
-	private String locationId;
-	
-	public Aktion(String id, String locationId, String bezeichnung, int punkte, boolean aktiv) {
-		super();
-		this.id = id;
-		this.bezeichnung = bezeichnung;
-		this.punkte = punkte;
-		this.aktiv = aktiv;
-		this.locationId = locationId;
-	}
+	private UUID locationId;
 	
 	public Aktion() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public String getId() {
-		return id;
+		return id.toString();
 	}
 	public void setId(String id) {
+		this.id = UUID.fromString(id);
+	}
+	public void setId(UUID id) {
 		this.id = id;
 	}
 	public String getBezeichnung() {
@@ -44,12 +40,18 @@ public class Aktion {
 	public void setAktiv(boolean aktiv) {
 		this.aktiv = aktiv;
 	}
-	public String getLocation() {
+	public UUID getLocation() {
 		return locationId;
 	}
 	public void setLocation(String locationId) {
+		this.locationId = UUID.fromString(locationId);
+	}
+	public void setLocation(UUID locationId) {
 		this.locationId = locationId;
 	}
-	
+
+	public void generateUUID() {
+		this.id = UUID.randomUUID();
+	}
 	
 }

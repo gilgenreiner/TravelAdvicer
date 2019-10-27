@@ -9,13 +9,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bll.Branche;
+import bll.Location;
 
 public class BrancheDAL {
+public static List<Branche> branchen;
 
 	public static List<Branche> getAll() throws SQLException {
 		Connection conn = Database.connect();
 
 		String query = "SELECT * FROM Branche";
+		Statement st = conn.createStatement();
+
+		ResultSet rs = st.executeQuery(query);
+
+		// iterate through the java resultset
+		branchen = new ArrayList<Branche>();
+
+		while (rs.next()) {
+			String id = rs.getString("id");
+			String bezeichnung = rs.getString("Bezeichnung");
+
+			Branche b = new Branche(id, bezeichnung);
+
+			branchen.add(b);
+		}
+		st.close();
+		conn.close();
+
+		return branchen;
+	}
+
+	public static List<Branche> get(Location loc) throws SQLException {
+		Connection conn = Database.connect();
+		  
+		String query = "SELECT b.id as id, b.bezeichnung as bezeichnung FROM Location_Branche_Zuordnung lbz " +
+				"inner join Branche b on b.id = lbz.id_branche " +
+				"where id_location = '" + loc.getId().toString() +"'";
+		
+		System.out.println(query);
 		Statement st = conn.createStatement();
 
 		ResultSet rs = st.executeQuery(query);
@@ -33,10 +64,24 @@ public class BrancheDAL {
 		}
 		st.close();
 		conn.close();
-
+		
 		return branchen;
 	}
+	
+	public static void removeBranchen(String id_loc) throws SQLException {		
+		Connection conn = Database.connect();
 
+		String query = "delete from Location_Branche_Zuordnung where id_location = ?";
+		PreparedStatement preparedStmt = conn.prepareStatement(query);
+		preparedStmt.setString(1,id_loc );
+
+		preparedStmt.execute();
+
+		conn.close();
+		
+	}
+	
+	
 	public static Branche getById(String id) throws Exception {
 		Connection conn = Database.connect();
 
@@ -110,7 +155,7 @@ public class BrancheDAL {
 			String query = " insert into Branche values (?, ?)";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
-			preparedStmt.setString(1, new_bra.getId());
+			preparedStmt.setString(1, new_bra.getId().toString());
 			preparedStmt.setString(2, new_bra.getBezeichnung());
 
 			preparedStmt.execute();

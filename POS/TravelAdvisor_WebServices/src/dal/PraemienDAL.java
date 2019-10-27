@@ -58,76 +58,67 @@ public class PraemienDAL {
 		return aktionen;
 	}
 
-	public static Location getById(String id) throws Exception {
+	public static Aktion getById(String id) throws Exception {
 		Connection conn = Database.connect();
 
-		String query = "SELECT  id, id_besitzer, bezeichnung, punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
-				+ "tl.koordinaten.SDO_POINT.Y as Y FROM TravelLocation tl WHERE tl.id = '" + id + "'";
+		//String query = "SELECT id_aktion, id_location, beschreibung, punkte, aktiv FROM Aktion";
+		
+		String query = "SELECT id_aktion, id_location, beschreibung, punkte, aktiv FROM Aktion WHERE id = '" + id + "'";
 
 		Statement st = conn.createStatement();
 
 		ResultSet rs = st.executeQuery(query);
 
 		// iterate through the java resultset
-		Location result = null;
+		Aktion result = null;
 		while (rs.next()) {
-			String bezeichnung = rs.getString("Bezeichnung");
-			String id_besitzer = rs.getString("id_besitzer");
+			String beschreibung = rs.getString("beschreibung");
+			String id_location = rs.getString("id_location");
 			int punkte = rs.getInt("punkte");
 			String aktiv = rs.getString("aktiv");
-			double X = rs.getDouble("X");
-			double Y = rs.getDouble("Y");
 
-			Location l = new Location();
-			l.setId(id);
-			// ToDO:
-			l.setBesitzer(null);
-			l.setBezeichnung(bezeichnung);
-			l.setPunkte(punkte);
+			Aktion a = new Aktion();
+			a.setId(id);
+			a.setBezeichnung(beschreibung);
+			a.setPunkte(punkte);
 			if (aktiv.equals("J"))
-				l.setAktiv(true);
+				a.setAktiv(true);
 			else
-				l.setAktiv(false);
+				a.setAktiv(false);
 
-			l.setKoordinaten(new Point(X, Y));
 
-			result = l;
+			result = a;
 		}
 		st.close();
 
 		if (result == null)
-			throw new Exception("Branche nicht gefunden");
+			throw new Exception("Prämie nicht gefunden");
 		return result;
 	}
 
-	public static void update(String id, Location new_loc) throws Exception {
+	public static void update(String id, Aktion new_akt) throws Exception {
 		int result = 0;
 		try {
 			Connection conn = Database.connect();
 
-			System.out.println("X: " + new_loc.getKoordinaten().getX());
-        	System.out.println("Y: " + new_loc.getKoordinaten().getY());
-        	
-			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
-					+ "NULL)";
+			
+			//String query = "SELECT id_aktion, id_location, beschreibung, punkte, aktiv FROM Aktion";
 
-			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, punkte = ?, aktiv = ?, "
-					+ " set koordinaten = " + koordinaten + " where id = ?";
+
+			String query = "update Aktion set id_location = ?, beschreibung = ?, punkte = ?, aktiv = ? where id = ?";
 			
 			
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 
-			preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
-			preparedStmt.setString(2, new_loc.getBezeichnung());
-			preparedStmt.setInt(3, new_loc.getPunkte());
-			if (new_loc.isAktiv())
+			preparedStmt.setString(1, new_akt.getLocation().toString());
+			preparedStmt.setString(2, new_akt.getBezeichnung());
+			preparedStmt.setInt(3, new_akt.getPunkte());
+			if (new_akt.isAktiv())
 				preparedStmt.setString(4, "J");
 			else
 				preparedStmt.setString(4, "N");
-			preparedStmt.setBigDecimal(5, new BigDecimal("10.000"));
-			preparedStmt.setBigDecimal(6, new BigDecimal("10.000"));
 
-			preparedStmt.setString(7, new_loc.getId());
+			preparedStmt.setString(5, new_akt.getId());
 			
 
 			result = preparedStmt.executeUpdate();
@@ -135,7 +126,7 @@ public class PraemienDAL {
 			conn.close();
 
 			if (result == 0)
-				throw new Exception("Fehler beim Updaten der Location mit der ID " + new_loc.getId());
+				throw new Exception("Fehler beim Updaten der Location mit der ID " + new_akt.getId());
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten! ");
 			System.err.println(e.getMessage());
@@ -148,7 +139,7 @@ public class PraemienDAL {
 		try {
 			Connection conn = Database.connect();
 
-			String query = "delete from TravelLocation where id = ?";
+			String query = "delete from Aktion where id = ?";
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			preparedStmt.setString(1, id);
 
@@ -161,27 +152,25 @@ public class PraemienDAL {
 		}
 	}
 
-	public static void create(Location new_loc) {
+	public static void create(Aktion new_akt) {
 		try {
+			//String query = "SELECT id_aktion, id_location, beschreibung, punkte, aktiv FROM Aktion";
+
 			Connection conn = Database.connect();
 
-			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
-					+ "NULL)";
 
-			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, " + koordinaten + ")";
+			String query = " insert into Aktion values (?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
-			preparedStmt.setString(1, new_loc.getId());
-			preparedStmt.setString(2, new_loc.getBesitzer().getId().toString());
-			preparedStmt.setString(3, new_loc.getBezeichnung());
-			preparedStmt.setInt(4, new_loc.getPunkte());
-			if (new_loc.isAktiv())
+			preparedStmt.setString(1, new_akt.getId());
+			preparedStmt.setString(2, new_akt.getLocation().toString());
+			preparedStmt.setString(3, new_akt.getBezeichnung());
+			preparedStmt.setInt(4, new_akt.getPunkte());
+			if (new_akt.isAktiv())
 				preparedStmt.setString(5, "J");
 			else
 				preparedStmt.setString(5, "N");
 
-			preparedStmt.setDouble(6, new_loc.getKoordinaten().getX());
-			preparedStmt.setDouble(7, new_loc.getKoordinaten().getY());
 
 			System.out.println(preparedStmt.toString());
 			preparedStmt.execute();
