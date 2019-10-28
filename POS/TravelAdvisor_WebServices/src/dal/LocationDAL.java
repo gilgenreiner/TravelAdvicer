@@ -59,7 +59,7 @@ public class LocationDAL {
 			l.setKoordinaten(new Point(X, Y));
 			System.out.println(l.getId().toString());
 			l.setBranchen(BrancheDAL.get(l));
-			l.setImg(img);
+			//l.setImg(img);
 
 			Locationn.add(l);
 		}
@@ -138,7 +138,6 @@ public class LocationDAL {
 		try {
 			Connection conn = Database.connect();
 
-			System.out.println("Besitzer: " + new_loc.getBesitzer().getId().toString());
 			System.out.println("Bezeichnung: " + new_loc.getBezeichnung());
 			System.out.println("Punkte: " + new_loc.getPunkte());
 
@@ -149,7 +148,11 @@ public class LocationDAL {
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 
-			preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
+			if(new_loc.getBesitzer() != null)
+				preparedStmt.setString(1, new_loc.getBesitzer().getId().toString());
+			else
+				preparedStmt.setString(1, null);
+
 			preparedStmt.setString(2, new_loc.getBezeichnung());
 			preparedStmt.setString(3, new_loc.getBeschreibung());
 			preparedStmt.setInt(4, new_loc.getPunkte());
@@ -186,6 +189,7 @@ public class LocationDAL {
 
 	public static void delete(String id) {
 		try {
+			BrancheDAL.removeBranchen(id);
 			Connection conn = Database.connect();
 
 			String query = "delete from TravelLocation where id = ?";
@@ -208,7 +212,9 @@ public class LocationDAL {
 			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
 					+ "NULL)";
 
-			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, ?, " + koordinaten + ", utl_raw.cast_to_raw(?))";
+			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, ?, " + koordinaten + ""
+					+ ", utl_raw.cast_to_raw(?)"
+					+ ")";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			preparedStmt.setString(1, new_loc.getId().toString());
@@ -223,10 +229,11 @@ public class LocationDAL {
 
 			preparedStmt.setDouble(7, new_loc.getKoordinaten().getX());
 			preparedStmt.setDouble(8, new_loc.getKoordinaten().getY());
+			/*
 			String img = new_loc.getImg();
 			if(img != null)
 				preparedStmt.setString(9, img);
-			else
+			else*/
 				preparedStmt.setString(9, "empty blob");
 			
 			preparedStmt.execute();

@@ -79,7 +79,7 @@ public class LocationDetail {
         
         System.out.println("ID: " + new_loc.getId());
         System.out.println("Besitzer: " + new_loc.getBesitzer());
-        System.out.println("Image: " + new_loc.getImg());
+        System.out.println("Image: " + new_loc.getImg().toString());
         try {
         	response.status(Response.Status.CREATED);
             response.entity(new_loc);
@@ -135,6 +135,12 @@ public class LocationDetail {
         return response.build();
     }
     
-    
+    @OPTIONS
+    @Path("{id}")
+    public Response preflightWithId() {
+    	Response.ResponseBuilder response = Response.status(Response.Status.OK);
+
+        return response.build();
+    }
     
 }

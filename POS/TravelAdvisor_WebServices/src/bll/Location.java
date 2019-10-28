@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sun.jersey.core.util.Base64;
+
 public class Location {
 	private UUID id;
 	private String bezeichnung;
@@ -13,7 +15,7 @@ public class Location {
 	private List<Branche> branchen;
 	private Besitzer besitzer;
 	private Point koordinaten;
-	private String img;
+	private Base64 img;
 	
 	//image[]	
 	
@@ -85,11 +87,11 @@ public class Location {
 		this.id = UUID.randomUUID();
 	}
 
-	public String getImg() {
+	public Base64 getImg() {
 		return img;
 	}
 
-	public void setImg(String img) {
+	public void setImg(Base64 img) {
 		this.img = img;
 	}
 	
