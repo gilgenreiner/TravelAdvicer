@@ -51,7 +51,10 @@ export default {
   },
   watch: {
     isLoadingLocations() {
-      if (this.isLoadingLocations == false && this.isDoUpdateButtonPressed == true) {
+      if (
+        this.isLoadingLocations == false &&
+        this.isDoUpdateButtonPressed == true
+      ) {
         this.isDoUpdateButtonPressed = false;
         this.$router.push({ name: this.component });
       }
@@ -62,7 +65,7 @@ export default {
     doUpdateLocation() {
       this.$refs.details.validate();
       if (this.$refs.details.valid === true) {
-        this.updateLocationById(this.selectedLocation);
+        this.updateLocationById(this.getSelectedLocation);
         this.isDoUpdateButtonPressed = true;
       }
     },

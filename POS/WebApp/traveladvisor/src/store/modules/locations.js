@@ -1,8 +1,7 @@
 import axiosWithLoader from '../../http';
 import axios from 'axios';
 
-//const baseURL = 'http://192.168.179.132:8080';
-const baseURL = 'http://192.168.191.8:8080';
+const baseURL = 'http://10.0.0.45:8080';
 
 const state = {
     locations: [],
@@ -44,7 +43,7 @@ const actions = {
     },
     updateLocationById({ commit }, location) {
         commit('updateStateLoadingLocations', true);
-        axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, location)
+        axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${location.id}`, location)
             .then(response => {
                 commit('updateStateLoadingLocations', false);
                 commit('updateLocation', response.data);
