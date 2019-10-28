@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 import LocationListItem from "@/components/LocationListItem";
 
@@ -24,12 +24,9 @@ export default {
   components: {
     LocationListItem
   },
-  methods: {
-    ...mapActions(["loadLocations"])
-  },
   computed: mapGetters(["allLocations"]),
   created() {
-    this.loadLocations();
+    this.$store.dispatch("loadLocations");
   }
 };
 </script>

@@ -9,7 +9,10 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetail ref="details" :selectedLocation.sync="getSelectedLocation" />
+        <LocationDetail
+          ref="details"
+          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation"
+        />
       </v-col>
       <v-col cols="8">
         <Map
@@ -30,7 +33,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
 import LocationDetail from "@/components/LocationDetail";
@@ -43,17 +46,24 @@ export default {
   },
   data() {
     return {
-      backup: {},
       mode: "update",
       isDoUpdateButtonPressed: false,
-      component: "Locations"
+      component: "Locations",
+      defaultLocation: {
+        bezeichnung: "",
+        beschreibung: "",
+        aktiv: false,
+        punkte: 0,
+        branchen: [],
+        koordinaten: { x: 0, y: 0 }
+      }
     };
   },
   watch: {
     isLoadingLocations() {
       if (
-        this.isLoadingLocations == false &&
-        this.isDoUpdateButtonPressed == true
+        this.isLoadingLocations === false &&
+        this.isDoUpdateButtonPressed === true
       ) {
         this.isDoUpdateButtonPressed = false;
         this.$router.push({ name: this.component });
@@ -61,11 +71,10 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["loadLocationById", "updateLocationById"]),
     doUpdateLocation() {
       this.$refs.details.validate();
       if (this.$refs.details.valid === true) {
-        this.updateLocationById(this.getSelectedLocation);
+        this.$store.dispatch("updateLocationById", this.getSelectedLocation);
         this.isDoUpdateButtonPressed = true;
       }
     },
@@ -79,6 +88,11 @@ export default {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
       )[0];
+    }
+  },
+  created() {
+    if (this.allLocations.length == 0) {
+      this.$store.dispatch("loadLocationById", this.$route.params.id);
     }
   }
 };

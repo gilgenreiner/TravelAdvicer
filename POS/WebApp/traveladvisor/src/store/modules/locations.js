@@ -5,13 +5,11 @@ const baseURL = 'http://10.0.0.45:8080';
 
 const state = {
     locations: [],
-    selectedLocation: {},
     isLoadingLocations: false
 };
 
 const getters = {
     allLocations: state => state.locations,
-    selectedLocation: state => state.selectedLocation,
     isLoadingLocations: state => state.isLoadingLocations
 };
 
@@ -26,44 +24,34 @@ const actions = {
     },
     loadLocationById({ commit }, id) {
         axiosWithLoader.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`)
-            .then(response => commit('setSingleLocation', response.data))
+            .then(response => commit('setLocations', new Array(response.data)))
             .catch(err => console.log(err));
     },
     addLocation({ commit }, location) {
         commit('updateStateLoadingLocations', true);
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, location)
-            .then(response => {
-                commit('updateStateLoadingLocations', false);
-                commit('addLocation', response.data);
-            })
-            .catch(err => {
-                console.log(err);
-                commit('updateStateLoadingLocations', false);
-            });
+            .then(response => commit('addLocation', response.data))
+            .catch(err => console.log(err))
+            .finally(() => commit('updateStateLoadingLocations', false));
     },
     updateLocationById({ commit }, location) {
         commit('updateStateLoadingLocations', true);
         axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${location.id}`, location)
-            .then(response => {
-                commit('updateStateLoadingLocations', false);
-                commit('updateLocation', response.data);
-            })
-            .catch(err => {
-                console.log(err);
-                commit('updateStateLoadingLocations', false);
-            });
+            .then(response => commit('updateLocation', response.data))
+            .catch(err => console.log(err))
+            .finally(() => commit('updateStateLoadingLocations', false));
     },
-    async deleteLocation({ commit }, id) {
-        const response = await axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
-
-        commit('deleteLocation', id)
-        //commit('deleteLocation', id);
+    deleteLocation({ commit }, id) {
+        commit('updateStateLoadingLocations', true);
+        axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`)
+            .then(response => commit('deleteLocation', id))
+            .catch(err => console.log(err))
+            .finally(() => commit('updateStateLoadingLocations', false));
     }
 };
 
 const mutations = {
     setLocations: (state, locations) => (state.locations = locations),
-    setSingleLocation: (state, location) => (state.selectedLocation = location),
     addLocation: (state, location) => (state.locations.push(location)),
     updateLocation: (state, location) => {
         const index = state.locations.findIndex(l => l.id === location.id);

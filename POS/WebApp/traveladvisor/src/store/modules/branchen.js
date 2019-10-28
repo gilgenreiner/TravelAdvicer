@@ -16,14 +16,9 @@ const actions = {
     loadBranchen({ commit }) {
         commit('updateStateLoadingBranchen', true);
         axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/brancheList`)
-            .then(response => {
-                commit('updateStateLoadingBranchen', false);
-                commit('setBranchen', response.data);
-            })
-            .catch(err => {
-                console.log(err);
-                commit('updateStateLoadingBranchen', false);
-            });
+            .then(response => commit('setBranchen', response.data))
+            .catch(err => console.log(err))
+            .finally(() => commit('updateStateLoadingBranchen', false));
     }
 };
 

@@ -9,7 +9,9 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetailReadonly :selectedLocation.sync="getSelectedLocation" />
+        <LocationDetailReadonly
+          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation"
+        />
       </v-col>
       <v-col cols="8">
         <Map
@@ -24,7 +26,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
 import LocationDetailReadonly from "@/components/LocationDetailReadonly";
@@ -39,11 +41,16 @@ export default {
     return {
       backup: {},
       mode: "showDetails",
-      component: "Map"
+      component: "Map",
+      defaultLocation: {
+        bezeichnung: "",
+        beschreibung: "",
+        aktiv: false,
+        punkte: 0,
+        branchen: [],
+        koordinaten: { x: 0, y: 0 }
+      }
     };
-  },
-  methods: {
-    ...mapActions(["loadLocationById"])
   },
   computed: {
     ...mapGetters(["allLocations"]),
@@ -51,6 +58,11 @@ export default {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
       )[0];
+    }
+  },
+  created() {
+    if (this.allLocations.length === 0) {
+      this.$store.dispatch("loadLocationById", this.$route.params.id);
     }
   }
 };

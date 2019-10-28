@@ -78,7 +78,7 @@ export default {
     drawPoints: function() {
       this.map.removeObjects(this.map.getObjects());
       for (let i = 0; i < this.locations.length; i++) {
-        if (this.locations[i].aktiv === true) {
+        if (this.locations[i].aktiv === true && this.mode === "show") {
           let coords = {
             lat: this.locations[i].koordinaten.X,
             lng: this.locations[i].koordinaten.Y

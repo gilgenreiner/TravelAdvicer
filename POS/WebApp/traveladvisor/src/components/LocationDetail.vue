@@ -5,6 +5,7 @@
         <v-img
           class="white--text align-end"
           height="200px"
+          gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
           :src="`https://x.kinja-static.com/assets/images/logos/placeholders/default.png`"
           :key="selectedLocation.img"
           @click="pickFile"
@@ -69,7 +70,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
   name: "LocationDetail",
@@ -89,7 +90,6 @@ export default {
     selectedLocation: Object
   },
   methods: {
-    ...mapActions(["loadBranchen"]),
     pickFile() {
       this.$refs.image.click();
     },
@@ -112,7 +112,7 @@ export default {
   },
   computed: mapGetters(["allBranchen", "isLoadingBranchen"]),
   created() {
-    this.loadBranchen();
+    this.$store.dispatch("loadBranchen");
   }
 };
 </script>

@@ -7,6 +7,12 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.config.productionTip = false
 
+//filter
+Vue.filter('shorterText', (value) => {
+  if (value.length <= 59) return value;
+  return value.slice(0, 56) + "...";
+});
+
 new Vue({
   vuetify,
   router,

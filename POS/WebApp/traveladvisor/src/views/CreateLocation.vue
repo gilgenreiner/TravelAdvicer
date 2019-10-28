@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
 import LocationDetail from "@/components/LocationDetail";
@@ -60,18 +60,20 @@ export default {
   },
   watch: {
     isLoadingLocations() {
-      if (this.isLoadingLocations == false && this.isDoCreateButtonPressed == true) {
+      if (
+        this.isLoadingLocations === false &&
+        this.isDoCreateButtonPressed === true
+      ) {
         this.isDoCreateButtonPressed = false;
         this.$router.push({ name: this.component });
       }
     }
   },
   methods: {
-    ...mapActions(["addLocation"]),
     doAddLocation() {
       this.$refs.details.validate();
       if (this.$refs.details.valid === true) {
-        this.addLocation(this.defaultLocation);
+        this.$store.dispatch("addLocation", this.defaultLocation);
         this.isDoCreateButtonPressed = true;
       }
     },
