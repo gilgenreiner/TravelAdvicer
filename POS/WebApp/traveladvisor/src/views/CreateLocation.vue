@@ -9,7 +9,7 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetail ref="details" :selectedLocation.sync="defaultLocation" :mode="mode" />
+        <LocationDetail ref="details" :selectedLocation.sync="defaultLocation" />
       </v-col>
       <v-col cols="8">
         <Map
@@ -24,7 +24,7 @@
     <v-row class="buttons">
       <v-col cols="12">
         <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
-        <v-btn @click="doAddLocation()" :loading="isLoading">Location hinzufügen</v-btn>
+        <v-btn @click="doAddLocation()" :loading="isLoadingLocations">Location hinzufügen</v-btn>
       </v-col>
     </v-row>
   </div>
@@ -59,8 +59,8 @@ export default {
     };
   },
   watch: {
-    isLoading() {
-      if (this.isLoading == false && this.isDoCreateButtonPressed == true) {
+    isLoadingLocations() {
+      if (this.isLoadingLocations == false && this.isDoCreateButtonPressed == true) {
         this.isDoCreateButtonPressed = false;
         this.$router.push({ name: this.component });
       }
@@ -70,7 +70,6 @@ export default {
     ...mapActions(["addLocation"]),
     doAddLocation() {
       this.$refs.details.validate();
-      this.$refs.map.validate();
       if (this.$refs.details.valid === true) {
         this.addLocation(this.defaultLocation);
         this.isDoCreateButtonPressed = true;
@@ -81,7 +80,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["isLoading"])
+    ...mapGetters(["isLoadingLocations"])
   }
 };
 </script>

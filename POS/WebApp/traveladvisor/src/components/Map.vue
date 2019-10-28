@@ -1,15 +1,13 @@
 <template>
   <div>
-    <v-form ref="form" v-model="valid">
-      <v-card :elevation="4" :rules="[rules.required]">
-        <div class="map">
-          <div
-            :style="`width: ${this.width}; height: ${this.height}; z-index=auto`"
-            id="mapContainer"
-          />
-        </div>
-      </v-card>
-    </v-form>
+    <v-card :elevation="4">
+      <div class="map">
+        <div
+          :style="`width: ${this.width}; height: ${this.height}; z-index=auto`"
+          id="mapContainer"
+        />
+      </div>
+    </v-card>
   </div>
 </template>
 
@@ -20,7 +18,6 @@ export default {
   name: "Map",
   data: function() {
     return {
-      valid: false,
       platform: null,
       map: null,
       behavior: null,
@@ -28,12 +25,7 @@ export default {
       defaultLayers: null,
       mapEvents: null,
       center_lat: 46.608449,
-      center_lng: 13.850268,
-      rules: {
-        required: v =>
-          (this.allLocations[0].X != 0 && this.allLocations.Y != 0) ||
-          "Dieses Feld ist verpflichtend"
-      }
+      center_lng: 13.850268
     };
   },
   props: {
@@ -68,7 +60,7 @@ export default {
   },
   watch: {
     locations() {
-      if (this.mode === "show") {
+      if (this.mode === "show" || this.mode === "showDetails") {
         this.drawPoints();
       }
       if (this.mode === "create") {
@@ -103,7 +95,7 @@ export default {
             <img src="${this.locations[i].img}" width="350" height="200">
             <h2>${this.locations[i].bezeichnung}</h2>
             <a style="border: 0; background: none; box-shadow: none; border-radius: 0px;" 
-            href="http://localhost:8081/locations/${this.locations[i].id}">Mehr details anzeigen</a></div>`
+            :to="http://localhost:8080/locations/view/${this.locations[i].id}">Mehr details anzeigen</a></div>`
             );
             marker.addEventListener(
               "tap",

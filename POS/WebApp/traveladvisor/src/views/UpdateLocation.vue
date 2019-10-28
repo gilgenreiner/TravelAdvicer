@@ -9,7 +9,7 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetail ref="details" :selectedLocation.sync="getSelectedLocation" :mode="mode" />
+        <LocationDetail ref="details" :selectedLocation.sync="getSelectedLocation" />
       </v-col>
       <v-col cols="8">
         <Map
@@ -23,7 +23,7 @@
     <v-row class="buttons">
       <v-col cols="12">
         <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
-        <v-btn @click="doUpdateLocation()" :loading="isLoading">Location aktualisieren</v-btn>
+        <v-btn @click="doUpdateLocation()" :loading="isLoadingLocations">Location aktualisieren</v-btn>
       </v-col>
     </v-row>
   </div>
@@ -45,12 +45,13 @@ export default {
     return {
       backup: {},
       mode: "update",
-      isDoUpdateButtonPressed: false
+      isDoUpdateButtonPressed: false,
+      component: "Locations"
     };
   },
   watch: {
-    isLoading() {
-      if (this.isLoading == false && this.isDoUpdateButtonPressed == true) {
+    isLoadingLocations() {
+      if (this.isLoadingLocations == false && this.isDoUpdateButtonPressed == true) {
         this.isDoUpdateButtonPressed = false;
         this.$router.push({ name: this.component });
       }
@@ -69,14 +70,8 @@ export default {
       this.$router.push({ name: this.component });
     }
   },
-  props: {
-    component: {
-      default: "Map",
-      type: String
-    }
-  },
   computed: {
-    ...mapGetters(["allLocations", "isLoading"]),
+    ...mapGetters(["allLocations", "isLoadingLocations"]),
     getSelectedLocation() {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id

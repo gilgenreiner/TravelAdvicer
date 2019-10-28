@@ -5,7 +5,7 @@
         <v-img
           class="white--text align-end"
           height="200px"
-          :src="selectedLocation.img || `https://x.kinja-static.com/assets/images/logos/placeholders/default.png`"
+          :src="`https://x.kinja-static.com/assets/images/logos/placeholders/default.png`"
           :key="selectedLocation.img"
           @click="pickFile"
           aspect-ratio="2"
@@ -27,7 +27,6 @@
               v-model="selectedLocation.bezeichnung"
               @change="$emit('update:selectedLocation.bezeichnung', selectedLocation.bezeichnung)"
               label="Bezeichnung"
-              :readonly="mode === 'show'"
               :rules="[rules.required, rules.length(100)]"
               counter="100"
             />
@@ -35,7 +34,6 @@
               v-model="selectedLocation.beschreibung"
               @change="$emit('update:selectedLocation.beschreibung', selectedLocation.beschreibung)"
               label="Beschreibung"
-              :readonly="mode === 'show'"
               :rules="[rules.required, rules.length(400)]"
               counter="400"
             />
@@ -47,7 +45,7 @@
               label="Branch(en)"
               multiple
               return-object
-              :readonly="mode === 'show'"
+              :loading="isLoadingBranchen"
               :rules="[rules.emptyArray]"
             />
             <v-text-field
@@ -55,7 +53,6 @@
               @change="$emit('update:selectedLocation.punkte', selectedLocation.punkte)"
               label="Punkte pro Besuch"
               type="number"
-              :readonly="mode === 'show'"
               :rules="[rules.required]"
             />
             <v-checkbox
@@ -63,7 +60,6 @@
               @change="$emit('update:selectedLocation.aktiv', selectedLocation.aktiv)"
               :label="`Die Location ist ${(selectedLocation.aktiv === true) ? 'aktiviert' : 'deaktiviert'}`"
               type="checkbox"
-              v-show="mode !== 'show'"
             ></v-checkbox>
           </v-form>
         </v-card-text>
@@ -90,15 +86,12 @@ export default {
     };
   },
   props: {
-    selectedLocation: Object,
-    mode: String
+    selectedLocation: Object
   },
   methods: {
     ...mapActions(["loadBranchen"]),
     pickFile() {
-      if (this.mode !== "show") {
-        this.$refs.image.click();
-      }
+      this.$refs.image.click();
     },
     onFilePicked(e) {
       const files = e.target.files;
@@ -117,7 +110,7 @@ export default {
       this.$refs.form.validate();
     }
   },
-  computed: mapGetters(["allBranchen"]),
+  computed: mapGetters(["allBranchen", "isLoadingBranchen"]),
   created() {
     this.loadBranchen();
   }

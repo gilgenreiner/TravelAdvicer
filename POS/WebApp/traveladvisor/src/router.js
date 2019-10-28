@@ -5,6 +5,7 @@ import Account from '@/views/Account.vue'
 import Locations from '@/views/Locations.vue'
 import UpdateLocation from '@/views/UpdateLocation.vue'
 import CreateLocation from '@/views/CreateLocation.vue'
+import ShowLocation from '@/views/ShowLocation.vue'
 import PageNotFound from '@/components/error/PageNotFound.vue'
 
 Vue.use(Router)
@@ -28,10 +29,15 @@ const router = new Router({
       component: Locations
     },
     {
+      path: '/locations/view/:id',
+      name: 'Location anzeigen',
+      component: ShowLocation,
+      props: true
+    },
+    {
       path: '/locations/update/:id',
       name: 'Location aktualisieren',
-      component: UpdateLocation,
-      props: true
+      component: UpdateLocation
     },
     {
       path: '/locations/create',

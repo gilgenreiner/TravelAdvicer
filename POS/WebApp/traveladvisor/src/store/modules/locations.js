@@ -1,18 +1,19 @@
 import axiosWithLoader from '../../http';
 import axios from 'axios';
 
-const baseURL = 'http://192.168.179.132:8080';
+//const baseURL = 'http://192.168.179.132:8080';
+const baseURL = 'http://192.168.191.8:8080';
 
 const state = {
     locations: [],
     selectedLocation: {},
-    isLoading: false
+    isLoadingLocations: false
 };
 
 const getters = {
     allLocations: state => state.locations,
     selectedLocation: state => state.selectedLocation,
-    isLoading: state => state.isLoading
+    isLoadingLocations: state => state.isLoadingLocations
 };
 
 const actions = {
@@ -30,22 +31,28 @@ const actions = {
             .catch(err => console.log(err));
     },
     addLocation({ commit }, location) {
-        commit('updateStateLoading', true);
+        commit('updateStateLoadingLocations', true);
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, location)
             .then(response => {
-                commit('updateStateLoading', false);
+                commit('updateStateLoadingLocations', false);
                 commit('addLocation', response.data);
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err);
+                commit('updateStateLoadingLocations', false);
+            });
     },
     updateLocationById({ commit }, location) {
-        commit('updateStateLoading', true);
+        commit('updateStateLoadingLocations', true);
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, location)
             .then(response => {
-                commit('updateStateLoading', false);
+                commit('updateStateLoadingLocations', false);
                 commit('updateLocation', response.data);
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err);
+                commit('updateStateLoadingLocations', false);
+            });
     },
     async deleteLocation({ commit }, id) {
         const response = await axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
@@ -64,7 +71,7 @@ const mutations = {
         if (index !== -1) state.locations.splice(index, 1, location);
     },
     deleteLocation: (state, id) => (state.locations = state.locations.filter(location => location.id !== id)),
-    updateStateLoading: (state, updateLoading) => (state.isLoading = updateLoading)
+    updateStateLoadingLocations: (state, updateLoading) => (state.isLoadingLocations = updateLoading)
 };
 
 export default {

@@ -4,7 +4,7 @@
       <v-img
         class="white--text align-end"
         height="200px"
-        :src="location.img || 'https://x.kinja-static.com/assets/images/logos/placeholders/default.png'"
+        :src="'https://x.kinja-static.com/assets/images/logos/placeholders/default.png'"
         aspect-ratio="2"
       >
         <v-card-title>{{ location.bezeichnung }}</v-card-title>
@@ -12,7 +12,7 @@
       <v-card-text class="black--text">
         <p>{{ location.beschreibung }}</p>
         <div class="btn">
-          <v-btn icon :to="{ name: 'Location aktualisieren', params: { id: location.id }}">
+          <v-btn icon :to="{ name: 'Location anzeigen', params: { id: location.id }}">
             <v-icon>expand_more</v-icon>
           </v-btn>
           <v-btn icon :to="{ name: 'Location aktualisieren', params: { id: location.id }}">
