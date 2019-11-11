@@ -53,7 +53,7 @@ export default {
       { icon: "home", text: "Home", to: "/" },
       { icon: "person", text: "Account", to: "/account" },
       { icon: "room", text: "Locations", to: "/locations" },
-      { icon: "card_giftcard", text: "Prämien", to: "/gifts" }
+      { icon: "card_giftcard", text: "Prämien", to: "/bonuses" }
     ]
   })
 };

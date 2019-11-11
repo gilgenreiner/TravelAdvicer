@@ -7,6 +7,7 @@ import UpdateLocation from '@/views/UpdateLocation.vue'
 import CreateLocation from '@/views/CreateLocation.vue'
 import ShowLocation from '@/views/ShowLocation.vue'
 import PageNotFound from '@/components/error/PageNotFound.vue'
+import Bonuses from '@/views/Bonuses.vue'
 
 Vue.use(Router)
 
@@ -43,6 +44,11 @@ const router = new Router({
       path: '/locations/create',
       name: 'Location erstellen',
       component: CreateLocation
+    },
+    {
+      path: '/bonuses',
+      name: 'Bonuses',
+      component: Bonuses
     },
     {
       path: "*",
