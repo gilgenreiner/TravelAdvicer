@@ -24,7 +24,14 @@ export default {
   components: {
     LocationListItem
   },
-  computed: mapGetters(["allLocations"]),
+  computed: mapGetters(["allLocations", "error"]),
+  watch: {
+    error() {
+      if (error != null) {
+        alert(this.error);
+      }
+    }
+  },
   created() {
     this.$store.dispatch("loadLocations");
   }

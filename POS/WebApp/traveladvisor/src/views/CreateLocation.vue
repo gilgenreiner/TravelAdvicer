@@ -12,13 +12,18 @@
         <LocationDetail ref="details" :selectedLocation.sync="defaultLocation" />
       </v-col>
       <v-col cols="8">
-        <Map
-          ref="map"
-          :width="'100%'"
-          :height="'676px'"
-          :locations="new Array(defaultLocation)"
-          :mode="mode"
-        />
+        <v-hover v-slot:default="{ hover }">
+          <v-card :elevation="hover ? 12 : 4">
+            <Map
+              ref="map"
+              :width="'100%'"
+              :height="'676px'"
+              :locations="new Array(defaultLocation)"
+              :center="[13.844549, 46.614073]"
+              :mode.sync="mode"
+            />
+          </v-card>
+        </v-hover>
       </v-col>
     </v-row>
     <v-row class="buttons">
@@ -72,7 +77,8 @@ export default {
   methods: {
     doAddLocation() {
       this.$refs.details.validate();
-      if (this.$refs.details.valid === true) {
+      this.$refs.map.validate();
+      if (this.$refs.details.valid === true && this.$refs.map.valid) {
         this.$store.dispatch("addLocation", this.defaultLocation);
         this.isDoCreateButtonPressed = true;
       }

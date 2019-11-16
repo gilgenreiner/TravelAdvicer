@@ -5,12 +5,14 @@ const baseURL = 'http://10.0.0.45:8080';
 
 const state = {
     locations: [],
-    isLoadingLocations: false
+    isLoadingLocations: false,
+    error: {}
 };
 
 const getters = {
     allLocations: state => state.locations,
-    isLoadingLocations: state => state.isLoadingLocations
+    isLoadingLocations: state => state.isLoadingLocations,
+    error: state => state.error
 };
 
 const actions = {
@@ -20,7 +22,7 @@ const actions = {
             .then(response => {
                 commit('setLocations', response.data)
             })
-            .catch(err => console.log(err));
+            .catch(err => commit('errorOccurred', err));
     },
     loadLocationById({ commit }, id) {
         axiosWithLoader.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`)
@@ -58,7 +60,8 @@ const mutations = {
         if (index !== -1) state.locations.splice(index, 1, location);
     },
     deleteLocation: (state, id) => (state.locations = state.locations.filter(location => location.id !== id)),
-    updateStateLoadingLocations: (state, updateLoading) => (state.isLoadingLocations = updateLoading)
+    updateStateLoadingLocations: (state, updateLoading) => (state.isLoadingLocations = updateLoading),
+    errorOccurred: (state, error) => (state.error = error)
 };
 
 export default {
