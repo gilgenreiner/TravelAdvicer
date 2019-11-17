@@ -1,6 +1,7 @@
 package service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,19 +19,19 @@ import com.google.gson.Gson;
 
 import bll.Aktion;
 import bll.Error404;
-import bll.Location;
-import dal.LocationDAL;
+import bll.Rezension;
 import dal.PraemienDAL;
+import dal.RezensionenDAL;
 
-@Path("praemienDetail")
-public class PraemienDetail {
+@Path("rezensionenDetail")
+public class RezensionenDetail {
 	@GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getById(@PathParam("id") String id) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-            response.entity(new Gson().toJson(PraemienDAL.getById(id)));
+            response.entity(new Gson().toJson(RezensionenDAL.getById(id)));
         } catch (Exception e) {
             response.status(Response.Status.NOT_FOUND);
             response.entity("[ERROR] " + e.getMessage());
@@ -42,18 +43,16 @@ public class PraemienDetail {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public Response newBook(Aktion new_akt) throws Exception {
+    public Response newBook(Rezension new_rez) throws Exception {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
-        System.out.println("======================NEW Prämie: ");
+        System.out.println("======================NEW Rezension: ");
+        new_rez.generateId();
+        new_rez.setTimestamp(new Timestamp(System.currentTimeMillis()));
         
-        new_akt.generateUUID();
-        /*
-         * Prämie braucht übergeordnete Location
-         */
         try {
-        	PraemienDAL.create(new_akt);
+        	RezensionenDAL.create(new_rez);
         	response.status(Response.Status.CREATED);
-            response.entity(PraemienDAL.getById(new_akt.getId()));
+            response.entity(RezensionenDAL.getById(new_rez.getId().toString()));
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());
@@ -67,18 +66,19 @@ public class PraemienDetail {
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response updateBook(@PathParam("id") String update_id, Aktion upd_akt) throws IOException {
+    public Response updateBook(@PathParam("id") String id, Rezension upd_rez) throws IOException {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         
-        try {                   
-        	PraemienDAL.getById(update_id);
-        	PraemienDAL.update(update_id, upd_akt);
+        try {                
+        	RezensionenDAL.getById(id);
+        	upd_rez.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        	RezensionenDAL.update(id, upd_rez);
         	response.status(Response.Status.OK);
-            response.entity(PraemienDAL.getById(update_id));
+            response.entity(RezensionenDAL.getById(id));
         } 
         catch(Error404 e) {
         	response.status(Response.Status.NOT_FOUND);
-            response.entity("[ERROR] " + e.getMessage());
+        	response.entity("[ERROR] " + e.getMessage());
         }
         catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
@@ -90,23 +90,23 @@ public class PraemienDetail {
     
     @DELETE
     @Path("{id}")
-    public Response deleteArticle(@PathParam("id") String delete_id)throws IOException {
+    public Response deleteArticle(@PathParam("id") String id)throws IOException {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
 
         try {
-        	PraemienDAL.getById(delete_id);
-        	PraemienDAL.delete(delete_id);
+        	RezensionenDAL.getById(id);
+        	RezensionenDAL.delete(id);
         	response.status(Response.Status.NO_CONTENT);
-            response.entity("Prämie deleted");
-        }  catch(Error404 e) {
-        	response.status(Response.Status.NOT_FOUND);
+            response.entity("Rezension deleted");
+        } catch (Error404 e) {
+            response.status(Response.Status.NOT_FOUND);
             response.entity("[ERROR] " + e.getMessage());
         }
         catch (Exception e) {
-            response.status(Response.Status.BAD_REQUEST);
+            response.status(Response.Status.NOT_FOUND);
             response.entity("[ERROR] " + e.getMessage());
         }
-        
+
         return response.build();
     }
     
@@ -125,5 +125,4 @@ public class PraemienDetail {
 
         return response.build();
     }
-    
 }

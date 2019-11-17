@@ -19,7 +19,10 @@ import com.google.gson.Gson;
 import bll.Branche;
 import bll.Location;
 import dal.BrancheDAL;
+import dal.Database;
 import dal.LocationDAL;
+import dal.PraemienDAL;
+import dal.RezensionenDAL;
 
 @Path("locationDetail")
 public class LocationDetail {
@@ -38,7 +41,38 @@ public class LocationDetail {
         System.out.println("======================webservice GET called");
         return response.build();
     }
+	
+	@GET
+    @Path("{id}/praemien")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getPraemienByLocation(@PathParam("id") String loc_id) {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        try {
+            response.entity(new Gson().toJson(PraemienDAL.getByLocation(loc_id)));
+        } catch (Exception e) {
+            response.status(Response.Status.NOT_FOUND);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+        System.out.println("======================webservice GET called");
+        return response.build();
+    }
     
+	
+	@GET
+    @Path("{id}/rezensionen")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getRezensionenByLocation(@PathParam("id") String loc_id) {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        try {
+            response.entity(new Gson().toJson(RezensionenDAL.getByLocation(loc_id)));
+        } catch (Exception e) {
+            response.status(Response.Status.NOT_FOUND);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+        System.out.println("======================webservice GET called");
+        return response.build();
+    }
+	
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
@@ -129,15 +163,15 @@ public class LocationDetail {
     
     
     @OPTIONS
-    public Response preflight() {
+    @Path("/{id}")
+    public Response preflightWithId() {
     	Response.ResponseBuilder response = Response.status(Response.Status.OK);
 
         return response.build();
     }
     
     @OPTIONS
-    @Path("{id}")
-    public Response preflightWithId() {
+    public Response preflight() {
     	Response.ResponseBuilder response = Response.status(Response.Status.OK);
 
         return response.build();

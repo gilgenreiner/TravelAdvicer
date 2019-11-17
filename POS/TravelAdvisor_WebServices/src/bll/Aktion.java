@@ -40,13 +40,13 @@ public class Aktion {
 	public void setAktiv(boolean aktiv) {
 		this.aktiv = aktiv;
 	}
-	public UUID getLocation() {
+	public UUID getLocationId() {
 		return locationId;
 	}
-	public void setLocation(String locationId) {
+	public void setLocationId(String locationId) {
 		this.locationId = UUID.fromString(locationId);
 	}
-	public void setLocation(UUID locationId) {
+	public void setLocationId(UUID locationId) {
 		this.locationId = locationId;
 	}
 

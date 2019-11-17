@@ -29,18 +29,19 @@ public class Database {
 	
 
  	
- 	public static Connection connect() {
+ 	public static Connection connect() throws SQLException {
 	      try {
 		      String myDriver = "oracle.jdbc.driver.OracleDriver";
 		      //212.152.179.117
-		      //192.168.128.152
+		      //10.0.6.111
 		      String myUrl = "jdbc:oracle:thin:@212.152.179.117:1521:ora11g";
 		      Class.forName(myDriver);
-		      return DriverManager.getConnection(myUrl, "d5a17", "d5a");
+		      conn = DriverManager.getConnection(myUrl, "d5a17", "d5a");
+		      return conn;
 		} catch (Exception e) {
 			System.err.println("Got an exception when connecting to DB! ");
 			System.err.println(e.getMessage());
 			return null;
-		}
+		} 
 	}
 }

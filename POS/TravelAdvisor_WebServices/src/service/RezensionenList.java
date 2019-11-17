@@ -11,14 +11,14 @@ import javax.ws.rs.core.UriInfo;
 import com.google.gson.Gson;
 
 import dal.BrancheDAL;
+import dal.RezensionenDAL;
 
-@Path("brancheList")
-public class BrancheList {
-
+@Path("rezensionenList")
+public class RezensionenList {
 	@Context
     private UriInfo context;
 	
-	public BrancheList() {
+	public RezensionenList() {
     }
     
     @GET
@@ -27,7 +27,7 @@ public class BrancheList {
     	System.out.println("======================webservice GET called");
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-            response.entity(new Gson().toJson(BrancheDAL.getAll()));
+            response.entity(new Gson().toJson(RezensionenDAL.getAll()));
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());
