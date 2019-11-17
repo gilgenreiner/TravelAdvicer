@@ -11,6 +11,7 @@ const state = {
 
 const getters = {
     allLocations: state => state.locations,
+    allActiveLocations: state => state.locations.filter(location => location.aktiv === true),
     isLoadingLocations: state => state.isLoadingLocations,
     error: state => state.error
 };
@@ -30,6 +31,7 @@ const actions = {
             .catch(err => console.log(err));
     },
     addLocation({ commit }, location) {
+        console.log(location);
         commit('updateStateLoadingLocations', true);
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail`, location)
             .then(response => commit('addLocation', response.data))

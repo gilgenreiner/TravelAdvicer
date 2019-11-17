@@ -5,7 +5,7 @@
         <Map
           width="100%"
           height="87vh"
-          :locations.sync="allLocations"
+          :locations.sync="allActiveLocations"
           :center="[13.844549, 46.614073]"
           :mode="'showAll'"
         />
@@ -28,6 +28,8 @@ export default {
     this.loadLocations();
   },
   methods: mapActions(["loadLocations"]),
-  computed: mapGetters(["allLocations"])
+  computed: {
+    ...mapGetters(["allActiveLocations"])
+  }
 };
 </script>
