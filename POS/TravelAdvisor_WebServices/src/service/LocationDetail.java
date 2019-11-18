@@ -75,11 +75,12 @@ public class LocationDetail {
     }
 	
 	@GET
+	@Path("withinDistance")
     @Produces({MediaType.APPLICATION_JSON})
     public Response locationWithinDistance(@QueryParam("distanz") double distanz, @QueryParam("x") double x, @QueryParam("y") double y) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-            response.entity(new Gson().toJson(null));
+            response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y)));
         } catch (Exception e) {
             response.status(Response.Status.NOT_FOUND);
             response.entity("[ERROR] " + e.getMessage());

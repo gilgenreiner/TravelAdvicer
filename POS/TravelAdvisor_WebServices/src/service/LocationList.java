@@ -5,6 +5,7 @@ import java.net.http.HttpHeaders;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
@@ -28,10 +29,14 @@ public class LocationList {
 	
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAll() {
+    public Response getAll(@QueryParam("distanz") Double distanz, @QueryParam("x") Double x, @QueryParam("y") Double y) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-            response.entity(new Gson().toJson(LocationDAL.getAll()));
+        	if(distanz != null && x != null && y != null)
+        		response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y)));
+        	else
+        		response.entity(new Gson().toJson(LocationDAL.getAll()));
+        	
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());

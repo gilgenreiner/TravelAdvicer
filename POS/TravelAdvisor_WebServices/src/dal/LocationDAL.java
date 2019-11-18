@@ -277,13 +277,66 @@ public class LocationDAL {
 	}
 	
 	
-	public static void getWithinDistance(double distanz, double x, double y) {
+	public static List<Location> getWithinDistance(double distanz, double x, double y) throws Exception{
+		List<Location> locations = new ArrayList<Location>();
 		try {
+			Connection conn = Database.connect();
+
+			String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, t.koordinaten.SDO_POINT.X as X,t.koordinaten.SDO_POINT.X as Y" + 
+					"    from TravelLocation t" + 
+					"    where SDO_WITHIN_DISTANCE(t.KOORDINATEN, " + 
+					"	SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE(" + x + ", " + y + ", NULL), NULL, NULL), 'distance = " + (distanz / 100000) + "') = 'TRUE'";
+			System.out.println(query);
+			
+			Statement st = conn.createStatement();
+
+			ResultSet rs = st.executeQuery(query);
+
+			// iterate through the java resultset
+			
+
+			while (rs.next()) {
+
+				String id = rs.getString("id");
+				String bezeichnung = rs.getString("bezeichnung");
+				String beschreibung = rs.getString("beschreibung");
+
+				String id_besitzer = rs.getString("id_besitzer");
+				int punkte = rs.getInt("punkte");
+				String aktiv = rs.getString("aktiv");
+				double X = rs.getDouble("X");
+				double Y = rs.getDouble("Y");
+				//String img = rs.getString("img");
+				
+				Location l = new Location();
+				l.setId(id);
+				// ToDO:
+				l.setBesitzer(null);
+				l.setBezeichnung(bezeichnung);
+				l.setBeschreibung(beschreibung);
+				l.setPunkte(punkte);
+				if (aktiv.equals("J"))
+					l.setAktiv(true);
+				else
+					l.setAktiv(false);
+
+				l.setKoordinaten(new Point(X, Y));
+				System.out.println(l.getId().toString());
+				//l.setBranchen(BrancheDAL.get(l));
+
+				locations.add(l);
+			}
+			st.close();
+			conn.close();
+
 			
 		}
 		catch(Exception e) {
-			
+			System.err.println("Ein Fehler ist aufgetreten!");
+			System.err.println(e.getMessage());
+			throw e;
 		}
+		return locations;
 	}
 
 }
