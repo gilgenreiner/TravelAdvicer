@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -73,6 +74,21 @@ public class LocationDetail {
         return response.build();
     }
 	
+	@GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response locationWithinDistance(@QueryParam("distanz") double distanz, @QueryParam("x") double x, @QueryParam("y") double y) {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        try {
+            response.entity(new Gson().toJson(null));
+        } catch (Exception e) {
+            response.status(Response.Status.NOT_FOUND);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+        System.out.println("======================webservice GET called");
+        return response.build();
+    }
+	
+	
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
@@ -113,7 +129,6 @@ public class LocationDetail {
         
         System.out.println("ID: " + new_loc.getId());
         System.out.println("Besitzer: " + new_loc.getBesitzer());
-        System.out.println("Image: " + new_loc.getImg().toString());
         try {
         	response.status(Response.Status.CREATED);
             response.entity(new_loc);

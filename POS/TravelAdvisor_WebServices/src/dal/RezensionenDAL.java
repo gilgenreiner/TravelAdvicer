@@ -287,4 +287,8 @@ public class RezensionenDAL {
 			throw e;
 		}
 	}
+	
+	public static void getWithinDistance(double distanz) {
+		
+	}
 }

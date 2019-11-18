@@ -275,5 +275,15 @@ public class LocationDAL {
 			System.err.println(e.getMessage());
 		}
 	}
+	
+	
+	public static void getWithinDistance(double distanz, double x, double y) {
+		try {
+			
+		}
+		catch(Exception e) {
+			
+		}
+	}
 
 }
