@@ -1,7 +1,7 @@
 import axiosWithLoader from '../../http';
 import axios from 'axios';
 
-const baseURL = 'http://192.168.8.131:8080';
+const baseURL = 'http://192.168.8.133:8080';
 
 const state = {
     bonuses: [
@@ -26,7 +26,14 @@ const actions = {
             .then(response => {
                 commit('setBonuses', response.data)
             })
+            .catch(err => console.êrr(err));
+    },   
+    addBonus({ commit }, bonus) {
+        commit('updateStateLoadingLocations', true);
+        axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail`, bonus)
+            .then(response => commit('addBonus', response.data))
             .catch(err => console.log(err));
+            //.finally(() => commit('updateStateLoadingLocations', false));
     },
     /*async loadLocationById({ commit }, id) {
         //const response = await axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
@@ -56,8 +63,9 @@ const actions = {
 
 const mutations = {
     setBonuses: (state, bonuses) => (state.bonuses = bonuses),
-    /*setSingleLocation: (state, location) => (state.selectedLocation = location),
     addLocation: (state, location) => (state.locations.push(location)),
+    /*setSingleLocation: (state, location) => (state.selectedLocation = location),
+    ,
     updateLocation: (state, location) => {
         const index = state.locations.findIndex(l => l.id === location.id);
         if (index !== -1) state.locations.splice(index, 1, location);
