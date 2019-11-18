@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col cols="12">
-        <v-btn class="ml-0" :to="{path: `/` }">
+        <v-btn class="ml-0" @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
       </v-col>
@@ -14,12 +14,17 @@
         />
       </v-col>
       <v-col cols="8">
-        <Map
-          :width="'100%'"
-          :height="'606px'"
-          :locations="new Array(getSelectedLocation)"
-          :mode="mode"
-        />
+        <v-hover v-slot:default="{ hover }">
+          <v-card :elevation="hover ? 12 : 4">
+            <Map
+              :width="'100%'"
+              :height="'606px'"
+              :locations="(getSelectedLocation === undefined) ?  new Array(defaultLocation) : new Array(getSelectedLocation)"
+              :center.sync="getCoordsFromSelected"
+              :mode="mode"
+            />
+          </v-card>
+        </v-hover>
       </v-col>
     </v-row>
   </div>
@@ -58,6 +63,14 @@ export default {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
       )[0];
+    },
+    getCoordsFromSelected() {
+      return this.allLocations.length !== 0
+        ? [
+            this.getSelectedLocation.koordinaten.Y,
+            this.getSelectedLocation.koordinaten.X
+          ]
+        : [0, 0];
     }
   },
   created() {

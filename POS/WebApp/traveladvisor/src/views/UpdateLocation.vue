@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col cols="12">
-        <v-btn class="ml-0" @click="$router.push({name: component})">
+        <v-btn class="ml-0" @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
       </v-col>
@@ -15,17 +15,22 @@
         />
       </v-col>
       <v-col cols="8">
-        <Map
-          :width="'100%'"
-          :height="'676px'"
-          :locations="new Array(getSelectedLocation)"
-          :mode="mode"
-        />
+        <v-hover v-slot:default="{ hover }">
+          <v-card :elevation="hover ? 12 : 4">
+            <Map
+              :width="'100%'"
+              :height="'676px'"
+              :locations="new Array(getSelectedLocation)"
+              :center.sync="getCoordsFromSelected"
+              :mode="mode"
+            />
+          </v-card>
+        </v-hover>
       </v-col>
     </v-row>
     <v-row class="buttons">
       <v-col cols="12">
-        <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
+        <v-btn class="mr-2" @click="$router.go(-1)">Cancel</v-btn>
         <v-btn @click="doUpdateLocation()" :loading="isLoadingLocations">Location aktualisieren</v-btn>
       </v-col>
     </v-row>
@@ -48,7 +53,6 @@ export default {
     return {
       mode: "update",
       isDoUpdateButtonPressed: false,
-      component: "Locations",
       defaultLocation: {
         bezeichnung: "",
         beschreibung: "",
@@ -66,7 +70,7 @@ export default {
         this.isDoUpdateButtonPressed === true
       ) {
         this.isDoUpdateButtonPressed = false;
-        this.$router.push({ name: this.component });
+        this.$router.push({ name: "Locations" });
       }
     }
   },
@@ -77,9 +81,6 @@ export default {
         this.$store.dispatch("updateLocationById", this.getSelectedLocation);
         this.isDoUpdateButtonPressed = true;
       }
-    },
-    doCancel() {
-      this.$router.push({ name: this.component });
     }
   },
   computed: {
@@ -88,6 +89,12 @@ export default {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
       )[0];
+    },
+    getCoordsFromSelected() {
+      return [
+        this.getSelectedLocation.koordinaten.Y,
+        this.getSelectedLocation.koordinaten.X
+      ];
     }
   },
   created() {

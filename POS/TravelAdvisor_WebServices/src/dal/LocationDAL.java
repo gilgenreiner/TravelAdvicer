@@ -14,12 +14,12 @@ import bll.Besitzer;
 import bll.Branche;
 import bll.Location;
 import bll.Point;
-import bll.UUIDParseException;
+import bll.Error404;
 import bll.Location;
 
 public class LocationDAL {
 
-	public static List<Location> getAll() throws SQLException, UUIDParseException {
+	public static List<Location> getAll() throws SQLException, Error404 {
 		Connection conn = Database.connect();
 
 		String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
@@ -69,7 +69,7 @@ public class LocationDAL {
 		return Locationn;
 	}
 
-	public static List<Location> test() throws UUIDParseException {
+	public static List<Location> test() throws Error404 {
 
 		List<Location> Locationn = new ArrayList<Location>();
 
@@ -129,23 +129,26 @@ public class LocationDAL {
 		st.close();
 
 		if (result == null)
-			throw new Exception("Branche nicht gefunden");
+			throw new Exception("Location nicht gefunden");
 		return result;
 	}
 
 	public static void update(String id, Location new_loc) throws Exception {
 		int result = 0;
 		try {
+			System.out.println("Location-update läuft . . .");
 			Connection conn = Database.connect();
+			System.out.println("Verbindung hergestellt . . . ");
 
 			System.out.println("Bezeichnung: " + new_loc.getBezeichnung());
 			System.out.println("Punkte: " + new_loc.getPunkte());
 
-			String koordinaten = "SDO_GEOMETRY( " + "2001, " + "NULL," + "SDO_POINT_TYPE(?, ?, NULL)," + "NULL,"
-					+ "NULL)";
+			String koordinaten = "SDO_GEOMETRY( 2001, NULL, SDO_POINT_TYPE(" + new_loc.getKoordinaten().getX() +", " + new_loc.getKoordinaten().getY() +", NULL), NULL,"
+					+ " NULL)";
 
-			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, beschreibung = ?, punkte = ?, aktiv = ? where id = ?";
+			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, beschreibung = ?, punkte = ?, aktiv = ?, koordinaten = " + koordinaten + " where id = ?";
 
+			//String query = "update TravelLocation set koordinaten = " + koordinaten + " where id = ?";
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 
 			if(new_loc.getBesitzer() != null)
@@ -160,15 +163,15 @@ public class LocationDAL {
 				preparedStmt.setString(5, "J");
 			else
 				preparedStmt.setString(5, "N");
-			// preparedStmt.setBigDecimal(5, new BigDecimal("10.000"));
-			// preparedStmt.setBigDecimal(6, new BigDecimal("10.000"));
 
 			preparedStmt.setString(6, id);
 
+			System.out.println("Statememt fertig gebaut . . .");
 			result = preparedStmt.executeUpdate();
+			System.out.println("Statement ausgeführt!");
 
 			conn.close();
-
+			//System.out.println("Verbindung geschlossen");
 			if (result == 0)
 				throw new Exception("Fehler beim Updaten der Location mit der ID " + new_loc.getId());
 
@@ -271,6 +274,69 @@ public class LocationDAL {
 			System.err.println("Ein Fehler ist aufgetreten!");
 			System.err.println(e.getMessage());
 		}
+	}
+	
+	
+	public static List<Location> getWithinDistance(double distanz, double x, double y) throws Exception{
+		List<Location> locations = new ArrayList<Location>();
+		try {
+			Connection conn = Database.connect();
+
+			String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, t.koordinaten.SDO_POINT.X as X,t.koordinaten.SDO_POINT.X as Y" + 
+					"    from TravelLocation t" + 
+					"    where SDO_WITHIN_DISTANCE(t.KOORDINATEN, " + 
+					"	SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE(" + x + ", " + y + ", NULL), NULL, NULL), 'distance = " + (distanz / 100000) + "') = 'TRUE'";
+			System.out.println(query);
+			
+			Statement st = conn.createStatement();
+
+			ResultSet rs = st.executeQuery(query);
+
+			// iterate through the java resultset
+			
+
+			while (rs.next()) {
+
+				String id = rs.getString("id");
+				String bezeichnung = rs.getString("bezeichnung");
+				String beschreibung = rs.getString("beschreibung");
+
+				String id_besitzer = rs.getString("id_besitzer");
+				int punkte = rs.getInt("punkte");
+				String aktiv = rs.getString("aktiv");
+				double X = rs.getDouble("X");
+				double Y = rs.getDouble("Y");
+				//String img = rs.getString("img");
+				
+				Location l = new Location();
+				l.setId(id);
+				// ToDO:
+				l.setBesitzer(null);
+				l.setBezeichnung(bezeichnung);
+				l.setBeschreibung(beschreibung);
+				l.setPunkte(punkte);
+				if (aktiv.equals("J"))
+					l.setAktiv(true);
+				else
+					l.setAktiv(false);
+
+				l.setKoordinaten(new Point(X, Y));
+				System.out.println(l.getId().toString());
+				//l.setBranchen(BrancheDAL.get(l));
+
+				locations.add(l);
+			}
+			st.close();
+			conn.close();
+
+			
+		}
+		catch(Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten!");
+			System.err.println(e.getMessage());
+			throw e;
+		}
+		return locations;
 	}
 
 }

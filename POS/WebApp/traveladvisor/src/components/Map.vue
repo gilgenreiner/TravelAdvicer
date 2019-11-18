@@ -1,203 +1,219 @@
 <template>
   <div>
-    <v-card :elevation="4">
-      <div class="map">
-        <div
-          :style="`width: ${this.width}; height: ${this.height}; z-index=auto`"
-          id="mapContainer"
-        />
-      </div>
-    </v-card>
+    <MglMap
+      :style="`width: ${this.width}; height: ${this.height}; z-index=auto`"
+      :accessToken="accessToken"
+      :mapStyle.sync="mapStyle"
+      @load="onMapLoad"
+      @click="onClickMap"
+    >
+      <MglGeocoderControl
+        position="top-right"
+        v-if="mode == 'showAll' || mode == 'create'"
+        :accessToken="accessToken"
+        :input.sync="defaultInput"
+        @results="handleSearch"
+      />
+      <MglNavigationControl position="top-right" />
+      <MglGeolocateControl position="top-right" v-if="mode == 'showAll'" @geolocate="geoLocate" />
+
+      <v-container v-if="mode != 'create' || isMarkerSet == true">
+        <MglMarker
+          v-for="location in locations"
+          :key="location.id"
+          :coordinates="[location.koordinaten.Y, location.koordinaten.X]"
+          :draggable="mode === 'update'"
+          color="blue"
+          @dragend="dragend"
+        >
+          <MglPopup v-if="mode === 'showAll'">
+            <v-card flat elevation="0">
+              <v-img
+                class="white--text align-end"
+                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                height="200px"
+                :src="'https://picsum.photos/510/300?random'"
+                aspect-ratio="2"
+              >
+                <v-card-title>{{ location.bezeichnung }}</v-card-title>
+              </v-img>
+              <v-card-actions>
+                <v-btn
+                  :to="{ name: 'Location anzeigen', params: { id: location.id }}"
+                  text
+                >Mehr Details</v-btn>
+              </v-card-actions>
+            </v-card>
+          </MglPopup>
+        </MglMarker>
+      </v-container>
+    </MglMap>
   </div>
 </template>
 
 <script>
-var H = window.H;
+import Mapbox from "mapbox-gl";
+import MglGeocoderControl from "vue-mapbox-geocoder";
+import {
+  MglMap,
+  MglNavigationControl,
+  MglGeolocateControl,
+  MglMarker,
+  MglPopup
+} from "vue-mapbox";
 
 export default {
-  name: "Map",
-  data: function() {
+  components: {
+    MglMap,
+    MglNavigationControl,
+    MglGeolocateControl,
+    MglMarker,
+    MglPopup,
+    MglGeocoderControl
+  },
+  data() {
     return {
-      platform: null,
-      map: null,
-      behavior: null,
-      ui: null,
-      defaultLayers: null,
-      mapEvents: null,
-      center_lat: 46.608449,
-      center_lng: 13.850268
+      accessToken:
+        "pk.eyJ1IjoibWtsZWluZWdnZXIiLCJhIjoiY2syeDB1bXNuMDc3ZzNndGFvMnhhNDB0eSJ9.g36eaDLBy327_G9xTFVWKQ",
+      mapStyle: "mapbox://styles/mapbox/streets-v11",
+      defaultInput: "",
+      valid: true,
+      isMarkerSet: false,
+      mapbox: null
     };
   },
   props: {
     width: String,
     height: String,
     locations: Array,
-    mode: {
-      type: String,
-      default: "show"
-    }
+    mode: String,
+    center: Array
   },
-  mounted: function() {
-    this.platform = new H.service.Platform({
-      apikey: "GNUmK8T41k6qXZe3gA2cOcdTThPfTznTYP_UfemUzp8",
-      useHTTPS: true
-    });
-    this.defaultLayers = this.platform.createDefaultLayers();
-    this.map = new H.Map(
-      document.getElementById("mapContainer"),
-      this.defaultLayers.vector.normal.map,
-      {
-        zoom: 14,
-        center: { lat: this.center_lat, lng: this.center_lng }
-      }
-    );
-
-    window.addEventListener("resize", () => this.map.getViewPort().resize());
-
-    this.mapEvents = new H.mapevents.MapEvents(this.map);
-    this.behavior = new H.mapevents.Behavior(this.mapEvents);
-    this.ui = H.ui.UI.createDefault(this.map, this.defaultLayers);
-  },
-  watch: {
-    locations() {
-      if (this.mode === "show" || this.mode === "showDetails") {
-        this.drawPoints();
-      }
-      if (this.mode === "create") {
-        this.setUpClickListener(this.map, this.locations);
-      }
-      if (this.mode === "update") {
-        this.addDraggableMarker(this.map, this.behavior, this.locations);
-      }
-    }
+  created() {
+    this.mapbox = Mapbox;
   },
   methods: {
-    validate() {
-      this.$refs.form.validate();
-    },
-    drawPoints: function() {
-      this.map.removeObjects(this.map.getObjects());
-      for (let i = 0; i < this.locations.length; i++) {
-        if (this.locations[i].aktiv === true && this.mode === "show") {
-          let coords = {
-            lat: this.locations[i].koordinaten.X,
-            lng: this.locations[i].koordinaten.Y
-          };
+    async onMapLoad(event) {
+      const asyncActions = event.component.actions;
 
-          let svgMarkup =
-            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" fill="blue" /></svg>';
-          let icon = new H.map.Icon(svgMarkup);
-          let marker = new H.map.Marker(coords, { icon: icon });
-
-          if (this.mode === "show") {
-            marker.setData(
-              `<div width="300px" style="background-color: transparent;">
-            <img src="${this.locations[i].img}" width="350" height="200">
-            <h2>${this.locations[i].bezeichnung}</h2>
-            <a style="border: 0; background: none; box-shadow: none; border-radius: 0px;" 
-            :to="http://localhost:8080/locations/view/${this.locations[i].id}">Mehr details anzeigen</a></div>`
-            );
-            marker.addEventListener(
-              "tap",
-              event => {
-                var bubble = new H.ui.InfoBubble(event.target.getGeometry(), {
-                  content: event.target.getData()
-                });
-                this.ui.addBubble(bubble);
-              },
-              false
-            );
-          }
-          this.map.addObject(marker);
-        }
-      }
-    },
-    setUpClickListener(map, locations) {
-      map.addEventListener("tap", function(evt) {
-        map.removeObjects(map.getObjects());
-        var coord = map.screenToGeo(
-          evt.currentPointer.viewportX,
-          evt.currentPointer.viewportY
-        );
-
-        locations[0].koordinaten.x = coord.lat;
-        locations[0].koordinaten.y = coord.lng;
-
-        let svgMarkup =
-          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" fill="blue" /></svg>';
-        let icon = new H.map.Icon(svgMarkup);
-        let marker = new H.map.Marker(coord, { icon: icon });
-        map.addObject(marker);
+      const newParams = await asyncActions.flyTo({
+        center: this.center,
+        zoom: 12,
+        speed: 1
       });
     },
-    addDraggableMarker(map, behavior, locations) {
-      let svgMarkup =
-        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" fill="blue" /></svg>';
-      let icon = new H.map.Icon(svgMarkup);
-      let marker = new H.map.Marker(
-        {
-          lat: locations[0].koordinaten.X,
-          lng: locations[0].koordinaten.Y
-        },
-        {
-          volatility: true,
-          icon: icon
+    handleSearch(event) {
+      //for the future, search for locations nearby
+    },
+    validateForCreate() {
+      //check if the Marker has been set, because when the marker has been set
+      //you know that the map has now a marker by the create so it is OK.
+      this.valid = this.isMarkerSet == true ? true : false;
+    },
+    onClickMap(event) {
+      if (this.mode === "create") {
+        this.isMarkerSet = true;
+
+        //set the coords for Mapbox Marker with the Obj X/Y
+        this.locations[0].koordinaten.X = event.mapboxEvent.lngLat.lat;
+        this.locations[0].koordinaten.Y = event.mapboxEvent.lngLat.lng;
+        //set the coords for the Webservice because it only takes x/y for update
+        this.locations[0].koordinaten.x = event.mapboxEvent.lngLat.lat;
+        this.locations[0].koordinaten.y = event.mapboxEvent.lngLat.lng;
+      }
+    },
+    dragend(event) {
+      if (this.mode === "update") {
+        //set the coords for Mapbox Marker with the Obj X/Y
+        this.locations[0].koordinaten.X = event.marker._lngLat.lat;
+        this.locations[0].koordinaten.Y = event.marker._lngLat.lng;
+        //set the coords for the Webservice because it only takes x/y for update
+        this.locations[0].koordinaten.x = event.marker._lngLat.lat;
+        this.locations[0].koordinaten.y = event.marker._lngLat.lng;
+      }
+    },
+    geoLocate(event) {
+      if (event.map.getSource("polygon")) {
+        event.map.removeLayer("polygon");
+        event.map.removeSource("polygon");
+      }
+
+      event.map.addSource(
+        "polygon",
+        this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
+      );
+
+      event.map.addLayer({
+        id: "polygon",
+        type: "fill",
+        source: "polygon",
+        layout: {},
+        paint: {
+          "fill-color": "blue",
+          "fill-opacity": 0.4
         }
-      );
+      });
+    },
+    createGeoJSONCircle(center, radiusInKm, points) {
+      if (!points) points = 64;
 
-      marker.draggable = true;
-      map.addObject(marker);
+      var coords = {
+        latitude: center.latitude,
+        longitude: center.longitude
+      };
 
-      map.addEventListener(
-        "dragstart",
-        function(ev) {
-          var target = ev.target,
-            pointer = ev.currentPointer;
-          if (target instanceof H.map.Marker) {
-            var targetPosition = map.geoToScreen(target.getGeometry());
-            target["offset"] = new H.math.Point(
-              pointer.viewportX - targetPosition.x,
-              pointer.viewportY - targetPosition.y
-            );
-            behavior.disable();
-          }
-        },
-        false
-      );
+      var km = radiusInKm;
 
-      map.addEventListener(
-        "dragend",
-        function(ev) {
-          var target = ev.target;
-          if (target instanceof H.map.Marker) {
-            behavior.enable();
-          }
-        },
-        false
-      );
+      var ret = [];
+      var distanceX =
+        km / (111.32 * Math.cos((coords.latitude * Math.PI) / 180));
+      var distanceY = km / 110.574;
 
-      map.addEventListener(
-        "drag",
-        function(ev) {
-          var target = ev.target,
-            pointer = ev.currentPointer;
-          if (target instanceof H.map.Marker) {
-            var coord = map.screenToGeo(
-              pointer.viewportX - target["offset"].x,
-              pointer.viewportY - target["offset"].y
-            );
-            target.setGeometry(coord);
+      var theta, x, y;
+      for (var i = 0; i < points; i++) {
+        theta = (i / points) * (2 * Math.PI);
+        x = distanceX * Math.cos(theta);
+        y = distanceY * Math.sin(theta);
 
-            locations[0].koordinaten.x = coord.lat;
-            locations[0].koordinaten.y = coord.lng;
-          }
-        },
-        false
-      );
+        ret.push([coords.longitude + x, coords.latitude + y]);
+      }
+      ret.push(ret[0]);
+
+      return {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "Polygon",
+                coordinates: [ret]
+              }
+            }
+          ]
+        }
+      };
     }
   }
 };
 </script>
 
-<style scoped>
+<style>
+.mapboxgl-popup {
+  min-width: 300px;
+  min-height: 500px;
+}
+.mapboxgl-popup-anchor-left {
+  margin-left: 10px;
+}
+.mapboxgl-popup-anchor-right {
+  margin-left: -10px;
+}
+.mapboxgl-popup-content {
+  padding: 0%;
+}
+.mapboxgl-popup-close-button {
+  display: none;
+}
 </style>

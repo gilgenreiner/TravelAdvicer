@@ -1,52 +1,38 @@
 package service;
 
-import java.net.http.HttpHeaders;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.google.gson.Gson;
 
-import bll.Location;
 import dal.BrancheDAL;
-import dal.LocationDAL;
+import dal.RezensionenDAL;
 
-@Path("locationList")
-public class LocationList {
+@Path("rezensionenList")
+public class RezensionenList {
 	@Context
     private UriInfo context;
 	
-	public LocationList() {
+	public RezensionenList() {
     }
     
-	
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAll(@QueryParam("distanz") Double distanz, @QueryParam("x") Double x, @QueryParam("y") Double y) {
+    public Response getAll() {
+    	System.out.println("======================webservice GET called");
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-        	if(distanz != null && x != null && y != null)
-        		response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y)));
-        	else
-        		response.entity(new Gson().toJson(LocationDAL.getAll()));
-        	
+            response.entity(new Gson().toJson(RezensionenDAL.getAll()));
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());
         }
-       
-        
         System.out.println("======================webservice GET called");
         return response.build();
     }
-    
-    
-
 }

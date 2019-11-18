@@ -15,11 +15,7 @@
 
     <v-list-item two-line>
       <v-list-item-avatar color="white">
-        <v-img
-          src="https://i.pinimg.com/originals/89/46/db/8946dbf52cc180dd12b084300dfa04f5.jpg"
-          height="34"
-          contain
-        />
+        <v-img src="logo.PNG" height="34" contain />
       </v-list-item-avatar>
 
       <v-list-item-title class="title">TravelAdvisor</v-list-item-title>
