@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col cols="12">
-        <v-btn class="ml-0" :to="{path: `/` }">
+        <v-btn class="ml-0" @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
       </v-col>

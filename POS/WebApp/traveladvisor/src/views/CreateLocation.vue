@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col cols="12">
-        <v-btn class="ml-0" @click="doCancel()">
+        <v-btn class="ml-0" @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
       </v-col>
@@ -24,11 +24,12 @@
             />
           </v-card>
         </v-hover>
+        <p v-if="valid == false" class="red--text mt-1 mb-0">Es muss eine Location ausgewählt sein!</p>
       </v-col>
     </v-row>
     <v-row class="buttons">
       <v-col cols="12">
-        <v-btn class="mr-2" @click="doCancel">Cancel</v-btn>
+        <v-btn class="mr-2" @click="$router.go(-1)">Cancel</v-btn>
         <v-btn @click="doAddLocation()" :loading="isLoadingLocations">Location hinzufügen</v-btn>
       </v-col>
     </v-row>
@@ -56,35 +57,30 @@ export default {
         punkte: 0,
         branchen: [],
         besitzer: { id: "b717f71a-a902-4c1a-9fa9-659fc8c" },
-        koordinaten: { x: 0, y: 0 }
+        koordinaten: { X: 0, Y: 0 }
       },
       mode: "create",
-      component: "Locations",
-      isDoCreateButtonPressed: false
+      isDoCreateButtonPressed: false,
+      valid: true
     };
   },
   watch: {
     isLoadingLocations() {
-      if (
-        this.isLoadingLocations === false &&
-        this.isDoCreateButtonPressed === true
-      ) {
+      if (!this.isLoadingLocations && this.isDoCreateButtonPressed) {
         this.isDoCreateButtonPressed = false;
-        this.$router.push({ name: this.component });
+        this.$router.push({ name: "Locations"});
       }
     }
   },
   methods: {
     doAddLocation() {
       this.$refs.details.validate();
-      this.$refs.map.validate();
-      if (this.$refs.details.valid === true && this.$refs.map.valid) {
+      this.$refs.map.validateForCreate();
+      this.valid = this.$refs.map.valid;
+      if (this.$refs.details.valid && this.$refs.map.valid) {
         this.$store.dispatch("addLocation", this.defaultLocation);
         this.isDoCreateButtonPressed = true;
       }
-    },
-    doCancel() {
-      this.$router.push({ name: this.component });
     }
   },
   computed: {
