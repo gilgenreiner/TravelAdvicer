@@ -3,9 +3,8 @@
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <!--v-btn
-            :to="{ name: 'Location-details', params: { id: 'newLocation', mode: 'create', component: 'Locations'}}"
-          >Location hinzufügen</v-btn-->
+          <v-btn @click="openDialog">Bonus hinzufügen</v-btn>
+          <PopupAddBoni :dialog.sync="dialog" :bonus="bonus"/>
         </v-col>
       </v-row>
       <v-row>
@@ -21,13 +20,36 @@
 import { mapGetters, mapActions } from "vuex";
 
 import BonusListItem from "@/components/BonusListItem";
+import PopupAddBoni from "@/components/popups/AddBonusPopup";
+
 
 export default {
   components: {
-    BonusListItem
+    BonusListItem,
+    PopupAddBoni
+  },
+  data() {
+    return {
+      dialog: false,
+      bonus: {
+        bezeichnung: null,
+        punkte:null,
+        aktiv:false,
+        locationId:null
+      }
+    }
   },
   methods: {
-    ...mapActions(["loadBonuses"])
+    ...mapActions(["loadBonuses"]),
+    openDialog() {
+      this.dialog = !this.dialog;
+      this.bonus = {
+        bezeichnung: null,
+        punkte:null,
+        aktiv:false,
+        locationId:null
+      }
+    }
   },
   computed: mapGetters(["allBonuses"]),
   created() {
