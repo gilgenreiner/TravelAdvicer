@@ -14,6 +14,7 @@
         >OK</v-btn>
       </v-card-actions>
     </v-card>
+    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </v-dialog>
 </template>
 
@@ -22,6 +23,12 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "LocationDeletePopup",
+  data() {
+    return {
+      snackbar: false,
+      text: ""
+    };
+  },
   props: {
     location: Object,
     dialog: Boolean
@@ -31,7 +38,15 @@ export default {
       this.$store.dispatch("deleteLocation", id);
     }
   },
-  computed: mapGetters(["isLoadingLocations"])
+  watch: {
+    errorLocations() {
+      if (this.errorLocations) {
+        this.text = "Konnte nicht gelöscht werden - " + this.errorLocations;
+        this.snackbar = true;
+      }
+    }
+  },
+  computed: mapGetters(["isLoadingLocations", "errorLocations"])
 };
 </script>
 

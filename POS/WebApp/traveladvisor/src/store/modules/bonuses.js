@@ -1,7 +1,7 @@
 import axiosWithLoader from '../../http';
 import axios from 'axios';
 
-const baseURL = 'http://10.0.0.45:8080';
+const baseURL = process.env.VUE_APP_API_URL;  
 
 const state = {
     bonuses: [

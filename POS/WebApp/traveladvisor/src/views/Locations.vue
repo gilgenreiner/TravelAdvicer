@@ -12,6 +12,7 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
@@ -24,11 +25,18 @@ export default {
   components: {
     LocationListItem
   },
-  computed: mapGetters(["allLocations", "error"]),
+  data() {
+    return {
+      snackbar: false,
+      text: ""
+    };
+  },
+  computed: mapGetters(["allLocations", "errorLocations"]),
   watch: {
     error() {
-      if (error != null) {
-        alert(this.error);
+      if (this.errorLocations) {
+        this.text = "Konnte nicht geladen werden - " + this.errorLocations;
+        this.snackbar = true;
       }
     }
   },
