@@ -1,7 +1,7 @@
 import axiosWithLoader from '../../http';
 import axios from 'axios';
 
-const baseURL = 'http://192.168.8.133:8080';
+const baseURL = 'http://192.168.8.134:8080';
 
 const state = {
     bonuses: [
@@ -26,7 +26,7 @@ const actions = {
             .then(response => {
                 commit('setBonuses', response.data)
             })
-            .catch(err => console.êrr(err));
+            .catch(err => console.err(err));
     },   
     addBonus({ commit }, bonus) {
         commit('updateStateLoadingLocations', true);
