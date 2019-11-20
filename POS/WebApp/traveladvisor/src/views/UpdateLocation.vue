@@ -34,6 +34,7 @@
         <v-btn @click="doUpdateLocation()" :loading="isLoadingLocations">Location aktualisieren</v-btn>
       </v-col>
     </v-row>
+    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
@@ -53,6 +54,8 @@ export default {
     return {
       mode: "update",
       isDoUpdateButtonPressed: false,
+      snackbar: false,
+      text: "",
       defaultLocation: {
         bezeichnung: "",
         beschreibung: "",
@@ -66,11 +69,25 @@ export default {
   watch: {
     isLoadingLocations() {
       if (
-        this.isLoadingLocations === false &&
-        this.isDoUpdateButtonPressed === true
+        !this.isLoadingLocations &&
+        this.isDoUpdateButtonPressed &&
+        !this.error
       ) {
         this.isDoUpdateButtonPressed = false;
         this.$router.push({ name: "Locations" });
+      }
+    },
+    errorLocations() {
+      if (this.errorLocations) {
+        this.text = "Konnte nicht aktualisiert werden - " + this.errorLocations;
+        this.snackbar = true;
+      }
+    },
+    errorBranchen() {
+      if (this.errorBranchen) {
+        this.text =
+          "Branchen konnten nicht geladen werden - " + this.errorBranchen;
+        this.snackbar = true;
       }
     }
   },
@@ -84,7 +101,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["allLocations", "isLoadingLocations"]),
+    ...mapGetters([
+      "allLocations",
+      "isLoadingLocations",
+      "errorLocations",
+      "errorBranchen"
+    ]),
     getSelectedLocation() {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id

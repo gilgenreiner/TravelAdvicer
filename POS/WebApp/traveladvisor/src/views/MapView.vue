@@ -7,10 +7,12 @@
           height="87vh"
           :locations.sync="allActiveLocations"
           :center="[13.844549, 46.614073]"
-          :mode="'showAll'"
+          :mode="mode"
+          @event="searchLocations"
         />
       </v-card>
     </v-hover>
+    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
@@ -24,12 +26,32 @@ export default {
   components: {
     Map
   },
+  data() {
+    return {
+      mode: "showAll",
+      snackbar: false,
+      text: ""
+    };
+  },
+  watch: {
+    errorLocations() {
+      if (this.errorLocations) {
+        this.text = "Konnte nicht geladen werden - " + this.errorLocations;
+        this.snackbar = true;
+      }
+    }
+  },
   created() {
     this.loadLocations();
   },
-  methods: mapActions(["loadLocations"]),
+  methods: {
+    ...mapActions(["loadLocations"]),
+    searchLocations(data) {
+      this.loadLocations(data);
+    }
+  },
   computed: {
-    ...mapGetters(["allActiveLocations"])
+    ...mapGetters(["allActiveLocations", "errorLocations"])
   }
 };
 </script>

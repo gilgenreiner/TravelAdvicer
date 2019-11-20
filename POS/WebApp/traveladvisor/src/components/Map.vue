@@ -12,17 +12,18 @@
         v-if="mode == 'showAll' || mode == 'create'"
         :accessToken="accessToken"
         :input.sync="defaultInput"
-        @results="handleSearch"
       />
       <MglNavigationControl position="top-right" />
       <MglGeolocateControl position="top-right" v-if="mode == 'showAll'" @geolocate="geoLocate" />
 
+      <!--v-container is there to help the create mode, because if i want to create a new location a default marker at (0/0) would be shown,
+      so with that it only displays the marker when the user sets one on the map-->
       <v-container v-if="mode != 'create' || isMarkerSet == true">
         <MglMarker
           v-for="location in locations"
           :key="location.id"
           :coordinates="[location.koordinaten.Y, location.koordinaten.X]"
-          :draggable="mode === 'update'"
+          :draggable="mode == 'update'"
           color="blue"
           @dragend="dragend"
         >
@@ -73,13 +74,12 @@ export default {
   },
   data() {
     return {
-      accessToken:
-        "pk.eyJ1IjoibWtsZWluZWdnZXIiLCJhIjoiY2syeDB1bXNuMDc3ZzNndGFvMnhhNDB0eSJ9.g36eaDLBy327_G9xTFVWKQ",
+      accessToken: process.env.VUE_APP_MAPKEY,
       mapStyle: "mapbox://styles/mapbox/streets-v11",
+      isGeolocateOn: false,
       defaultInput: "",
       valid: true,
-      isMarkerSet: false,
-      mapbox: null
+      isMarkerSet: false
     };
   },
   props: {
@@ -102,12 +102,9 @@ export default {
         speed: 1
       });
     },
-    handleSearch(event) {
-      //for the future, search for locations nearby
-    },
     validateForCreate() {
       //check if the Marker has been set, because when the marker has been set
-      //you know that the map has now a marker by the create so it is OK.
+      //you know that the map has now a marker for the create mode so it is OK.
       this.valid = this.isMarkerSet == true ? true : false;
     },
     onClickMap(event) {
@@ -133,26 +130,42 @@ export default {
       }
     },
     geoLocate(event) {
+      //if the isGeolocateOn is true you know the location circle an the nearest locations are shown.
+      //if its false you know all location are shown
+      this.isGeolocateOn = !this.isGeolocateOn;
+
       if (event.map.getSource("polygon")) {
         event.map.removeLayer("polygon");
         event.map.removeSource("polygon");
       }
 
-      event.map.addSource(
-        "polygon",
-        this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
-      );
+      //this.emit --> triggered method that is saved under event in MapView.vue with the data passed through
+      if (!this.isGeolocateOn) {
+        event.component.showUserLocation = false;
+        this.$emit("event", null);
+      } else {
+        this.$emit("event", {
+          distanz: 3000,
+          x: event.mapboxEvent.coords.latitude,
+          y: event.mapboxEvent.coords.longitude
+        });
 
-      event.map.addLayer({
-        id: "polygon",
-        type: "fill",
-        source: "polygon",
-        layout: {},
-        paint: {
-          "fill-color": "blue",
-          "fill-opacity": 0.4
-        }
-      });
+        event.map.addSource(
+          "polygon",
+          this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
+        );
+
+        event.map.addLayer({
+          id: "polygon",
+          type: "fill",
+          source: "polygon",
+          layout: {},
+          paint: {
+            "fill-color": "blue",
+            "fill-opacity": 0.2
+          }
+        });
+      }
     },
     createGeoJSONCircle(center, radiusInKm, points) {
       if (!points) points = 64;

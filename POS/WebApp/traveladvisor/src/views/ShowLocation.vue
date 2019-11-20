@@ -27,6 +27,7 @@
         </v-hover>
       </v-col>
     </v-row>
+    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
@@ -46,7 +47,8 @@ export default {
     return {
       backup: {},
       mode: "showDetails",
-      component: "Map",
+      snackbar: false,
+      text: "",
       defaultLocation: {
         bezeichnung: "",
         beschreibung: "",
@@ -58,7 +60,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["allLocations"]),
+    ...mapGetters(["allLocations", "errorLocations"]),
     getSelectedLocation() {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
@@ -71,6 +73,14 @@ export default {
             this.getSelectedLocation.koordinaten.X
           ]
         : [0, 0];
+    }
+  },
+  watch: {
+    errorLocations() {
+      if (this.errorLocations) {
+        this.text = "Konnte nicht geladen werden - " + this.errorLocations;
+        this.snackbar = true;
+      }
     }
   },
   created() {

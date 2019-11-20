@@ -33,6 +33,7 @@
         <v-btn @click="doAddLocation()" :loading="isLoadingLocations">Location hinzufügen</v-btn>
       </v-col>
     </v-row>
+    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
@@ -56,19 +57,38 @@ export default {
         aktiv: false,
         punkte: 0,
         branchen: [],
-        besitzer: { id: "b717f71a-a902-4c1a-9fa9-659fc8c" },
+        besitzer: { id: "b7b2de55-5221-4b4d-afe5-af44d6345b59" },
         koordinaten: { X: 0, Y: 0 }
       },
       mode: "create",
       isDoCreateButtonPressed: false,
-      valid: true
+      valid: true,
+      snackbar: false,
+      text: ""
     };
   },
   watch: {
     isLoadingLocations() {
-      if (!this.isLoadingLocations && this.isDoCreateButtonPressed) {
+      if (
+        !this.isLoadingLocations &&
+        this.isDoCreateButtonPressed &&
+        !this.error
+      ) {
         this.isDoCreateButtonPressed = false;
-        this.$router.push({ name: "Locations"});
+        this.$router.push({ name: "Locations" });
+      }
+    },
+    errorLocations() {
+      if (this.errorLocations) {
+        this.text = "Konnte nicht gespeichert werden - " + this.errorLocations;
+        this.snackbar = true;
+      }
+    },
+    errorBranchen() {
+      if (this.errorBranchen) {
+        this.text =
+          "Branchen konnten nicht geladen werden - " + this.errorBranchen;
+        this.snackbar = true;
       }
     }
   },
@@ -84,7 +104,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["isLoadingLocations"])
+    ...mapGetters(["isLoadingLocations", "errorLocations", "errorBranchen"])
   }
 };
 </script>
