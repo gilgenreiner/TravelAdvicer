@@ -63,7 +63,7 @@ const actions = {
 
 const mutations = {
     setBonuses: (state, bonuses) => (state.bonuses = bonuses),
-    addLocation: (state, location) => (state.locations.push(location)),
+    addBonus: (state, bonus) => (state.bonuses.push(bonus)),
     /*setSingleLocation: (state, location) => (state.selectedLocation = location),
     ,
     updateLocation: (state, location) => {

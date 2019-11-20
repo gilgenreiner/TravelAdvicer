@@ -152,7 +152,8 @@ export default {
 
         event.map.addSource(
           "polygon",
-          this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
+          this.createGeoJSONCircle(event.mapboxEvent.coords, 3.3)
+          //this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
         );
 
         event.map.addLayer({
