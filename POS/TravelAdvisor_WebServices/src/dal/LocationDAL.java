@@ -14,12 +14,13 @@ import bll.Besitzer;
 import bll.Branche;
 import bll.Location;
 import bll.Point;
+import service.LocationList;
 import bll.Error404;
 import bll.Location;
 
 public class LocationDAL {
 
-	public static List<Location> getAll() throws SQLException, Error404 {
+	public static List<Location> getAll(boolean loadBranchen) throws SQLException, Error404 {
 		Connection conn = Database.connect();
 
 		String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
@@ -29,7 +30,7 @@ public class LocationDAL {
 		ResultSet rs = st.executeQuery(query);
 
 		// iterate through the java resultset
-		List<Location> Locationn = new ArrayList<Location>();
+		List<Location> locations = new ArrayList<Location>();
 
 		while (rs.next()) {
 
@@ -58,15 +59,20 @@ public class LocationDAL {
 
 			l.setKoordinaten(new Point(X, Y));
 			System.out.println(l.getId().toString());
-			l.setBranchen(BrancheDAL.get(l));
+			if(loadBranchen == true)
+				l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
 			//l.setImg(img);
 
-			Locationn.add(l);
+			locations.add(l);
 		}
+		//Locations lokal zwischenspeichern
+		LocationList.changed = false;
+		LocationList.locations_saved = locations;
+		
 		st.close();
 		conn.close();
 
-		return Locationn;
+		return locations;
 	}
 
 	public static List<Location> test() throws Error404 {
@@ -100,7 +106,6 @@ public class LocationDAL {
 
 		ResultSet rs = st.executeQuery(query);
 
-		// iterate through the java resultset
 		Location result = null;
 		while (rs.next()) {
 			String bezeichnung = rs.getString("Bezeichnung");
@@ -123,7 +128,7 @@ public class LocationDAL {
 
 			l.setKoordinaten(new Point(X, Y));
 
-			l.setBranchen(BrancheDAL.get(l));
+			l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
 			result = l;
 		}
 		st.close();
@@ -171,6 +176,9 @@ public class LocationDAL {
 			System.out.println("Statement ausgeführt!");
 
 			conn.close();
+			
+			LocationList.changed = true;
+			
 			//System.out.println("Verbindung geschlossen");
 			if (result == 0)
 				throw new Exception("Fehler beim Updaten der Location mit der ID " + new_loc.getId());
@@ -202,6 +210,8 @@ public class LocationDAL {
 			preparedStmt.execute();
 
 			conn.close();
+			
+			LocationList.changed = true;
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten! ");
 			System.err.println(e.getMessage());
@@ -244,12 +254,15 @@ public class LocationDAL {
 			
 			conn.close();
 
+			LocationList.changed = true;
+			
 			System.out.println("Location erstellt!");
 			for (Branche b : new_loc.getBranchen()) {
 				System.out.println("Branche " + b + " wird zur Location " + new_loc + " hinzugefügt . . . ");
 				LocationDAL.addBranche(new_loc, b);
-				
 			}
+			
+			
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten!");
 			System.err.println(e.getMessage());
@@ -277,12 +290,12 @@ public class LocationDAL {
 	}
 	
 	
-	public static List<Location> getWithinDistance(double distanz, double x, double y) throws Exception{
+	public static List<Location> getWithinDistance(double distanz, double x, double y, boolean loadBranchen) throws Exception{
 		List<Location> locations = new ArrayList<Location>();
 		try {
 			Connection conn = Database.connect();
 
-			String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, t.koordinaten.SDO_POINT.X as X,t.koordinaten.SDO_POINT.X as Y" + 
+			String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, t.koordinaten.SDO_POINT.X as X,t.koordinaten.SDO_POINT.Y as Y" + 
 					"    from TravelLocation t" + 
 					"    where SDO_WITHIN_DISTANCE(t.KOORDINATEN, " + 
 					"	SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE(" + x + ", " + y + ", NULL), NULL, NULL), 'distance = " + (distanz / 100000) + "') = 'TRUE'";
@@ -322,7 +335,8 @@ public class LocationDAL {
 
 				l.setKoordinaten(new Point(X, Y));
 				System.out.println(l.getId().toString());
-				//l.setBranchen(BrancheDAL.get(l));
+				if(loadBranchen == true)
+					l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
 
 				locations.add(l);
 			}

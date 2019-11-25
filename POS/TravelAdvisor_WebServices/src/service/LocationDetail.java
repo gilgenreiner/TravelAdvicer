@@ -34,7 +34,22 @@ public class LocationDetail {
     public Response getById(@PathParam("id") String id) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-            response.entity(new Gson().toJson(LocationDAL.getById(id)));
+        	if(LocationList.locations_saved != null && LocationList.changed == false) {
+        		Location searched = null;
+        		for(Location l : LocationList.locations_saved) {
+        			if(l.getId().toString().equals(id)) {
+        				searched = l;
+        				break;
+        			}
+        		}
+        		if(searched == null) {
+        			throw new Exception("Location nicht gefunden");
+        		}
+        		response.entity(new Gson().toJson(searched));
+        	}
+        		
+        	else
+        		response.entity(new Gson().toJson(LocationDAL.getById(id)));
         } catch (Exception e) {
             response.status(Response.Status.NOT_FOUND);
             response.entity("[ERROR] " + e.getMessage());
@@ -75,12 +90,27 @@ public class LocationDetail {
     }
 	
 	@GET
+    @Path("{id}/branchen")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getBranchenByLocation(@PathParam("id") String loc_id) {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        try {
+            response.entity(new Gson().toJson(BrancheDAL.getByLocationId(loc_id)));
+        } catch (Exception e) {
+            response.status(Response.Status.NOT_FOUND);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+        System.out.println("======================webservice GET called");
+        return response.build();
+    }
+	
+	@GET
 	@Path("withinDistance")
     @Produces({MediaType.APPLICATION_JSON})
     public Response locationWithinDistance(@QueryParam("distanz") double distanz, @QueryParam("x") double x, @QueryParam("y") double y) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-            response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y)));
+            response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y, false)));
         } catch (Exception e) {
             response.status(Response.Status.NOT_FOUND);
             response.entity("[ERROR] " + e.getMessage());
@@ -111,6 +141,7 @@ public class LocationDetail {
         	LocationDAL.create(new_loc);
         	response.status(Response.Status.CREATED);
             response.entity(LocationDAL.getById(new_loc.getId().toString()));
+            
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());

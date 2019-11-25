@@ -5,7 +5,7 @@
         class="white--text align-end"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         height="200px"
-        :src="'https://x.kinja-static.com/assets/images/logos/placeholders/default.png'"
+        :src="'https://picsum.photos/510/300?random'"
         aspect-ratio="2"
       >
         <v-card-title>{{ location.bezeichnung }}</v-card-title>

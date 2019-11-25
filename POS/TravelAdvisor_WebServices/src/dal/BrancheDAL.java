@@ -39,12 +39,12 @@ public static List<Branche> branchen;
 		return branchen;
 	}
 
-	public static List<Branche> get(Location loc) throws SQLException {
+	public static List<Branche> getByLocationId(String loc) throws SQLException {
 		Connection conn = Database.connect();
 		  
 		String query = "SELECT b.id as id, b.bezeichnung as bezeichnung FROM Location_Branche_Zuordnung lbz " +
 				"inner join Branche b on b.id = lbz.id_branche " +
-				"where id_location = '" + loc.getId().toString() +"'";
+				"where id_location = '" + loc +"'";
 		
 		System.out.println(query);
 		Statement st = conn.createStatement();

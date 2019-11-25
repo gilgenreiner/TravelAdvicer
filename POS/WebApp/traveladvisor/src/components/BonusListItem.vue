@@ -7,7 +7,7 @@
     >
       <v-img
         :aspect-ratio="16/9"
-        src="https://cdn.vuetifyjs.com/images/cards/kitchen.png"
+        :src="'https://picsum.photos/510/300?random'"
       >
         <v-expand-transition>
           <div
@@ -24,7 +24,10 @@
         style="position: relative;"
       >
         <h3 class="display-1 font-weight-light green--text mb-2">{{bonus.bezeichnung}}</h3>
-        <div class="btn">
+          <!--LocationDeletePopup :dialog.sync="dialog" :location="location" /-->
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer> </v-spacer>
           <v-btn icon>
             <v-icon>expand_more</v-icon>
           </v-btn>
@@ -34,9 +37,7 @@
           <v-btn icon @click="dialog = true">
             <v-icon>delete</v-icon>
           </v-btn>
-          <!--LocationDeletePopup :dialog.sync="dialog" :location="location" /-->
-        </div>
-      </v-card-text>
+      </v-card-actions>
     </v-card>
   </v-hover>
 </template>

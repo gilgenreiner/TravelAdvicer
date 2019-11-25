@@ -1,6 +1,7 @@
 package service;
 
 import java.net.http.HttpHeaders;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,25 +24,31 @@ public class LocationList {
 	@Context
     private UriInfo context;
 	
+	public static List<Location> locations_saved;
+	public static boolean changed = false;
+	
 	public LocationList() {
     }
-    
 	
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAll(@QueryParam("distanz") Double distanz, @QueryParam("x") Double x, @QueryParam("y") Double y) {
+    public Response getAll(@QueryParam("distanz") Double distanz, @QueryParam("x") Double x, 
+    		@QueryParam("y") Double y, @QueryParam("loadBranchen") boolean loadBranchen) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
         	if(distanz != null && x != null && y != null)
-        		response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y)));
-        	else
-        		response.entity(new Gson().toJson(LocationDAL.getAll()));
+        		response.entity(new Gson().toJson(LocationDAL.getWithinDistance(distanz, x, y, loadBranchen)));
+        	else {
+        		if(locations_saved != null && changed == false)
+        			response.entity(new Gson().toJson(locations_saved));
+        		else
+        			response.entity(new Gson().toJson(LocationDAL.getAll(true)));
+        	}
         	
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());
         }
-       
         
         System.out.println("======================webservice GET called");
         return response.build();
