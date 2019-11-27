@@ -3,7 +3,7 @@
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
         <v-card-title>
-          <span class="headline">Add Bonus</span>
+          <span class="headline">Update Bonus</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -30,7 +30,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="$emit('update:dialog', false)">Close</v-btn>
-          <v-btn color="blue darken-1" text @click="doAddBonus(bonus)">Save</v-btn>
+          <v-btn color="blue darken-1" text @click="doUpdateBonus(bonus)">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -46,17 +46,12 @@ export default {
       dialog: Boolean
   },
   methods: {
-    doAddBonus() {
+    doUpdateBonus() {
         this.$emit('update:dialog', false)
         this.bonus.locationId = "5e010350-72a3-4435-8455-17f4e9f3ff66" //TODO: noch holen /mitgeben
-        this.$store.dispatch("addBonus", this.bonus);
+        this.$store.dispatch("updateBonus", this.bonus);
         this.isDoCreateButtonPressed = true;
     }
   }
 };
 </script>
-       <!-- {
-         bezeichnung:"10% auf mich",
-         punkte:"punkte",
-         aktiv:false,
-         locationId:"teset"}-->

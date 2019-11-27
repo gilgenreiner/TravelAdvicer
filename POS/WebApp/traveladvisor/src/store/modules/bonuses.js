@@ -33,7 +33,12 @@ const actions = {
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail`, bonus)
             .then(response => commit('addBonus', response.data))
             .catch(err => console.log(err));
-            //.finally(() => commit('updateStateLoadingLocations', false));
+    },
+    updateBonus({ commit }, bonus) {
+        commit('updateStateLoadingLocations', true);
+        axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail/${bonus.id}`, bonus)
+            .then(response => commit('updateBonus', response.data))
+            .catch(err => console.log(err));
     },
     /*async loadLocationById({ commit }, id) {
         //const response = await axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
@@ -64,6 +69,10 @@ const actions = {
 const mutations = {
     setBonuses: (state, bonuses) => (state.bonuses = bonuses),
     addBonus: (state, bonus) => (state.bonuses.push(bonus)),
+    updateBonus: (state, bonus) => {
+        const index = state.bonuses.findIndex(b => b.id === bonus.id);
+        if (index !== -1) state.bonuses.splice(index, 1, bonus);
+    },
     /*setSingleLocation: (state, location) => (state.selectedLocation = location),
     ,
     updateLocation: (state, location) => {
