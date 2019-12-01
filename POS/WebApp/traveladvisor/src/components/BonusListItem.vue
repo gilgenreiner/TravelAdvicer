@@ -24,19 +24,21 @@
         style="position: relative;"
       >
         <h3 class="display-1 font-weight-light green--text mb-2">{{bonus.bezeichnung}}</h3>
-          <!--LocationDeletePopup :dialog.sync="dialog" :location="location" /-->
+         
       </v-card-text>
       <v-card-actions>
         <v-spacer> </v-spacer>
           <v-btn icon>
             <v-icon>expand_more</v-icon>
           </v-btn>
-          <v-btn icon>
+          <v-btn icon  @click="updateDialog=true">
             <v-icon>edit</v-icon>
           </v-btn>
-          <v-btn icon @click="dialog = true">
+          <v-btn icon @click="deleteDialog = true">
             <v-icon>delete</v-icon>
           </v-btn>
+          <!--LocationDeletePopup :dialog.sync="dialog" :bonus="bonus" /-->
+          <PopupUpdateBoni :dialog.sync="updateDialog" :bonus="bonus" />
       </v-card-actions>
     </v-card>
   </v-hover>
@@ -45,14 +47,16 @@
 
 <script>
 import LocationDeletePopup from "@/components/popups/DeleteLocationPopup.vue";
-
+import PopupUpdateBoni from "@/components/popups/UpdateBonusPopup.vue";
 export default {
   components: {
-    LocationDeletePopup
+    LocationDeletePopup,
+    PopupUpdateBoni
   },
   data() {
     return {
-      dialog: false
+      dialog: false,
+      updateDialog: false
     };
   },
   props: {
