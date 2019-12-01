@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TravelAdvisor</string>
+    <string name="access_token">pk.eyJ1IjoibWtsZWluZWdnZXIiLCJhIjoiY2syeDB1bXNuMDc3ZzNndGFvMnhhNDB0eSJ9.g36eaDLBy327_G9xTFVWKQ</string>
 </resources>
