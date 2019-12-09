@@ -26,44 +26,26 @@ const actions = {
             .then(response => {
                 commit('setBonuses', response.data)
             })
-            .catch(err => console.err(err));
+            .catch(err => console.log(err));
     },   
     addBonus({ commit }, bonus) {
-        commit('updateStateLoadingLocations', true);
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail`, bonus)
             .then(response => commit('addBonus', response.data))
             .catch(err => console.log(err));
     },
     updateBonus({ commit }, bonus) {
-        commit('updateStateLoadingLocations', true);
         axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail/${bonus.id}`, bonus)
             .then(response => commit('updateBonus', response.data))
             .catch(err => console.log(err));
     },
-    /*async loadLocationById({ commit }, id) {
-        //const response = await axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
-
-        //commit('setSingleLocation', response.data);
-        commit('setSingleLocation', state.locations[0]);
-    },
-    async addLocation({ commit }, location) {
-        //const response = await axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${location.id}`, location);
-
-        //commit('addLocation', location)
-        commit('addLocation', location);
-    },
-    async updateLocationById({ commit }, location) {
-        //const response = await axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${location.id}`, location);
-
-        //commit('updateLocation', location)
-        commit('updateLocation', location);
-    },
-    async deleteLocation({ commit }, id) {
-        //const response = await axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`);
-
-        // commit('deleteLocation', id)
-        commit('deleteLocation', id);
-    }*/
+    deleteBonus({ commit }, id) {
+        axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail/${id}`)
+            .then(response => {
+                commit('deleteBonus', id);
+                commit('errorOccurred', null);
+            })
+            .catch(err => commit('errorOccurred', err))
+    }
 };
 
 const mutations = {
@@ -73,13 +55,13 @@ const mutations = {
         const index = state.bonuses.findIndex(b => b.id === bonus.id);
         if (index !== -1) state.bonuses.splice(index, 1, bonus);
     },
+    deleteBonus: (state, id) => (state.bonuses = state.bonuses.filter(bonus => bonus.id !== id)),
     /*setSingleLocation: (state, location) => (state.selectedLocation = location),
     ,
     updateLocation: (state, location) => {
         const index = state.locations.findIndex(l => l.id === location.id);
         if (index !== -1) state.locations.splice(index, 1, location);
-    },
-    deleteLocation: (state, id) => (state.locations = state.locations.filter(location => location.id !== id))*/
+    },*/
 };
 
 export default {

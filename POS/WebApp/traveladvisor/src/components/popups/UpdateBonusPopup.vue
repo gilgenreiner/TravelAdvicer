@@ -40,7 +40,7 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "LocationDeletePopup",
+  name: "UpdateBonusPopup",
   props: {
       bonus: Object,
       dialog: Boolean
