@@ -1,10 +1,13 @@
 package com.example.traveladvisor.bll;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Location {
+public class Location implements Parcelable {
 	private UUID id;
 	private String bezeichnung;
 	private String beschreibung;
@@ -22,7 +25,39 @@ public class Location {
 		beschreibung = "";
 		koordinaten = new Point();
 	}
-	
+
+	protected Location(Parcel in) {
+		bezeichnung = in.readString();
+		beschreibung = in.readString();
+		aktiv = in.readByte() != 0;
+		punkte = in.readInt();
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(bezeichnung);
+		dest.writeString(beschreibung);
+		dest.writeByte((byte) (aktiv ? 1 : 0));
+		dest.writeInt(punkte);
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	public static final Creator<Location> CREATOR = new Creator<Location>() {
+		@Override
+		public Location createFromParcel(Parcel in) {
+			return new Location(in);
+		}
+
+		@Override
+		public Location[] newArray(int size) {
+			return new Location[size];
+		}
+	};
+
 	public UUID getId() {
 		return id;
 	}

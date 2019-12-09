@@ -1,5 +1,6 @@
 package com.example.traveladvisor.adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,33 +9,25 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.traveladvisor.MapActivity;
+import com.example.traveladvisor.LocationDetailActivity;
+import com.example.traveladvisor.MapFragment;
 import com.example.traveladvisor.R;
+import com.example.traveladvisor.bll.Location;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static android.media.MediaDrm.PROPERTY_DESCRIPTION;
+public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerViewAdapter.MyViewHolder> {
 
-public class MapRecyclerViewAdapter extends
-        RecyclerView.Adapter<MapRecyclerViewAdapter.MyViewHolder> {
+    private List<Location> locations;
+    private MapFragment activity;
 
-    private static final String PROPERTY_SELECTED = "selected";
-    private static final String PROPERTY_LOADING = "loading";
-    private static final String PROPERTY_LOADING_PROGRESS = "loading_progress";
-    private static final String PROPERTY_TITLE = "title";
-    private static final String PROPERTY_FAVOURITE = "favourite";
-    private static final String PROPERTY_DESCRIPTION = "description";
-    private static final String PROPERTY_POI = "poi";
-    private static final String PROPERTY_STYLE = "style";
+    public MapRecyclerViewAdapter(MapFragment activity, ArrayList<Location> locations) {
 
-    private List<Feature> featureCollection;
-    private MapActivity activity;
-
-    public MapRecyclerViewAdapter(MapActivity activity, FeatureCollection featureCollection) {
         this.activity = activity;
-        this.featureCollection = featureCollection.features();
+        this.locations = locations;
     }
 
     @Override
@@ -46,16 +39,17 @@ public class MapRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(MapRecyclerViewAdapter.MyViewHolder holder, int position) {
-        Feature feature = featureCollection.get(position);
-        holder.title.setText(feature.getStringProperty(PROPERTY_TITLE));
-        holder.description.setText(feature.getStringProperty(PROPERTY_DESCRIPTION));
-        holder.poi.setText(feature.getStringProperty(PROPERTY_POI));
-        holder.style.setText(feature.getStringProperty(PROPERTY_STYLE));
-        holder.setClickListener(new MapActivity.ItemClickListener() {
+        Location location = locations.get(position);
+        holder.title.setText(location.getBezeichnung());
+        holder.description.setText(location.getBeschreibung());
+        holder.points.setText(String.valueOf(location.getPunkte()) + " Punkte");
+        holder.setClickListener(new MapFragment.ItemClickListener() {
             @Override
             public void onClick(View view, int position) {
                 if (activity != null) {
-                    activity.toggleFavourite(position);
+                    Intent myIntent = new Intent(activity.getActivity(), LocationDetailActivity.class);
+                    myIntent.putExtra("selectedLocation", location);
+                    activity.startActivity(myIntent);
                 }
             }
         });
@@ -63,7 +57,7 @@ public class MapRecyclerViewAdapter extends
 
     @Override
     public int getItemCount() {
-        return featureCollection.size();
+        return locations.size();
     }
 
     /**
@@ -71,23 +65,21 @@ public class MapRecyclerViewAdapter extends
      */
     static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView title;
-        TextView poi;
-        TextView style;
         TextView description;
+        TextView points;
         CardView singleCard;
-        MapActivity.ItemClickListener clickListener;
+        MapFragment.ItemClickListener clickListener;
 
         MyViewHolder(View view) {
             super(view);
             title = view.findViewById(R.id.textview_title);
-            poi = view.findViewById(R.id.textview_poi);
-            style = view.findViewById(R.id.textview_style);
             description = view.findViewById(R.id.textview_description);
+            points = view.findViewById(R.id.textview_punkte);
             singleCard = view.findViewById(R.id.single_location_cardview);
             singleCard.setOnClickListener(this);
         }
 
-        void setClickListener(MapActivity.ItemClickListener itemClickListener) {
+        void setClickListener(MapFragment.ItemClickListener itemClickListener) {
             this.clickListener = itemClickListener;
         }
 

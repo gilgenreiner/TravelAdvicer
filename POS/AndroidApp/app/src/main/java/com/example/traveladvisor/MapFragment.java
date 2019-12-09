@@ -7,38 +7,41 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
+
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.traveladvisor.adapter.MapRecyclerViewAdapter;
+import com.example.traveladvisor.bll.Location;
+import com.example.traveladvisor.dal.DatabaseManager;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
@@ -56,106 +59,80 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.layers.Property;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.Source;
-import com.mapbox.mapboxsdk.style.sources.TileSet;
-import com.mapbox.mapboxsdk.style.sources.VectorSource;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
-import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import timber.log.Timber;
 
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineCap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textOffset;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener,
-        MapboxMap.OnMapClickListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, PermissionsListener,
+        MapboxMap.OnMapClickListener, Callback<DirectionsResponse> {
+    private static final int ONE_HUNDRED_MILLISECONDS = 100;
     private static final String SOURCE_ID = "mapbox.poi";
     private static final String MAKI_LAYER_ID = "mapbox.poi.maki";
     private static final String LOADING_LAYER_ID = "mapbox.poi.loading";
-    private static final String CALLOUT_LAYER_ID = "mapbox.poi.callout";
 
     private static final String PROPERTY_SELECTED = "selected";
     private static final String PROPERTY_LOADING = "loading";
     private static final String PROPERTY_LOADING_PROGRESS = "loading_progress";
     private static final String PROPERTY_TITLE = "title";
-    private static final String PROPERTY_FAVOURITE = "favourite";
-    private static final String PROPERTY_DESCRIPTION = "description";
-    private static final String PROPERTY_POI = "poi";
-    private static final String PROPERTY_STYLE = "style";
 
     private static final long CAMERA_ANIMATION_TIME = 1950;
     private static final float LOADING_CIRCLE_RADIUS = 60;
-    private static final int LOADING_PROGRESS_STEPS = 25; //number of steps in a progress animation
-    private static final int LOADING_STEP_DURATION = 50; //duration between each step
+    private static final int LOADING_PROGRESS_STEPS = 25;
 
     private MapView mapView;
     private MapboxMap mapboxMap;
     private RecyclerView recyclerView;
+    private Button buttonScanQr;
+    private ProgressBar routeLoading;
+
+    private NavigationMapRoute navigationMapRoute;
 
     private GeoJsonSource source;
     private FeatureCollection featureCollection;
-    private HashMap<String, View> viewMap;
     private AnimatorSet animatorSet;
 
     private PermissionsManager permissionsManager;
 
-
     @ActivityStep
     private int currentStep;
 
-    public MapActivity() {
+    public MapFragment() {
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef( {STEP_INITIAL, STEP_LOADING, STEP_READY})
+    @IntDef({STEP_INITIAL, STEP_LOADING, STEP_READY})
     public @interface ActivityStep {
     }
 
@@ -164,57 +141,110 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int STEP_READY = 2;
 
     private static final Map<Integer, Double> stepZoomMap = new HashMap<>();
+    private ArrayList<Location> data;
 
     static {
         stepZoomMap.put(STEP_INITIAL, 11.0);
         stepZoomMap.put(STEP_LOADING, 13.5);
         stepZoomMap.put(STEP_READY, 18.0);
     }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Mapbox.getInstance(getContext(), getString(R.string.access_token));
 
-        Mapbox.getInstance(this, getString(R.string.access_token));
+        View rootView = inflater.inflate(R.layout.fragment_map, container, false);
 
-        setContentView(R.layout.activity_map);
+        recyclerView = rootView.findViewById(R.id.rv_on_top_of_map);
+        routeLoading = rootView.findViewById(R.id.routeLoadingProgressBar);
+        buttonScanQr = rootView.findViewById(R.id.button_scan_qr);
+        Button buttonStartNavigation = rootView.findViewById(R.id.button_start_navigation);
 
-        recyclerView = findViewById(R.id.rv_on_top_of_map);
+        buttonScanQr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(), "Scan Qr Code", Toast.LENGTH_LONG).show();
+            }
+        });
 
-        mapView = findViewById(R.id.mapView);
+        buttonStartNavigation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean simulateRoute = false;
+
+                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                        .directionsRoute(currentRoute)
+                        .shouldSimulateRoute(simulateRoute)
+                        .build();
+
+                NavigationLauncher.startNavigation(getActivity(), options);
+            }
+        });
+
+        mapView = rootView.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        return rootView;
+    }
+
+    private DirectionsRoute currentRoute;
+
+    private void onClick() {
+        boolean simulateRoute = false;
+
+        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                .directionsRoute(currentRoute)
+                .shouldSimulateRoute(simulateRoute)
+                .build();
+
+        NavigationLauncher.startNavigation(getActivity(), options);
     }
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-        MapActivity.this.mapboxMap = mapboxMap;
+        MapFragment.this.mapboxMap = mapboxMap;
 
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/streets-v11")
                 , new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
+
+                        navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap);
                         mapboxMap.getUiSettings().setCompassEnabled(false);
                         mapboxMap.getUiSettings().setLogoEnabled(false);
                         mapboxMap.getUiSettings().setAttributionEnabled(false);
-                        new LoadPoiDataTask(MapActivity.this).execute();
-                        mapboxMap.addOnMapClickListener(MapActivity.this);
+                        mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
+                        mapboxMap.setMinZoomPreference(5);
+                        getLocations();
+                        mapboxMap.addOnMapClickListener(MapFragment.this);
                     }
                 });
     }
 
-    @SuppressWarnings( {"MissingPermission"})
+    private void getLocations() {
+        try {
+            this.data = DatabaseManager.newInstance().getAllLocations();
+            new AddLocationsToMapTask(MapFragment.this, this.data).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
             LocationComponent locationComponent = mapboxMap.getLocationComponent();
             locationComponent.activateLocationComponent(
-                    LocationComponentActivationOptions.builder(this, loadedMapStyle).build());
+                    LocationComponentActivationOptions.builder(getContext(), loadedMapStyle).build());
             locationComponent.setLocationComponentEnabled(true);
             locationComponent.setCameraMode(CameraMode.TRACKING);
             locationComponent.setRenderMode(RenderMode.COMPASS);
         } else {
             permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
+            permissionsManager.requestLocationPermissions(getActivity());
         }
     }
 
@@ -225,7 +255,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(this,"Gejz", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Gejz", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -238,25 +268,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             });
         } else {
-            Toast.makeText(this, "Geht ned", Toast.LENGTH_LONG).show();
-            finish();
+            Toast.makeText(getContext(), "Permission not granted", Toast.LENGTH_LONG).show();
+            getActivity().finish();
         }
     }
 
     @Override
     public boolean onMapClick(@NonNull LatLng point) {
+        removeRoute();
+        deselectAll(true);
+        refreshSource();
         PointF screenPoint = mapboxMap.getProjection().toScreenLocation(point);
-        List<Feature> features = mapboxMap.queryRenderedFeatures(screenPoint, CALLOUT_LAYER_ID);
-        if (!features.isEmpty()) {
-// we received a click event on the callout layer
-            Feature feature = features.get(0);
-            PointF symbolScreenPoint = mapboxMap.getProjection().toScreenLocation(convertToLatLng(feature));
-            handleClickCallout(feature, screenPoint, symbolScreenPoint);
-        } else {
-// we didn't find a click event on callout layer, try clicking maki layer
-            return handleClickIcon(screenPoint);
-        }
-        return true;
+        return handleClickIcon(screenPoint);
     }
 
     public void setupData(final FeatureCollection collection) {
@@ -270,9 +293,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 setupSource(style);
                 setupMakiLayer(style);
                 setupLoadingLayer(style);
-                setupCalloutLayer(style);
                 setupRecyclerView();
-                hideLabelLayers(style);
             }
         });
     }
@@ -289,7 +310,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     /**
-     * Setup a layer with maki icons, eg. restaurant.
+     * Setup a layer with maki icons, eg. markers.
      */
     private void setupMakiLayer(@NonNull Style loadedMapStyle) {
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_location_24dp, null);
@@ -299,14 +320,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         loadedMapStyle.addLayer(new SymbolLayer(MAKI_LAYER_ID, SOURCE_ID)
                 .withProperties(
-                        /* show maki icon based on the value of poi feature property
-                         * https://www.mapbox.com/maki-icons/
-                         */
                         iconImage("my.image"),
-                        /* allows show all icons */
                         iconAllowOverlap(true),
-
-                        /* when feature is in selected state, grow icon */
                         iconSize(match(Expression.toString(get(PROPERTY_SELECTED)), literal(1.0f),
                                 stop("true", 1.5f))))
         );
@@ -334,32 +349,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return stops.toArray(new Expression.Stop[LOADING_PROGRESS_STEPS]);
     }
 
-    /**
-     * Setup a layer with Android SDK call-outs
-     * <p>
-     * title of the feature is used as key for the iconImage
-     * </p>
-     */
-    private void setupCalloutLayer(@NonNull Style loadedMapStyle) {
-        loadedMapStyle.addLayer(new SymbolLayer(CALLOUT_LAYER_ID, SOURCE_ID)
-                .withProperties(
-                        /* show image with id title based on the value of the title feature property */
-                        iconImage("{title}"),
-
-                        /* set anchor of icon to bottom-left */
-                        iconAnchor(Property.ICON_ANCHOR_BOTTOM_LEFT),
-
-                        /* offset icon slightly to match bubble layout */
-                        iconOffset(new Float[] {-20.0f, -10.0f})
-                )
-
-/* add a filter to show only when selected feature property is true */
-                .withFilter(eq((get(PROPERTY_SELECTED)), literal(true))));
-    }
-
     private void setupRecyclerView() {
-        RecyclerView.Adapter adapter = new MapRecyclerViewAdapter(this, featureCollection);
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView.Adapter adapter = new MapRecyclerViewAdapter(this, this.data);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
@@ -375,57 +367,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
-    }
-
-    private void hideLabelLayers(@NonNull Style style) {
-        String id;
-        for (Layer layer : style.getLayers()) {
-            id = layer.getId();
-            if (id.startsWith("place") || id.startsWith("poi") || id.startsWith("marine") || id.startsWith("road-label")) {
-                layer.setProperties(visibility(Property.NONE));
-            }
-        }
-    }
-
-    /**
-     * This method handles click events for callout symbols.
-     * <p>
-     * It creates a hit rectangle based on the the textView, offsets that rectangle to the location
-     * of the symbol on screen and hit tests that with the screen point.
-     * </p>
-     *
-     * @param feature           the feature that was clicked
-     * @param screenPoint       the point on screen clicked
-     * @param symbolScreenPoint the point of the symbol on screen
-     */
-    private void handleClickCallout(Feature feature, PointF screenPoint, PointF symbolScreenPoint) {
-        View view = viewMap.get(feature.getStringProperty(PROPERTY_TITLE));
-       // View textContainer = view.findViewById(R.id.text_container);
-
-// create hitbox for textView
-        Rect hitRectText = new Rect();
-        //textContainer.getHitRect(hitRectText);
-
-// move hitbox to location of symbol
-        hitRectText.offset((int) symbolScreenPoint.x, (int) symbolScreenPoint.y);
-
-// offset vertically to match anchor behaviour
-        hitRectText.offset(0, -view.getMeasuredHeight());
-
-// hit test if clicked point is in textview hitbox
-        if (hitRectText.contains((int) screenPoint.x, (int) screenPoint.y)) {
-// user clicked on text
-            String callout = feature.getStringProperty("call-out");
-            Toast.makeText(this, callout, Toast.LENGTH_LONG).show();
-        } else {
-// user clicked on icon
-            List<Feature> featureList = featureCollection.features();
-            for (int i = 0; i < featureList.size(); i++) {
-                if (featureList.get(i).getStringProperty(PROPERTY_TITLE).equals(feature.getStringProperty(PROPERTY_TITLE))) {
-                    toggleFavourite(i);
-                }
-            }
-        }
     }
 
     /**
@@ -444,6 +385,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             for (int i = 0; i < featureList.size(); i++) {
                 if (featureList.get(i).getStringProperty(PROPERTY_TITLE).equals(title)) {
                     setSelected(i, true);
+                    findRoute(Point.fromLngLat(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude()), (Point) featureList.get(i).geometry());
+                    routeLoading.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -479,8 +422,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Deselects the state of all the features
      */
     private void deselectAll(boolean hideRecycler) {
-        for (Feature feature : featureCollection.features()) {
-            feature.properties().addProperty(PROPERTY_SELECTED, false);
+        if (featureCollection.features().size() > 0) {
+            for (Feature feature : featureCollection.features()) {
+                feature.properties().addProperty(PROPERTY_SELECTED, false);
+            }
         }
 
         if (hideRecycler) {
@@ -536,45 +481,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         animateCameraToSelection(feature, zoom);
     }
 
-    /**
-     * Set the favourite state of a feature based on the index.
-     *
-     * @param index the index of the feature to favourite/de-favourite
-     */
-    public void toggleFavourite(int index) {
-        Feature feature = featureCollection.features().get(index);
-        String title = feature.getStringProperty(PROPERTY_TITLE);
-        boolean currentState = feature.getBooleanProperty(PROPERTY_FAVOURITE);
-        feature.properties().addProperty(PROPERTY_FAVOURITE, !currentState);
-        View view = viewMap.get(title);
-
-        ImageView imageView = view.findViewById(R.id.logoView);
-        //imageView.setImageResource(currentState ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
-        Bitmap bitmap = SymbolGenerator.generate(view);
-        mapboxMap.getStyle(new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                style.addImage(title, bitmap);
-                refreshSource();
-            }
-        });
-    }
-
-    /**
-     * Invoked when the bitmaps have been generated from a view.
-     */
-    public void setImageGenResults(HashMap<String, View> viewMap, HashMap<String, Bitmap> imageMap) {
-        mapboxMap.getStyle(new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-// calling addImages is faster as separate addImage calls for each bitmap.
-                style.addImages(imageMap);
-            }
-        });
-// need to store reference to views to be able to use them as hitboxes for click events.
-        MapActivity.this.viewMap = viewMap;
-    }
-
     private void setActivityStep(@ActivityStep int activityStep) {
         Feature selectedFeature = getSelectedFeature();
         double zoom = stepZoomMap.get(activityStep);
@@ -584,15 +490,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         mapView.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+        if (navigationMapRoute != null) {
+            navigationMapRoute.onStart();
+        }
     }
 
     @Override
@@ -602,14 +511,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
-
         mapView.onStop();
+        if (navigationMapRoute != null) {
+            navigationMapRoute.onStop();
+        }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
@@ -621,8 +532,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         if (mapboxMap != null) {
             mapboxMap.removeOnMapClickListener(this);
         }
@@ -630,13 +541,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onBackPressed() {
+    public void onDetach() {
         if (currentStep == STEP_LOADING || currentStep == STEP_READY) {
             setActivityStep(STEP_INITIAL);
             deselectAll(true);
             refreshSource();
         } else {
-            super.onBackPressed();
+            super.onDetach();
         }
     }
 
@@ -697,6 +608,49 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return tiltAnimator;
     }
 
+    @SuppressLint("MissingPermission")
+    private void vibrate() {
+        Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(ONE_HUNDRED_MILLISECONDS, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            vibrator.vibrate(ONE_HUNDRED_MILLISECONDS);
+        }
+    }
+
+    private void removeRoute() {
+        navigationMapRoute.updateRouteVisibilityTo(false);
+    }
+
+    @Override
+    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+        if (response.isSuccessful() && response.body() != null && !response.body().routes().isEmpty()) {
+            //List<DirectionsRoute> routes = response.body().routes();
+            //navigationMapRoute.addRoutes(routes);
+            currentRoute = response.body().routes().get(0);
+            navigationMapRoute.addRoute(currentRoute);
+            routeLoading.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void findRoute(Point origin, Point destination) {
+        NavigationRoute.builder(getContext())
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .alternatives(true)
+                .build()
+                .getRoute(this);
+    }
+
+    @Override
+    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+        Timber.e(t);
+    }
+
     /**
      * Helper class to evaluate LatLng objects with a ValueAnimator
      */
@@ -715,242 +669,77 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     /**
-     * AsyncTask to load data from the assets folder.
+     * AsyncTask to add data to the Map
      */
-    private static class LoadPoiDataTask extends AsyncTask<Void, Void, FeatureCollection> {
+    private static class AddLocationsToMapTask extends AsyncTask<Void, Void, FeatureCollection> {
 
-        private final WeakReference<MapActivity> activityRef;
+        private final WeakReference<MapFragment> activityRef;
+        private final ArrayList<Location> data;
 
-        LoadPoiDataTask(MapActivity activity) {
+        AddLocationsToMapTask(MapFragment activity, ArrayList<Location> data) {
             this.activityRef = new WeakReference<>(activity);
+            this.data = data;
         }
 
         @Override
         protected FeatureCollection doInBackground(Void... params) {
-            MapActivity activity = activityRef.get();
+            MapFragment activity = activityRef.get();
 
             if (activity == null) {
                 return null;
             }
 
-            Feature a = Feature.fromGeometry(
-                    Point.fromLngLat(-57.225365, -33.213144));
-            a.addStringProperty("title", "Panda Express");
-            a.addStringProperty("poi", "marker");
-            a.addStringProperty("style", "Chinese Restaurant");
-            a.addStringProperty("description", "Fast-food chain for Chinese standards, including some health-conscious options.");
-            a.addStringProperty("call-out", "Some fast Chinese goodies!");
-            a.addBooleanProperty("selected", false);
-            a.addBooleanProperty("loading", false);
-            a.addBooleanProperty("favourite", false);
-            a.addNumberProperty("zoom", 13.5);
-            a.addNumberProperty("bearing", 35);
-            a.addNumberProperty("tilt", 0);
-
             List<Feature> symbolLayerIconFeatureList = new ArrayList<>();
-            symbolLayerIconFeatureList.add(a);
-            //String geoJson = loadGeoJsonFromAsset(activity, "sf_poi.geojson");
+
+            for (Location l : data) {
+                Feature feature = Feature.fromGeometry(Point.fromLngLat(l.getKoordinaten().getY(), l.getKoordinaten().getX()));
+                feature.addStringProperty("title", l.getBezeichnung());
+                feature.addStringProperty("description", l.getBeschreibung());
+                feature.addBooleanProperty("selected", false);
+                feature.addBooleanProperty("loading", false);
+                feature.addBooleanProperty("favourite", false);
+                feature.addNumberProperty("zoom", 14);
+                feature.addNumberProperty("bearing", 0);
+                feature.addNumberProperty("tilt", 0);
+
+                symbolLayerIconFeatureList.add(feature);
+            }
+
             return FeatureCollection.fromFeatures(symbolLayerIconFeatureList);
         }
 
         @Override
         protected void onPostExecute(FeatureCollection featureCollection) {
             super.onPostExecute(featureCollection);
-            MapActivity activity = activityRef.get();
+            MapFragment activity = activityRef.get();
             if (featureCollection == null || activity == null) {
                 return;
             }
             activity.setupData(featureCollection);
-            new GenerateViewIconTask(activity).execute(featureCollection);
-        }
-
-        static String loadGeoJsonFromAsset(Context context, String filename) {
-            try {
-// Load GeoJSON file from local asset folder
-                InputStream is = context.getAssets().open(filename);
-                int size = is.available();
-                byte[] buffer = new byte[size];
-                is.read(buffer);
-                is.close();
-                return new String(buffer, Charset.forName("UTF-8"));
-            } catch (Exception exception) {
-                throw new RuntimeException(exception);
-            }
         }
     }
 
-    /**
-     * AsyncTask to generate Bitmap from Views to be used as iconImage in a SymbolLayer.
-     * <p>
-     * Call be optionally be called to update the underlying data source after execution.
-     * </p>
-     * <p>
-     * Generating Views on background thread since we are not going to be adding them to the view hierarchy.
-     * </p>
-     */
-    private static class GenerateViewIconTask extends AsyncTask<FeatureCollection, Void, HashMap<String, Bitmap>> {
+    private static class StyleCycle {
+        private static final String[] STYLES = new String[]{
+                Style.MAPBOX_STREETS,
+                Style.OUTDOORS,
+                Style.LIGHT,
+                Style.DARK,
+                Style.SATELLITE_STREETS
+        };
 
-        private final HashMap<String, View> viewMap = new HashMap<>();
-        private final WeakReference<MapActivity> activityRef;
-        private final boolean refreshSource;
+        private int index;
 
-        GenerateViewIconTask(MapActivity activity, boolean refreshSource) {
-            this.activityRef = new WeakReference<>(activity);
-            this.refreshSource = refreshSource;
-        }
-
-        GenerateViewIconTask(MapActivity activity) {
-            this(activity, false);
-        }
-
-        @SuppressWarnings("WrongThread")
-        @Override
-        protected HashMap<String, Bitmap> doInBackground(FeatureCollection... params) {
-            MapActivity activity = activityRef.get();
-            if (activity != null) {
-                HashMap<String, Bitmap> imagesMap = new HashMap<>();
-                LayoutInflater inflater = LayoutInflater.from(activity);
-                FeatureCollection featureCollection = params[0];
-
-                for (Feature feature : featureCollection.features()) {
-                   /* View view = inflater.inflate(R.layout.mapillary_layout_callout, null);
-
-                    String name = feature.getStringProperty(PROPERTY_TITLE);
-                    TextView titleTv = view.findViewById(R.id.title);
-                    titleTv.setText(name);
-
-                    String style = feature.getStringProperty(PROPERTY_STYLE);
-                    TextView styleTv = view.findViewById(R.id.style);
-                    styleTv.setText(style);
-
-                    boolean favourite = feature.getBooleanProperty(PROPERTY_FAVOURITE);
-                    ImageView imageView = view.findViewById(R.id.logoView);
-                    imageView.setImageResource(favourite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
-
-                    Bitmap bitmap = SymbolGenerator.generate(view);
-                    imagesMap.put(name, bitmap);
-                    viewMap.put(name, view);*/
-                }
-
-                return imagesMap;
-            } else {
-                return null;
+        private String getNextStyle() {
+            index++;
+            if (index == STYLES.length) {
+                index = 0;
             }
+            return getStyle();
         }
 
-        @Override
-        protected void onPostExecute(HashMap<String, Bitmap> bitmapHashMap) {
-            super.onPostExecute(bitmapHashMap);
-            MapActivity activity = activityRef.get();
-            if (activity != null && bitmapHashMap != null) {
-
-                activity.setImageGenResults(viewMap, bitmapHashMap);
-                if (refreshSource) {
-                    activity.refreshSource();
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Utility class to generate Bitmaps for Symbol.
-     */
-    private static class SymbolGenerator {
-
-        /**
-         * Generate a Bitmap from an Android SDK View.
-         *
-         * @param view the View to be drawn to a Bitmap
-         * @return the generated bitmap
-         */
-        static Bitmap generate(@NonNull View view) {
-            int measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-            view.measure(measureSpec, measureSpec);
-
-            int measuredWidth = view.getMeasuredWidth();
-            int measuredHeight = view.getMeasuredHeight();
-
-            view.layout(0, 0, measuredWidth, measuredHeight);
-            Bitmap bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888);
-            bitmap.eraseColor(Color.TRANSPARENT);
-            Canvas canvas = new Canvas(bitmap);
-            view.draw(canvas);
-            return bitmap;
-        }
-    }
-    /**
-     * RecyclerViewAdapter adapting features to cards.
-     */
-    static class LocationRecyclerViewAdapter extends
-            RecyclerView.Adapter<MapActivity.LocationRecyclerViewAdapter.MyViewHolder> {
-
-        private List<Feature> featureCollection;
-        private MapActivity activity;
-
-        LocationRecyclerViewAdapter(MapActivity activity, FeatureCollection featureCollection) {
-            this.activity = activity;
-            this.featureCollection = featureCollection.features();
-        }
-
-        @Override
-        public LocationRecyclerViewAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.cardview_symbol_layer, parent, false);
-            return new LocationRecyclerViewAdapter.MyViewHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(LocationRecyclerViewAdapter.MyViewHolder holder, int position) {
-            Feature feature = featureCollection.get(position);
-            holder.title.setText(feature.getStringProperty(PROPERTY_TITLE));
-            holder.description.setText(feature.getStringProperty(PROPERTY_DESCRIPTION));
-            holder.poi.setText(feature.getStringProperty(PROPERTY_POI));
-            holder.style.setText(feature.getStringProperty(PROPERTY_STYLE));
-            holder.setClickListener(new ItemClickListener() {
-                @Override
-                public void onClick(View view, int position) {
-                    if (activity != null) {
-                        activity.toggleFavourite(position);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return featureCollection.size();
-        }
-
-        /**
-         * ViewHolder for RecyclerView.
-         */
-        static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            TextView title;
-            TextView poi;
-            TextView style;
-            TextView description;
-            CardView singleCard;
-            ItemClickListener clickListener;
-
-            MyViewHolder(View view) {
-                super(view);
-                title = view.findViewById(R.id.textview_title);
-                poi = view.findViewById(R.id.textview_poi);
-                style = view.findViewById(R.id.textview_style);
-                description = view.findViewById(R.id.textview_description);
-                singleCard = view.findViewById(R.id.single_location_cardview);
-                singleCard.setOnClickListener(this);
-            }
-
-            void setClickListener(ItemClickListener itemClickListener) {
-                this.clickListener = itemClickListener;
-            }
-
-            @Override
-            public void onClick(View view) {
-                clickListener.onClick(view, getLayoutPosition());
-            }
+        private String getStyle() {
+            return STYLES[index];
         }
     }
 
