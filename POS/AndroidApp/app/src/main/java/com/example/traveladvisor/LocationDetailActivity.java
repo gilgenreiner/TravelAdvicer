@@ -30,7 +30,7 @@ public class LocationDetailActivity extends AppCompatActivity {
 
         textView_bezeichnung.setText(location.getBezeichnung());
         textView_beschreibung.setText(location.getBeschreibung());
-        //textView_branchen.setText(location.getBranchen().toString());
+        textView_branchen.setText(location.getBranchenAsString());
         textView_punkte.setText(String.valueOf(location.getPunkte()));
 
     }

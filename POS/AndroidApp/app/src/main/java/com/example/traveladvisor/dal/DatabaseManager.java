@@ -42,8 +42,7 @@ public class DatabaseManager {
         controller.execute();
         String strFromWebService = controller.get();
         try {
-            Type colltype = new TypeToken<ArrayList<Location>>() {
-            }.getType();
+            Type colltype = new TypeToken<ArrayList<Location>>() { }.getType();
             retLocations = gson.fromJson(strFromWebService, colltype);
         } catch (Exception ex) {
             throw new Exception(strFromWebService);

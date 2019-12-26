@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -13,8 +14,6 @@ import com.example.traveladvisor.LocationDetailActivity;
 import com.example.traveladvisor.MapFragment;
 import com.example.traveladvisor.R;
 import com.example.traveladvisor.bll.Location;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +32,17 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
     @Override
     public MapRecyclerViewAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.cardview_symbol_layer, parent, false);
+                .inflate(R.layout.recyclerview_item, parent, false);
         return new MapRecyclerViewAdapter.MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(MapRecyclerViewAdapter.MyViewHolder holder, int position) {
         Location location = locations.get(position);
+
         holder.title.setText(location.getBezeichnung());
         holder.description.setText(location.getBeschreibung());
+        holder.branchen.setText(location.getBranchenAsString());
         holder.points.setText(String.valueOf(location.getPunkte()) + " Punkte");
         holder.setClickListener(new MapFragment.ItemClickListener() {
             @Override
@@ -52,6 +53,10 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
                     activity.startActivity(myIntent);
                 }
             }
+        });
+
+        holder.buttonStartNavigation.setOnClickListener((View v) -> {
+            activity.startNavigation();
         });
     }
 
@@ -67,7 +72,9 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
         TextView title;
         TextView description;
         TextView points;
+        TextView branchen;
         CardView singleCard;
+        Button buttonStartNavigation;
         MapFragment.ItemClickListener clickListener;
 
         MyViewHolder(View view) {
@@ -75,6 +82,8 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
             title = view.findViewById(R.id.textview_title);
             description = view.findViewById(R.id.textview_description);
             points = view.findViewById(R.id.textview_punkte);
+            branchen = view.findViewById(R.id.textview_branchen);
+            buttonStartNavigation = view.findViewById(R.id.button_start_navigation);
             singleCard = view.findViewById(R.id.single_location_cardview);
             singleCard.setOnClickListener(this);
         }

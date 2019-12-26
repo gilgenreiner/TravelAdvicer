@@ -14,12 +14,6 @@
         mapbox:mapbox_cameraTargetLng="-73.99155"
         mapbox:mapbox_cameraZoom="11" />
 
-    <Button
-        android:id="@+id/button_start_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start navigation" />
-
     <ProgressBar
         android:id="@+id/routeLoadingProgressBar"
         android:layout_width="wrap_content"
@@ -45,7 +39,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_on_top_of_map"
             android:layout_width="match_parent"
-            android:layout_height="178dp"
+            android:layout_height="190dp"
             android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

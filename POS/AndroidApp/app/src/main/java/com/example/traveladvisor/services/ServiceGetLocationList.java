@@ -14,6 +14,7 @@ public class ServiceGetLocationList extends AsyncTask<String, Void, String> {
     public static void setIpHost(String ip) {
         ipHost = ip;
     }
+
     @Override
     protected String doInBackground(String... command) {
         boolean isError = false;
@@ -49,7 +50,5 @@ public class ServiceGetLocationList extends AsyncTask<String, Void, String> {
             }
         }
         return content;
-
     }
-
 }

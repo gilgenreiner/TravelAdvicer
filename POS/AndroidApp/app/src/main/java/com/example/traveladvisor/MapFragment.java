@@ -4,14 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -26,8 +23,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.os.VibrationEffect;
-import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +70,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -97,7 +94,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, PermissionsListener,
         MapboxMap.OnMapClickListener, Callback<DirectionsResponse> {
-    private static final int ONE_HUNDRED_MILLISECONDS = 100;
+    private static final String TAG = "MapFragment";
+
     private static final String SOURCE_ID = "mapbox.poi";
     private static final String MAKI_LAYER_ID = "mapbox.poi.maki";
     private static final String LOADING_LAYER_ID = "mapbox.poi.loading";
@@ -125,6 +123,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
 
     private PermissionsManager permissionsManager;
 
+    private ArrayList<Location> data = new ArrayList<Location>();
+    private DirectionsRoute currentRoute;
+
     @ActivityStep
     private int currentStep;
 
@@ -141,7 +142,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
     private static final int STEP_READY = 2;
 
     private static final Map<Integer, Double> stepZoomMap = new HashMap<>();
-    private ArrayList<Location> data;
 
     static {
         stepZoomMap.put(STEP_INITIAL, 11.0);
@@ -159,26 +159,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         recyclerView = rootView.findViewById(R.id.rv_on_top_of_map);
         routeLoading = rootView.findViewById(R.id.routeLoadingProgressBar);
         buttonScanQr = rootView.findViewById(R.id.button_scan_qr);
-        Button buttonStartNavigation = rootView.findViewById(R.id.button_start_navigation);
 
         buttonScanQr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(), "Scan Qr Code", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        buttonStartNavigation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean simulateRoute = false;
-
-                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                        .directionsRoute(currentRoute)
-                        .shouldSimulateRoute(simulateRoute)
-                        .build();
-
-                NavigationLauncher.startNavigation(getActivity(), options);
             }
         });
 
@@ -189,24 +174,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         return rootView;
     }
 
-    private DirectionsRoute currentRoute;
+    public void setData(ArrayList<Location> data) {
+        this.data = data;
+    }
 
-    private void onClick() {
-        boolean simulateRoute = false;
-
-        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                .directionsRoute(currentRoute)
-                .shouldSimulateRoute(simulateRoute)
-                .build();
-
-        NavigationLauncher.startNavigation(getActivity(), options);
+    public ArrayList<Location> getData() {
+        return this.data;
     }
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         MapFragment.this.mapboxMap = mapboxMap;
 
-        mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/streets-v11")
+        mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/mkleinegger/ck4movtpa21z71ctalv5mt7e5")
                 , new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
@@ -218,19 +198,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                         mapboxMap.getUiSettings().setAttributionEnabled(false);
                         mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
                         mapboxMap.setMinZoomPreference(5);
-                        getLocations();
+                        new AddLocationsToMapTask(MapFragment.this).execute();
                         mapboxMap.addOnMapClickListener(MapFragment.this);
+
+                        Log.i(TAG, "Map loaded");
                     }
                 });
-    }
-
-    private void getLocations() {
-        try {
-            this.data = DatabaseManager.newInstance().getAllLocations();
-            new AddLocationsToMapTask(MapFragment.this, this.data).execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @SuppressWarnings({"MissingPermission"})
@@ -255,7 +228,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), "Gejz", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "This app needs location permissions in order to show its functionality.", Toast.LENGTH_LONG).show();
+        Log.i(TAG, "This app needs location permissions in order to show its functionality.");
     }
 
     @Override
@@ -268,24 +242,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                 }
             });
         } else {
-            Toast.makeText(getContext(), "Permission not granted", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "You didn't grant location permissions.", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "You didn't grant location permissions.");
             getActivity().finish();
         }
     }
 
     @Override
     public boolean onMapClick(@NonNull LatLng point) {
-        removeRoute();
-        deselectAll(true);
+        deselectAll(true, true);
         refreshSource();
-        PointF screenPoint = mapboxMap.getProjection().toScreenLocation(point);
-        return handleClickIcon(screenPoint);
+
+        return handleClickIcon(mapboxMap.getProjection().toScreenLocation(point));
     }
 
     public void setupData(final FeatureCollection collection) {
         if (mapboxMap == null) {
             return;
         }
+
         featureCollection = collection;
         mapboxMap.getStyle(new Style.OnStyleLoaded() {
             @Override
@@ -359,9 +334,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+
                 if (newState == SCROLL_STATE_IDLE) {
                     int index = layoutManager.findFirstVisibleItemPosition();
                     setSelected(index, false);
+
                 }
             }
         });
@@ -385,8 +362,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
             for (int i = 0; i < featureList.size(); i++) {
                 if (featureList.get(i).getStringProperty(PROPERTY_TITLE).equals(title)) {
                     setSelected(i, true);
-                    findRoute(Point.fromLngLat(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude()), (Point) featureList.get(i).geometry());
-                    routeLoading.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -406,10 +381,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
             recyclerView.setVisibility(View.VISIBLE);
         }
 
-        deselectAll(false);
+        deselectAll(false, false);
 
         Feature feature = featureCollection.features().get(index);
         selectFeature(feature);
+        selectRoute(feature);
         animateCameraToSelection(feature);
         refreshSource();
 
@@ -421,7 +397,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
     /**
      * Deselects the state of all the features
      */
-    private void deselectAll(boolean hideRecycler) {
+    private void deselectAll(boolean hideRecycler, boolean removeRoute) {
         if (featureCollection.features().size() > 0) {
             for (Feature feature : featureCollection.features()) {
                 feature.properties().addProperty(PROPERTY_SELECTED, false);
@@ -430,6 +406,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
 
         if (hideRecycler) {
             recyclerView.setVisibility(View.GONE);
+        }
+
+        if (removeRoute) {
+            removeRoute();
         }
     }
 
@@ -452,6 +432,69 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         }
 
         return null;
+    }
+
+    /**
+     * Entry point to start the navigation
+     */
+
+    public void startNavigation() {
+        boolean simulateRoute = false;
+
+        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                .directionsRoute(currentRoute)
+                .shouldSimulateRoute(simulateRoute)
+                .build();
+
+        NavigationLauncher.startNavigation(getActivity(), options);
+    }
+
+    /**
+     * Selectes the perfect Route for Navigation
+     */
+
+    private void selectRoute(Feature feature) {
+        android.location.Location lastKnownLocation = mapboxMap.getLocationComponent().getLastKnownLocation();
+        findRoute(Point.fromLngLat(lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude()), (Point) feature.geometry());
+
+        routeLoading.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Navigation SDK
+     */
+    @Override
+    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+        if (response.isSuccessful() && response.body() != null && !response.body().routes().isEmpty()) {
+            //for more than one route
+            //List<DirectionsRoute> routes = response.body().routes();
+            //navigationMapRoute.addRoutes(routes);
+
+            //for the fastest route
+            currentRoute = response.body().routes().get(0);
+            navigationMapRoute.addRoute(currentRoute);
+
+            routeLoading.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+        Log.e(TAG, t.getMessage(), t);
+    }
+
+    public void findRoute(Point origin, Point destination) {
+        NavigationRoute.builder(getContext())
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .alternatives(true)
+                .build()
+                .getRoute(this);
+    }
+
+    private void removeRoute() {
+        navigationMapRoute.updateRouteVisibilityTo(false);
     }
 
     /**
@@ -544,7 +587,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
     public void onDetach() {
         if (currentStep == STEP_LOADING || currentStep == STEP_READY) {
             setActivityStep(STEP_INITIAL);
-            deselectAll(true);
+            deselectAll(true, true);
             refreshSource();
         } else {
             super.onDetach();
@@ -608,49 +651,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         return tiltAnimator;
     }
 
-    @SuppressLint("MissingPermission")
-    private void vibrate() {
-        Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator == null) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(ONE_HUNDRED_MILLISECONDS, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            vibrator.vibrate(ONE_HUNDRED_MILLISECONDS);
-        }
-    }
-
-    private void removeRoute() {
-        navigationMapRoute.updateRouteVisibilityTo(false);
-    }
-
-    @Override
-    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-        if (response.isSuccessful() && response.body() != null && !response.body().routes().isEmpty()) {
-            //List<DirectionsRoute> routes = response.body().routes();
-            //navigationMapRoute.addRoutes(routes);
-            currentRoute = response.body().routes().get(0);
-            navigationMapRoute.addRoute(currentRoute);
-            routeLoading.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    public void findRoute(Point origin, Point destination) {
-        NavigationRoute.builder(getContext())
-                .accessToken(Mapbox.getAccessToken())
-                .origin(origin)
-                .destination(destination)
-                .alternatives(true)
-                .build()
-                .getRoute(this);
-    }
-
-    @Override
-    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
-        Timber.e(t);
-    }
-
     /**
      * Helper class to evaluate LatLng objects with a ValueAnimator
      */
@@ -674,12 +674,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
     private static class AddLocationsToMapTask extends AsyncTask<Void, Void, FeatureCollection> {
 
         private final WeakReference<MapFragment> activityRef;
-        private final ArrayList<Location> data;
 
-        AddLocationsToMapTask(MapFragment activity, ArrayList<Location> data) {
+        AddLocationsToMapTask(MapFragment activity) {
             this.activityRef = new WeakReference<>(activity);
-            this.data = data;
         }
+
+        @Override
+        protected void onPreExecute() {
+            try {
+                activityRef.get().setData(DatabaseManager.newInstance().getAllLocations());
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
+
 
         @Override
         protected FeatureCollection doInBackground(Void... params) {
@@ -691,10 +699,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
 
             List<Feature> symbolLayerIconFeatureList = new ArrayList<>();
 
-            for (Location l : data) {
-                Feature feature = Feature.fromGeometry(Point.fromLngLat(l.getKoordinaten().getY(), l.getKoordinaten().getX()));
-                feature.addStringProperty("title", l.getBezeichnung());
-                feature.addStringProperty("description", l.getBeschreibung());
+            for (Location location : activity.getData()) {
+                Feature feature = Feature.fromGeometry(Point.fromLngLat(location.getKoordinaten().getY(), location.getKoordinaten().getX()));
+                feature.addStringProperty("title", location.getBezeichnung());
+                feature.addStringProperty("description", location.getBeschreibung());
                 feature.addBooleanProperty("selected", false);
                 feature.addBooleanProperty("loading", false);
                 feature.addBooleanProperty("favourite", false);
@@ -715,31 +723,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
             if (featureCollection == null || activity == null) {
                 return;
             }
+
             activity.setupData(featureCollection);
-        }
-    }
-
-    private static class StyleCycle {
-        private static final String[] STYLES = new String[]{
-                Style.MAPBOX_STREETS,
-                Style.OUTDOORS,
-                Style.LIGHT,
-                Style.DARK,
-                Style.SATELLITE_STREETS
-        };
-
-        private int index;
-
-        private String getNextStyle() {
-            index++;
-            if (index == STYLES.length) {
-                index = 0;
-            }
-            return getStyle();
-        }
-
-        private String getStyle() {
-            return STYLES[index];
         }
     }
 
