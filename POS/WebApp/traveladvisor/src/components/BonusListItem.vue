@@ -37,7 +37,7 @@
           <v-btn icon @click="deleteDialog = true">
             <v-icon>delete</v-icon>
           </v-btn>
-          <!--LocationDeletePopup :dialog.sync="dialog" :bonus="bonus" /-->
+          <DeleteBonusPopup :dialog.sync="deleteDialog" :bonus="bonus" />
           <PopupUpdateBoni :dialog.sync="updateDialog" :bonus="bonus" />
       </v-card-actions>
     </v-card>
@@ -46,16 +46,18 @@
 
 
 <script>
-import LocationDeletePopup from "@/components/popups/DeleteLocationPopup.vue";
+
 import PopupUpdateBoni from "@/components/popups/UpdateBonusPopup.vue";
+import DeleteBonusPopup from "@/components/popups/DeleteBonusPopup.vue";
+
 export default {
   components: {
-    LocationDeletePopup,
+    DeleteBonusPopup,
     PopupUpdateBoni
   },
   data() {
     return {
-      dialog: false,
+      deleteDialog: false,
       updateDialog: false
     };
   },
