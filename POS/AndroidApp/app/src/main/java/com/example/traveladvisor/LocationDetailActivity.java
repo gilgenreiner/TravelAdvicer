@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.example.traveladvisor.bll.Location;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class LocationDetailActivity extends AppCompatActivity {
-
-    private TextView textView_beschreibung;
-    private TextView textView_bezeichnung;
-    private TextView textView_branchen;
-    private TextView textView_punkte;
+    private TextInputEditText etxtBeschreibung;
+    private TextInputEditText etxtBezeichnung;
+    private TextInputEditText etxtBranchen;
+    private TextInputEditText etxtPunkte;
 
     private Location location;
 
@@ -23,15 +23,20 @@ public class LocationDetailActivity extends AppCompatActivity {
 
         location = (Location) getIntent().getExtras().get("selectedLocation");
 
-        textView_beschreibung = findViewById(R.id.textview_beschreibung);
-        textView_bezeichnung = findViewById(R.id.textview_bezeichung);
-        textView_branchen = findViewById(R.id.textview_branchen);
-        textView_punkte = findViewById(R.id.textview_punkte);
+        etxtBezeichnung = findViewById(R.id.etxtBezeichnung);
+        etxtBeschreibung = findViewById(R.id.etxtBeschreibung);
+        etxtBranchen = findViewById(R.id.etxtBranchen);
+        etxtPunkte = findViewById(R.id.etxtPunkte);
 
-        textView_bezeichnung.setText(location.getBezeichnung());
-        textView_beschreibung.setText(location.getBeschreibung());
-        textView_branchen.setText(location.getBranchenAsString());
-        textView_punkte.setText(String.valueOf(location.getPunkte()));
+        etxtBezeichnung.setEnabled(false);
+        etxtBeschreibung.setEnabled(false);
+        etxtBranchen.setEnabled(false);
+        etxtPunkte.setEnabled(false);
+
+        etxtBeschreibung.setText(location.getBeschreibung());
+        etxtBezeichnung.setText(location.getBezeichnung());
+        etxtBranchen.setText(location.getBranchenAsString());
+        etxtPunkte.setText(String.valueOf(location.getPunkte()));
 
     }
 }

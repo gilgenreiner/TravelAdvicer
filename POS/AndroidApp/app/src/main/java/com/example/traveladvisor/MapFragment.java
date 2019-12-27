@@ -10,6 +10,13 @@ import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -22,14 +29,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.example.traveladvisor.adapter.MapRecyclerViewAdapter;
 import com.example.traveladvisor.bll.Location;
@@ -70,12 +69,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import timber.log.Timber;
 
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
@@ -113,6 +110,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
     private MapboxMap mapboxMap;
     private RecyclerView recyclerView;
     private Button buttonScanQr;
+    private Button buttonLocateMe;
     private ProgressBar routeLoading;
 
     private NavigationMapRoute navigationMapRoute;
@@ -159,12 +157,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         recyclerView = rootView.findViewById(R.id.rv_on_top_of_map);
         routeLoading = rootView.findViewById(R.id.routeLoadingProgressBar);
         buttonScanQr = rootView.findViewById(R.id.button_scan_qr);
+        buttonLocateMe = rootView.findViewById(R.id.button_locate_me);
 
-        buttonScanQr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getContext(), "Scan Qr Code", Toast.LENGTH_LONG).show();
-            }
+        buttonScanQr.setOnClickListener((View v) -> {
+            Toast.makeText(getContext(), "Scan Qr Code", Toast.LENGTH_LONG).show();
+        });
+
+        buttonLocateMe.setOnClickListener((View v) -> {
+            android.location.Location lastKnownLocation = mapboxMap.getLocationComponent().getLastKnownLocation();
+            animateCameraToSelection(Feature.fromGeometry(Point.fromLngLat(lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude())),14);
         });
 
         mapView = rootView.findViewById(R.id.mapView);
@@ -512,9 +513,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         animatorSet = new AnimatorSet();
         animatorSet.playTogether(
                 createLatLngAnimator(cameraPosition.target, convertToLatLng(feature)),
-                createZoomAnimator(cameraPosition.zoom, newZoom),
-                createBearingAnimator(cameraPosition.bearing, feature.getNumberProperty("bearing").doubleValue()),
-                createTiltAnimator(cameraPosition.tilt, feature.getNumberProperty("tilt").doubleValue())
+                createZoomAnimator(cameraPosition.zoom, newZoom)
         );
         animatorSet.start();
     }
@@ -625,32 +624,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
         return zoomAnimator;
     }
 
-    private Animator createBearingAnimator(double currentBearing, double targetBearing) {
-        ValueAnimator bearingAnimator = ValueAnimator.ofFloat((float) currentBearing, (float) targetBearing);
-        bearingAnimator.setDuration(CAMERA_ANIMATION_TIME);
-        bearingAnimator.setInterpolator(new FastOutSlowInInterpolator());
-        bearingAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                mapboxMap.moveCamera(CameraUpdateFactory.bearingTo((Float) animation.getAnimatedValue()));
-            }
-        });
-        return bearingAnimator;
-    }
-
-    private Animator createTiltAnimator(double currentTilt, double targetTilt) {
-        ValueAnimator tiltAnimator = ValueAnimator.ofFloat((float) currentTilt, (float) targetTilt);
-        tiltAnimator.setDuration(CAMERA_ANIMATION_TIME);
-        tiltAnimator.setInterpolator(new FastOutSlowInInterpolator());
-        tiltAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                mapboxMap.moveCamera(CameraUpdateFactory.tiltTo((Float) animation.getAnimatedValue()));
-            }
-        });
-        return tiltAnimator;
-    }
-
     /**
      * Helper class to evaluate LatLng objects with a ValueAnimator
      */
@@ -707,8 +680,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                 feature.addBooleanProperty("loading", false);
                 feature.addBooleanProperty("favourite", false);
                 feature.addNumberProperty("zoom", 14);
-                feature.addNumberProperty("bearing", 0);
-                feature.addNumberProperty("tilt", 0);
 
                 symbolLayerIconFeatureList.add(feature);
             }

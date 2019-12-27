@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,8 +11,6 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:mapbox_cameraTargetLat="40.73581"
-        mapbox:mapbox_cameraTargetLng="-73.99155"
         mapbox:mapbox_cameraZoom="11" />
 
     <ProgressBar
@@ -25,16 +24,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="8dp"
         android:orientation="vertical">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_scan_qr"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="right"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/qr_code_icon" />
+            style="@style/MyButtonColorAccent"
+            android:layout_width="40dp"
+            android:layout_height="60dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="8dp"
+            app:icon="@drawable/ic_filter_center_focus_24dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:layout_marginBottom="-8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_locate_me"
+            style="@style/MyButtonColorAccent"
+            android:layout_width="40dp"
+            android:layout_height="60dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="8dp"
+            app:icon="@drawable/ic_navigation_24dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_on_top_of_map"
