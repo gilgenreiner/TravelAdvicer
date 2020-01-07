@@ -1,12 +1,18 @@
 <template>
   <v-app-bar id="core-app-bar" absolute app color="transparent" flat height="88">
     <v-toolbar-title class="tertiary--text align-self-center ml-6 mr-2">{{ title }}</v-toolbar-title>
-
     <v-spacer />
 
     <v-toolbar-items>
       <v-row align="center" class="mx-0">
+      {{user.data.displayName}}
+      </v-row>
+    </v-toolbar-items>
+
+    <v-toolbar-items>
+      <v-row align="center" class="mx-0">
         <v-btn to="/account" icon>
+          
           <v-icon color="tertiary">mdi-account</v-icon>
         </v-btn>
       </v-row>
@@ -15,6 +21,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data: () => ({
     title: "TravelAdvisor"
@@ -23,6 +31,12 @@ export default {
     $route(val) {
       this.title = val.name;
     }
+  },
+  computed: {
+    ...mapGetters({
+// map `this.user` to `this.$store.getters.user`
+      user: "user"
+    })
   }
 };
 </script>
