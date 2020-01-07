@@ -14,8 +14,8 @@
     </template>
 
     <v-list-item two-line>
-      <v-list-item-avatar color="green">
-        <v-img src="logo2.PNG" height="35"/>
+      <v-list-item-avatar color="white">
+        <v-img src="images.png" height="35" contain/>
       </v-list-item-avatar>
 
       <v-list-item-title class="title">TravelAdvisor</v-list-item-title>
