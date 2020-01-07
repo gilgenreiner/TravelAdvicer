@@ -1,38 +1,36 @@
 <template>
   <div>
-    <div>
-      <v-row>
-        <v-card :elevation="hover ? 12 : 4" class="mx-auto mt-5">
-          <v-card-text>
-            <v-form ref="form" v-model="valid">
-              <v-text-field v-model="user.firstname" label="Vorname" />
-              <v-text-field v-model="user.lastname" label="Nachname" />
-              <v-text-field v-model="user.email" label="Email" />
-              <v-text-field v-model="user.password" type="password" label="Password" />
-              <RadioToggleButtons
-                v-model="currentValue"
-                :values="values"
-                color="purple"
-                textColor="#000"
-                selectedTextColor="#fff"
-              />
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn @click="$router.go(-1)" text>Cancel</v-btn>
-            <v-btn @click="submit()" text>Registrieren</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-row>
-    </div>
-    <div>
-      <v-row>
-        <v-col cols="12"></v-col>
-      </v-row>
-    </div>
+    <v-hover v-slot:default="{ hover }">
+      <v-card :elevation="hover ? 12 : 4" class="mx-auto mt-5" width="800">
+        <v-card-text>
+          <v-form ref="form" v-model="valid">
+            <v-text-field v-model="user.firstname" label="Vorname" :rules="[rules.required]" />
+            <v-text-field v-model="user.lastname" label="Nachname" :rules="[rules.required]" />
+            <v-text-field v-model="user.email" label="Email" :rules="[rules.required]" />
+            <v-text-field
+              v-model="user.password"
+              type="password"
+              label="Password"
+              :rules="[rules.required]"
+            />
+            <RadioToggleButtons
+              v-model="user.type"
+              :values="values"
+              color="green"
+              textColor="#000"
+              selectedTextColor="#fff"
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="$router.go(-1)" text>Abbrechen</v-btn>
+          <v-btn @click="submit()" text>Registrieren</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-hover>
   </div>
 </template>
-
 
 <script>
 import firebase from "firebase";
@@ -40,35 +38,41 @@ import firebase from "firebase";
 export default {
   data() {
     return {
+      error: null,
+      valid: false,
       user: {
-        firstname: "Hans",
-        lastname: "Klein",
-        email: "st.sonnek@gmail.com",
-        password: "test123",
+        firstname: "",
+        lastname: "",
+        email: "",
+        password: "",
         id: "",
         type: "Besitzer"
       },
-      error: null,
       values: [
         { label: "Besucher", value: "1" },
         { label: "Besitzer", value: "2" }
       ],
-      currentValue: ""
+      rules: {
+        length: len => v =>
+          (v || "").length <= len ||
+          `Zu viele Zeichen, es dürfen höchstens ${len} sein`,
+        required: v => !!v || "Dieses Feld ist verpflichtend"
+      }
     };
   },
   methods: {
     submit() {
+      this.$refs.form.validate();
+
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.user.email, this.user.password)
         .then(data => {
-          data.user
-            .updateProfile({
-              displayName: this.user.firstname
-            })
+          data.user.updateProfile({
+            displayName: this.user.firstname
+          });
 
           this.user.id = data.user.uid;
-          //this.registerUser();
           this.writeUserData();
         })
         .catch(err => {
@@ -76,7 +80,6 @@ export default {
         });
     },
     registerUser() {
-      console.log("register user");
       this.$store.dispatch("registerUser", this.user);
     },
     writeUserData() {
@@ -102,10 +105,4 @@ export default {
 </script>
 
 <style>
-.buttons {
-  display: flex;
-}
-.v-expansion-panel {
-  box-shadow: none;
-}
 </style>

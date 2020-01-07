@@ -3,11 +3,11 @@
     <v-toolbar-title class="tertiary--text align-self-center ml-6 mr-2">{{ title }}</v-toolbar-title>
     <v-spacer />
 
-    <v-toolbar-items>
+    <!--v-toolbar-items>
       <v-row align="center" class="mx-0">
       {{user.data.displayName}}
       </v-row>
-    </v-toolbar-items>
+    </v-toolbar-items-->
 
     <v-toolbar-items>
       <v-row align="center" class="mx-0">
@@ -34,7 +34,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-// map `this.user` to `this.$store.getters.user`
       user: "user"
     })
   }

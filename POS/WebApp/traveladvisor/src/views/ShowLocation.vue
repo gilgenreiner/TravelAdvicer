@@ -27,6 +27,11 @@
         </v-hover>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col cols="12">
+        <Rezensionen />
+      </v-col>
+    </v-row>
     <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
@@ -36,12 +41,14 @@ import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
 import LocationDetailReadonly from "@/components/LocationDetailReadonly";
+import Rezensionen from '@/components/Rezensionen'
 
 export default {
   name: "LocationDetails",
   components: {
     Map,
-    LocationDetailReadonly
+    LocationDetailReadonly,
+    Rezensionen
   },
   data() {
     return {

@@ -15,7 +15,7 @@
 
     <v-list-item two-line>
       <v-list-item-avatar color="white">
-        <v-img src="images.png" height="35" contain/>
+        <v-img src="images.png" height="35" contain />
       </v-list-item-avatar>
 
       <v-list-item-title class="title">TravelAdvisor</v-list-item-title>
@@ -24,8 +24,6 @@
     <v-divider class="mx-3 mb-3" />
 
     <v-list nav>
-      <div />
-
       <v-list-item
         v-for="(link, i) in links"
         :key="i"
@@ -33,8 +31,7 @@
         active-class="green white--text"
         :v-if="user.type = link.typ"
       >
-      
-        <v-list-item-action >
+        <v-list-item-action>
           <v-icon>{{ link.icon }}</v-icon>
         </v-list-item-action>
 
@@ -56,6 +53,6 @@ export default {
       { icon: "card_giftcard", text: "Prämien", to: "/bonuses" }
     ]
   }),
-    computed: mapGetters(["user"])
+  computed: mapGetters(["user"])
 };
 </script>

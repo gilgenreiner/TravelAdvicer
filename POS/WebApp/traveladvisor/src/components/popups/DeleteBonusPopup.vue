@@ -6,11 +6,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="green" text @click="$emit('update:dialog', false)">Cancel</v-btn>
-        <v-btn
-          color="green"
-          text
-          @click="deleteBonus(bonus.id)"
-        >OK</v-btn>
+        <v-btn color="green" text @click="deleteBonus(bonus.id)">OK</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

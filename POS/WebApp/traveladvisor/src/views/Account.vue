@@ -1,36 +1,29 @@
 <template>
-  <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
-    
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto"></ul>
-        <ul class="navbar-nav ml-auto">
-          <template v-if="user.loggedIn">
-            <div >Vorname: {{user.data.vorname}}</div>
-            <div >Displayname: {{user.data.displayName}}</div>
-            <div >Nachname: {{user.data.nachname}}</div>
-            <div >Email: {{user.data.email}}</div>
-            <div >Typ: {{user.data.typ}}</div>
-            <div >Userid: {{user.data.id}}</div>
-            <li class="nav-item">
-              <a class="nav-link" @click.prevent="signOut">Sign out</a>
-            </li>
-          </template>
-          <template v-else>
-            <li class="nav-item">
-              <router-link to="login" class="nav-link">Login</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="register" class="nav-link">Register</router-link>
-            </li>
-          </template>
-        </ul>
-      </div>
-  </nav>
+  <div>
+    <v-hover v-slot:default="{ hover }">
+      <v-card :elevation="hover ? 12 : 4" class="mx-auto mt-5" width="800">
+        <v-card-text>
+          <v-form ref="form" v-model="valid">
+            <v-text-field v-model="user.data.vorname" label="Vorname" readonly />
+            <v-text-field v-model="user.data.nachname" label="Nachname" readonly />
+            <v-text-field v-model="user.data.displayName" label="Displayname" readonly />
+            <v-text-field v-model="user.data.email" label="Email" readonly />
+            <v-text-field v-model="user.data.typ" label="Typ" readonly />
+            <v-text-field v-model="user.data.id" label="Id" readonly />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="signOut()" text>Abmelden</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-hover>
+  </div>
 </template>
 <script>
 import { mapGetters } from "vuex";
 import firebase from "firebase";
-import index from "../store/index"
+import index from "../store/index";
 
 export default {
   data() {
@@ -46,7 +39,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-      // map `this.user` to `this.$store.getters.user`
       user: "user"
     })
   },
@@ -57,13 +49,18 @@ export default {
         .signOut()
         .then(() => {
           this.$router.replace({
-            name: "home"
+            name: "Map"
           });
         });
     },
     setData(data) {
       this.userdata = data;
       console.log(this.userdata);
+    }
+  },
+  created() {
+    if (!this.user.loggedIn) {
+      this.$router.push({ name: "Login" });
     }
   }
 };

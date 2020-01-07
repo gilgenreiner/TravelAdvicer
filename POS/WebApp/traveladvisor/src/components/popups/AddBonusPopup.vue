@@ -42,21 +42,19 @@ import { mapGetters } from "vuex";
 export default {
   name: "AddBonusPopup",
   props: {
-      bonus: Object,
-      dialog: Boolean
+    bonus: Object,
+    dialog: Boolean
   },
   methods: {
     doAddBonus() {
-        this.$emit('update:dialog', false)
-        this.bonus.locationId = "5e010350-72a3-4435-8455-17f4e9f3ff66" //TODO: noch holen /mitgeben
-        this.$store.dispatch("addBonus", this.bonus);
-        this.isDoCreateButtonPressed = true;
+      this.$emit("update:dialog", false);
+      this.bonus.locationId = "5e010350-72a3-4435-8455-17f4e9f3ff66"; //TODO: noch holen /mitgeben
+      this.$store.dispatch("addBonus", this.bonus);
+      this.isDoCreateButtonPressed = true;
     }
   }
 };
 </script>
-       <!-- {
-         bezeichnung:"10% auf mich",
-         punkte:"punkte",
-         aktiv:false,
-         locationId:"teset"}-->
+
+<style>
+</style>

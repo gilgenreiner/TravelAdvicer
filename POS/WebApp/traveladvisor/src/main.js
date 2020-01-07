@@ -13,12 +13,9 @@ import store_idx from "./store/index"
 Vue.config.productionTip = false
 Vue.use(VueRadioToggleButtons)
 
-
 firebase.auth().onAuthStateChanged(user => {
-  console.log(user.username);
   store_idx.dispatch("fetchUser", user);
 });
-
 
 //filter
 Vue.filter('shorterText', (value) => {

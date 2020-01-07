@@ -62,11 +62,9 @@
       </p>
 
       <p>Check the URL you entered for any mistakes and try again. Alternatively, go back to where you came from or go to our homepage.</p>
-      <div class="buttons-con">
-        <div class="action-link-wrap">
-          <a onclick="history.back(-1)" class="link-button link-back-button">Go Back</a>
-          <a href="http://localhost:8081">Go to Home Page</a>
-        </div>
+      <div>
+        <v-btn @click="$router.go(-1)" class="green mr-2" dark>Go Back</v-btn>
+        <v-btn :to="{ name: 'Map' }" class="green" dark>Go to Home Page</v-btn>
       </div>
     </div>
   </div>
@@ -107,25 +105,6 @@ svg {
   line-height: 46px;
   margin-bottom: 40px;
   color: black;
-}
-.buttons-con .action-link-wrap {
-  margin-top: 40px;
-}
-.buttons-con .action-link-wrap a {
-  background: #68c950;
-  padding: 8px 25px;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: bold;
-  font-size: 14px;
-  transition: all 0.3s linear;
-  cursor: pointer;
-  text-decoration: none;
-  margin-right: 10px;
-}
-.buttons-con .action-link-wrap a:hover {
-  background: #5a5c6c;
-  color: #fff;
 }
 
 #Polygon-1,

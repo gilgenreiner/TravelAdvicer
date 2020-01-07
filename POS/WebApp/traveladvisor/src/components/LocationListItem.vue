@@ -11,7 +11,6 @@
         <v-card-title>{{ location.bezeichnung }}</v-card-title>
       </v-img>
       <v-card-text class="black--text">{{ location.beschreibung | shorterText }}</v-card-text>
-
       <v-card-actions>
         <v-spacer></v-spacer>
 

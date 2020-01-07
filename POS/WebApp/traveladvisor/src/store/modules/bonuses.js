@@ -1,16 +1,18 @@
 import axiosWithLoader from '../../http';
 import axios from 'axios';
 
-const baseURL = process.env.VUE_APP_API_URL;  
+const baseURL = process.env.VUE_APP_API_URL;
 
 const state = {
     bonuses: [
-        {id:1,
-         bezeichnung:"10% auf mich",
-         punkte:"punkte",
-         aktiv:false,
-         locationId:"teset"}
-        ],
+        {
+            id: 1,
+            bezeichnung: "10% auf mich",
+            punkte: "punkte",
+            aktiv: false,
+            locationId: "teset"
+        }
+    ],
     selectedBonus: {}
 };
 
@@ -27,7 +29,7 @@ const actions = {
                 commit('setBonuses', response.data)
             })
             .catch(err => console.log(err));
-    },   
+    },
     addBonus({ commit }, bonus) {
         axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/praemienDetail`, bonus)
             .then(response => commit('addBonus', response.data))
@@ -56,12 +58,6 @@ const mutations = {
         if (index !== -1) state.bonuses.splice(index, 1, bonus);
     },
     deleteBonus: (state, id) => (state.bonuses = state.bonuses.filter(bonus => bonus.id !== id)),
-    /*setSingleLocation: (state, location) => (state.selectedLocation = location),
-    ,
-    updateLocation: (state, location) => {
-        const index = state.locations.findIndex(l => l.id === location.id);
-        if (index !== -1) state.locations.splice(index, 1, location);
-    },*/
 };
 
 export default {
