@@ -8,6 +8,8 @@ import CreateLocation from '@/views/CreateLocation.vue'
 import ShowLocation from '@/views/ShowLocation.vue'
 import PageNotFound from '@/components/error/PageNotFound.vue'
 import Bonuses from '@/views/Bonuses.vue'
+import Register from '@/views/Register'
+import Login from '@/views/Login'
 
 Vue.use(Router)
 
@@ -49,6 +51,16 @@ const router = new Router({
       path: '/bonuses',
       name: 'Bonuses',
       component: Bonuses
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: Register
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
     },
     {
       path: "*",

@@ -31,8 +31,10 @@
         :key="i"
         :to="link.to"
         active-class="green white--text"
+        :v-if="user.type = link.typ"
       >
-        <v-list-item-action>
+      
+        <v-list-item-action >
           <v-icon>{{ link.icon }}</v-icon>
         </v-list-item-action>
 
@@ -43,14 +45,17 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data: () => ({
     links: [
       { icon: "home", text: "Home", to: "/" },
       { icon: "person", text: "Account", to: "/account" },
-      { icon: "room", text: "Locations", to: "/locations" },
+      { icon: "room", text: "Locations", to: "/locations", type: "Besitzer" },
       { icon: "card_giftcard", text: "Prämien", to: "/bonuses" }
     ]
-  })
+  }),
+    computed: mapGetters(["user"])
 };
 </script>
