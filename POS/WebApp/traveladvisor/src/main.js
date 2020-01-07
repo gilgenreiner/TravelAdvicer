@@ -22,8 +22,8 @@ firebase.auth().onAuthStateChanged(user => {
 
 //filter
 Vue.filter('shorterText', (value) => {
-  if (value.length <= 59) return value;
-  return value.slice(0, 56) + "...";
+  if (value.length <= 51) return value;
+  return value.slice(0, 48) + "...";
 });
 
 new Vue({

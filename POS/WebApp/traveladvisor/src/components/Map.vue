@@ -33,7 +33,7 @@
                 class="white--text align-end"
                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                 height="200px"
-                :src="'https://picsum.photos/510/300?random'"
+                :src="'https://webserver.x-technik.com/upload/images/107403.jpg' || 'https://picsum.photos/510/300?random'"
                 aspect-ratio="2"
               >
                 <v-card-title>{{ location.bezeichnung }}</v-card-title>
@@ -75,7 +75,7 @@ export default {
   data() {
     return {
       accessToken: process.env.VUE_APP_MAPKEY,
-      mapStyle: "mapbox://styles/mapbox/streets-v11",
+      mapStyle: "mapbox://styles/mkleinegger/ck4movtpa21z71ctalv5mt7e5",
       isGeolocateOn: false,
       defaultInput: "",
       valid: true,
