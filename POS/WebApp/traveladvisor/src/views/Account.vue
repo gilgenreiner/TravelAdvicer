@@ -10,6 +10,7 @@
             <v-text-field v-model="user.data.email" label="Email" readonly />
             <v-text-field v-model="user.data.typ" label="Typ" readonly />
             <v-text-field v-model="user.data.id" label="Id" readonly />
+            <v-text-field v-model="user.loggedIn" label="Status" readonly />
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -21,9 +22,10 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import firebase from "firebase";
 import index from "../store/index";
+import userStore from "../store/modules/users"
 
 export default {
   data() {
@@ -49,8 +51,10 @@ export default {
         .signOut()
         .then(() => {
           this.$router.replace({
-            name: "Map"
-          });
+            name: "Login"
+          })
+           this.$store.commit("SET_LOGGED_IN", false);
+          this.$store.commit("SET_USER", null);
         });
     },
     setData(data) {

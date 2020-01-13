@@ -6,9 +6,10 @@ import java.util.UUID;
 public class Rezension {
 	private UUID id;
 	private UUID locationid;
-	private UUID besucherid;
+	private String besucherid;
 	private int bewertung;
 	private Timestamp timestamp;
+	private String text;
 	
 	public Rezension() {
 		
@@ -23,15 +24,13 @@ public class Rezension {
 	public void setLocationid(String locationid) {
 		this.locationid = UUID.fromString(locationid);
 	}
-	public UUID getBesucherid() {
+	public String getBesucherid() {
 		return besucherid;
 	}
-	public void setBesucherid(UUID besucherid) {
+	public void setBesucherid(String besucherid) {
 		this.besucherid = besucherid;
 	}
-	public void setBesucherid(String besucherid) {
-		this.besucherid = UUID.fromString(besucherid);
-	}
+
 	public int getBewertung() {
 		return bewertung;
 	}
@@ -58,6 +57,14 @@ public class Rezension {
 
 	public void setId(String id) {
 		this.id = UUID.fromString(id);
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 	
 	

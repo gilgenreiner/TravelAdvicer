@@ -47,9 +47,12 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.form.email, this.form.password)
         .then(data => {
+          console.log(data.user);
           this.user.id = data.user.uid;
           localStorage.setItem("userid", this.user.id);
           this.$router.replace({ name: "Account" });
+
+          //this.$store.dispatch("fetchUser", data.user);
         })
         .catch(err => {
           this.error = err.message;

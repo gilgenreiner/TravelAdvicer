@@ -32,6 +32,8 @@ public class RezensionenDAL {
 			String idBesucher = rs.getString("id_besucher");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String text = rs.getString("text");
+			
 			Rezension r = new Rezension();
 
 			r.setId(id);
@@ -39,6 +41,7 @@ public class RezensionenDAL {
 			r.setLocationid(idLocation);
 			r.setBewertung(bewertung);
 			r.setTimestamp(ts);
+			r.setText(text);
 			rez.add(r);
 		}
 		st.close();
@@ -65,6 +68,8 @@ public class RezensionenDAL {
 			String idBesucher = rs.getString("id_besucher");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String text = rs.getString("text");
+
 			Rezension r = new Rezension();
 
 			r.setId(id);
@@ -72,6 +77,7 @@ public class RezensionenDAL {
 			r.setLocationid(loc.getId());
 			r.setBewertung(bewertung);
 			r.setTimestamp(ts);
+			r.setText(text);
 			
 			rez.add(r);
 		}
@@ -96,6 +102,8 @@ public class RezensionenDAL {
 			String idBesucher = rs.getString("id_besucher");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String text = rs.getString("text");
+
 			result = new Rezension();
 			
 			result.setId(id);
@@ -103,6 +111,7 @@ public class RezensionenDAL {
 			result.setTimestamp(ts);
 			result.setBesucherid(idBesucher);
 			result.setLocationid(idLocation);
+			result.setText(text);
 			// print the results
 		}
 		st.close();
@@ -112,7 +121,7 @@ public class RezensionenDAL {
 		return result;
 	}
 	
-	public static Rezension getByLocation(String id_location) throws Exception {
+	public static List<Rezension> getByLocation(String id_location) throws Exception {
 		Connection conn = Database.connect();
 
 		String query = "SELECT * FROM Rezension WHERE id_location = '" + id_location + "'";
@@ -121,29 +130,33 @@ public class RezensionenDAL {
 
 		ResultSet rs = st.executeQuery(query);
 
-		Rezension result = null;
+		List<Rezension> rez = new ArrayList<Rezension>();
 		while (rs.next()) {
 			String id = rs.getString("id_rezension");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
 			String id_besucher = rs.getString("id_besucher");
-			result = new Rezension();
+			String text = rs.getString("text");
+
+			
+			Rezension result = new Rezension();
 			
 			result.setId(id);
 			result.setBewertung(bewertung);
 			result.setTimestamp(ts);
 			result.setBesucherid(id_besucher);
 			result.setLocationid(id_location);
-			// print the results
+			result.setText(text);
+		
+			rez.add(result);
 		}
 		st.close();
 
-		if(result == null)
-			throw new Exception("Rezension nicht gefunden");
-		return result;
+		
+		return rez;
 	}
 	
-	public static Rezension getByBesucher(String id_besucher) throws Exception {
+	public static List<Rezension> getByBesucher(String id_besucher) throws Exception {
 		Connection conn = Database.connect();
 
 		String query = "SELECT * FROM Rezension WHERE id_besucher = '" + id_besucher + "'";
@@ -152,12 +165,15 @@ public class RezensionenDAL {
 
 		ResultSet rs = st.executeQuery(query);
 
-		Rezension result = null;
+		List<Rezension> list = new ArrayList<Rezension>();
 		while (rs.next()) {
 			String id = rs.getString("id_rezension");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
 			String id_location = rs.getString("id_location");
+			String text = rs.getString("text");
+
+			Rezension result = null;
 			result = new Rezension();
 			
 			result.setId(id);
@@ -165,13 +181,14 @@ public class RezensionenDAL {
 			result.setTimestamp(ts);
 			result.setBesucherid(id_besucher);
 			result.setLocationid(id_location);
-			// print the results
+			result.setText(text);
+			
+			list.add(result);
 		}
 		st.close();
 
-		if(result == null)
-			throw new Exception("Rezension nicht gefunden");
-		return result;
+
+		return list;
 	}
 
 	public static void update(String id, Rezension new_rez) throws Exception {
@@ -179,14 +196,14 @@ public class RezensionenDAL {
 		try {
 			Connection conn = Database.connect();
 			
-			String query = "update Rezension set bewertung = ?, zeitpunkt = ? WHERE id_rezension = ?";
+			String query = "update Rezension set bewertung = ?, zeitpunkt = ?, text = ? WHERE id_rezension = ?";
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			
 			preparedStmt.setInt(1, new_rez.getBewertung());
 			preparedStmt.setTimestamp(2, new_rez.getTimestamp());
-			preparedStmt.setString(3, id);
+			preparedStmt.setString(3, new_rez.getText());
+			preparedStmt.setString(4, id);
 			
-			preparedStmt.setString(3, id);
 			result = preparedStmt.executeUpdate();
 
 			conn.close();
@@ -267,7 +284,7 @@ public class RezensionenDAL {
 			
 			Connection conn = Database.connect();
 
-			String query = " insert into Rezension values (?, ?, ?, ?, ?)";
+			String query = " insert into Rezension values (?, ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			preparedStmt.setString(1, new_rez.getId().toString());
@@ -275,7 +292,9 @@ public class RezensionenDAL {
 			preparedStmt.setString(3, new_rez.getLocationid().toString());
 			
 			preparedStmt.setInt(4, new_rez.getBewertung());
-			preparedStmt.setTimestamp(5, new_rez.getTimestamp());
+			preparedStmt.setString(5, new_rez.getText());
+
+			preparedStmt.setTimestamp(6, new_rez.getTimestamp());
 
 			
 			preparedStmt.execute();
