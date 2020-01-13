@@ -9,23 +9,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bll.Besitzer;
-import bll.Branche;
+import bll.Besucher;
 
-public class BesitzerDAL {
-	public static List<Besitzer> getAll() throws SQLException {
+public class BesucherDAL {
+	public static List<Besucher> getAll() throws SQLException {
 		Connection conn = Database.connect();
 
-		String query = "SELECT * FROM Besitzer";
+		String query = "SELECT * FROM Besucher";
 		Statement st = conn.createStatement();
 
 		ResultSet rs = st.executeQuery(query);
 
-		List<Besitzer> list = new ArrayList<Besitzer>();
+		List<Besucher> list = new ArrayList<Besucher>();
 
 		while (rs.next()) {
 			String id = rs.getString("id");
 
-			Besitzer b = new Besitzer(id);
+			Besucher b = new Besucher(id);
 
 			list.add(b);
 		}
@@ -39,7 +39,7 @@ public class BesitzerDAL {
 		try {
 			Connection conn = Database.connect();
 
-			String query = "delete from Besitzer where benutzer_id = ?";
+			String query = "delete from Besucher where benutzer_id = ?";
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			preparedStmt.setString(1, id);
 
@@ -53,14 +53,15 @@ public class BesitzerDAL {
 		}
 	}
 
-	public static void create(Besitzer new_bes) throws Exception {
+	public static void create(Besucher new_bes) throws Exception {
 		try {
 			Connection conn = Database.connect();
 
-			String query = " insert into Besitzer " + " values (?)";
+			String query = " insert into Besucher " + " values (?, ?)";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			preparedStmt.setString(1, new_bes.getId().toString());
+			preparedStmt.setInt(2, 0);
 
 			preparedStmt.execute();
 

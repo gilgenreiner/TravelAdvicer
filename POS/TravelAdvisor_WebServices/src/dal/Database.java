@@ -34,7 +34,7 @@ public class Database {
 		      String myDriver = "oracle.jdbc.driver.OracleDriver";
 		      //212.152.179.117
 		      //10.0.6.111
-		      String myUrl = "jdbc:oracle:thin:@10.0.6.111:1521:ora11g";
+		      String myUrl = "jdbc:oracle:thin:@212.152.179.117:1521:ora11g";
 		      Class.forName(myDriver);
 		      conn = DriverManager.getConnection(myUrl, "d5a17", "d5a");
 		      return conn;
