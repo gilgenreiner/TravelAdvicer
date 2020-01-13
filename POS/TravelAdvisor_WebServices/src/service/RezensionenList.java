@@ -24,14 +24,16 @@ public class RezensionenList {
     
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAll(@QueryParam("location") String location) {
+    public Response getAll(@QueryParam("location") String location, @QueryParam("besucher") String besucher) {
     	System.out.println("======================webservice GET called");
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
-        	if(location == null)
+        	if(location == null && besucher == null)
         		response.entity(new Gson().toJson(RezensionenDAL.getAll()));
-        	else
-        		response.entity(new Gson().toJson(RezensionenDAL.getByLocation(location)));
+        	else if(location != null)
+    		response.entity(new Gson().toJson(RezensionenDAL.getByLocation(location)));
+        	else if(besucher != null)
+        		response.entity(new Gson().toJson(RezensionenDAL.getByBesucher(besucher)));
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());

@@ -156,7 +156,7 @@ public class RezensionenDAL {
 		return rez;
 	}
 	
-	public static Rezension getByBesucher(String id_besucher) throws Exception {
+	public static List<Rezension> getByBesucher(String id_besucher) throws Exception {
 		Connection conn = Database.connect();
 
 		String query = "SELECT * FROM Rezension WHERE id_besucher = '" + id_besucher + "'";
@@ -165,7 +165,7 @@ public class RezensionenDAL {
 
 		ResultSet rs = st.executeQuery(query);
 
-		Rezension result = null;
+		List<Rezension> list = new ArrayList<Rezension>();
 		while (rs.next()) {
 			String id = rs.getString("id_rezension");
 			int bewertung = rs.getInt("bewertung");
@@ -173,6 +173,7 @@ public class RezensionenDAL {
 			String id_location = rs.getString("id_location");
 			String text = rs.getString("text");
 
+			Rezension result = null;
 			result = new Rezension();
 			
 			result.setId(id);
@@ -181,13 +182,13 @@ public class RezensionenDAL {
 			result.setBesucherid(id_besucher);
 			result.setLocationid(id_location);
 			result.setText(text);
-			// print the results
+			
+			list.add(result);
 		}
 		st.close();
 
-		if(result == null)
-			throw new Exception("Rezension nicht gefunden");
-		return result;
+
+		return list;
 	}
 
 	public static void update(String id, Rezension new_rez) throws Exception {
