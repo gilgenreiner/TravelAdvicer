@@ -73,6 +73,7 @@ export default {
           });
 
           this.user.id = data.user.uid;
+          this.registerUser();
           this.writeUserData();
         })
         .catch(err => {

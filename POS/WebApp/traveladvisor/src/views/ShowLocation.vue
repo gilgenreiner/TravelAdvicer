@@ -5,6 +5,8 @@
         <v-btn class="ml-0" @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
+        <v-btn class="ml-2" @click="dialog = !dialog">Rezensionen</v-btn>
+        <RezensionenPopup :dialog.sync="dialog" :location="getSelectedLocation" />
       </v-col>
     </v-row>
     <v-row>
@@ -27,11 +29,6 @@
         </v-hover>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col cols="12">
-        <Rezensionen />
-      </v-col>
-    </v-row>
     <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
@@ -41,18 +38,19 @@ import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
 import LocationDetailReadonly from "@/components/LocationDetailReadonly";
-import Rezensionen from '@/components/Rezensionen'
+import RezensionenPopup from "@/components/popups/ShowRezensionenPopup";
 
 export default {
   name: "LocationDetails",
   components: {
     Map,
     LocationDetailReadonly,
-    Rezensionen
+    RezensionenPopup
   },
   data() {
     return {
       backup: {},
+      dialog: false,
       mode: "showDetails",
       snackbar: false,
       text: "",
@@ -97,12 +95,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.buttons {
-  float: right;
-}
-.v-expansion-panel {
-  box-shadow: none;
-}
-</style>

@@ -22,7 +22,7 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "LocationDeletePopup",
+  name: "DeleteRezensionPopup",
   data() {
     return {
       snackbar: false,

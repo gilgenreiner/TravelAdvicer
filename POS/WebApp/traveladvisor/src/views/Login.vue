@@ -4,8 +4,8 @@
       <v-card :elevation="hover ? 12 : 4" class="mx-auto mt-5" width="600">
         <v-card-text>
           <v-img
-            src="https://static.vecteezy.com/system/resources/previews/000/575/331/non_2x/login-sign-icon-vector.jpg"
-            height="350"
+            :src="'https://image.shutterstock.com/image-vector/thin-line-user-icon-on-260nw-519039097.jpg' || 'https://static.vecteezy.com/system/resources/previews/000/575/331/non_2x/login-sign-icon-vector.jpg'"
+            height="300"
             contain
           />
           <v-form ref="form" v-model="valid">
