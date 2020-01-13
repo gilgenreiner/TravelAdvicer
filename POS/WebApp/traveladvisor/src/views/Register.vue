@@ -49,8 +49,8 @@ export default {
         type: "Besitzer"
       },
       values: [
-        { label: "Besucher", value: "1" },
-        { label: "Besitzer", value: "2" }
+        { label: "Besucher", value: "besucher" },
+        { label: "Besitzer", value: "besitzer" }
       ],
       rules: {
         length: len => v =>
@@ -71,18 +71,19 @@ export default {
           data.user.updateProfile({
             displayName: this.user.firstname
           });
-
+          
           this.user.id = data.user.uid;
-          this.writeUserData();
+          this.registerUserToOracle();
+          this.writeUserDataToFirestore();
         })
         .catch(err => {
           this.error = err.message;
         });
     },
-    registerUser() {
+    registerUserToOracle() {
       this.$store.dispatch("registerUser", this.user);
     },
-    writeUserData() {
+    writeUserDataToFirestore() {
       var db = firebase.firestore();
       db.collection("users")
         .doc(this.user.id)

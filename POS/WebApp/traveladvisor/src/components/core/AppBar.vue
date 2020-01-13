@@ -11,6 +11,8 @@
 
     <v-toolbar-items>
       <v-row align="center" class="mx-0">
+          <p v-if="user.data !== null && user.data.typ === 'besucher'">Eingeloggt als Besucher</p>
+
         <v-btn to="/account" icon>
           
           <v-icon color="tertiary">mdi-account</v-icon>

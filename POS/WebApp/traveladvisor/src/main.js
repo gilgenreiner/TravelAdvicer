@@ -14,7 +14,13 @@ Vue.config.productionTip = false
 Vue.use(VueRadioToggleButtons)
 
 firebase.auth().onAuthStateChanged(user => {
-  store_idx.dispatch("fetchUser", user);
+  if(user) {
+    store_idx.dispatch("fetchUser", user);
+  }
+  else {
+    //wie den status des users von hier setzen ??
+    console.log("nobody logged in . . .")
+  }
 });
 
 //filter
