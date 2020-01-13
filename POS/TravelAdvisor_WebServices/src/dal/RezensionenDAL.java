@@ -68,6 +68,8 @@ public class RezensionenDAL {
 			String idBesucher = rs.getString("id_besucher");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String text = rs.getString("text");
+
 			Rezension r = new Rezension();
 
 			r.setId(id);
@@ -75,6 +77,7 @@ public class RezensionenDAL {
 			r.setLocationid(loc.getId());
 			r.setBewertung(bewertung);
 			r.setTimestamp(ts);
+			r.setText(text);
 			
 			rez.add(r);
 		}
@@ -99,6 +102,8 @@ public class RezensionenDAL {
 			String idBesucher = rs.getString("id_besucher");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String text = rs.getString("text");
+
 			result = new Rezension();
 			
 			result.setId(id);
@@ -106,6 +111,7 @@ public class RezensionenDAL {
 			result.setTimestamp(ts);
 			result.setBesucherid(idBesucher);
 			result.setLocationid(idLocation);
+			result.setText(text);
 			// print the results
 		}
 		st.close();
@@ -130,6 +136,8 @@ public class RezensionenDAL {
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
 			String id_besucher = rs.getString("id_besucher");
+			String text = rs.getString("text");
+
 			result = new Rezension();
 			
 			result.setId(id);
@@ -137,6 +145,7 @@ public class RezensionenDAL {
 			result.setTimestamp(ts);
 			result.setBesucherid(id_besucher);
 			result.setLocationid(id_location);
+			result.setText(text);
 			// print the results
 		}
 		st.close();
@@ -161,6 +170,8 @@ public class RezensionenDAL {
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
 			String id_location = rs.getString("id_location");
+			String text = rs.getString("text");
+
 			result = new Rezension();
 			
 			result.setId(id);
@@ -168,6 +179,7 @@ public class RezensionenDAL {
 			result.setTimestamp(ts);
 			result.setBesucherid(id_besucher);
 			result.setLocationid(id_location);
+			result.setText(text);
 			// print the results
 		}
 		st.close();
@@ -182,14 +194,14 @@ public class RezensionenDAL {
 		try {
 			Connection conn = Database.connect();
 			
-			String query = "update Rezension set bewertung = ?, zeitpunkt = ? WHERE id_rezension = ?";
+			String query = "update Rezension set bewertung = ?, zeitpunkt = ?, text = ? WHERE id_rezension = ?";
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			
 			preparedStmt.setInt(1, new_rez.getBewertung());
 			preparedStmt.setTimestamp(2, new_rez.getTimestamp());
-			preparedStmt.setString(3, id);
+			preparedStmt.setString(3, new_rez.getText());
+			preparedStmt.setString(4, id);
 			
-			preparedStmt.setString(3, id);
 			result = preparedStmt.executeUpdate();
 
 			conn.close();
