@@ -58,6 +58,7 @@ public class LocationDAL {
 				l.setAktiv(false);
 
 			l.setKoordinaten(new Point(X, Y));
+			l.setBesitzer(new Besitzer(id_besitzer));
 			System.out.println(l.getId().toString());
 			if(loadBranchen == true)
 				l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
@@ -107,6 +108,8 @@ public class LocationDAL {
 			l.setBezeichnung(bezeichnung);
 			l.setBeschreibung(beschreibung);
 			l.setPunkte(punkte);
+			l.setBesitzer(new Besitzer(id_besitzer));
+			
 			if (aktiv.equals("J"))
 				l.setAktiv(true);
 			else
@@ -170,7 +173,7 @@ public class LocationDAL {
 			Location l = new Location();
 			l.setId(id);
 			// ToDO:
-			l.setBesitzer(null);
+			l.setBesitzer(new Besitzer(id_besitzer));
 			l.setBezeichnung(bezeichnung);
 			l.setPunkte(punkte);
 			if (aktiv.equals("J"))
@@ -376,7 +379,7 @@ public class LocationDAL {
 				Location l = new Location();
 				l.setId(id);
 				// ToDO:
-				l.setBesitzer(null);
+				l.setBesitzer(new Besitzer(id_besitzer));
 				l.setBezeichnung(bezeichnung);
 				l.setBeschreibung(beschreibung);
 				l.setPunkte(punkte);
