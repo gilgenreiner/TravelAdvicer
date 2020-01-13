@@ -9,6 +9,7 @@ public class Rezension {
 	private UUID besucherid;
 	private int bewertung;
 	private Timestamp timestamp;
+	private String text;
 	
 	public Rezension() {
 		
@@ -58,6 +59,14 @@ public class Rezension {
 
 	public void setId(String id) {
 		this.id = UUID.fromString(id);
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 	
 	

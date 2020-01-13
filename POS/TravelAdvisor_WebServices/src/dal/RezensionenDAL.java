@@ -32,6 +32,8 @@ public class RezensionenDAL {
 			String idBesucher = rs.getString("id_besucher");
 			int bewertung = rs.getInt("bewertung");
 			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String text = rs.getString("text");
+			
 			Rezension r = new Rezension();
 
 			r.setId(id);
@@ -39,6 +41,7 @@ public class RezensionenDAL {
 			r.setLocationid(idLocation);
 			r.setBewertung(bewertung);
 			r.setTimestamp(ts);
+			r.setText(text);
 			rez.add(r);
 		}
 		st.close();
