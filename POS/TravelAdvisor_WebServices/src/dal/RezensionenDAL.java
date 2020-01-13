@@ -270,7 +270,7 @@ public class RezensionenDAL {
 			
 			Connection conn = Database.connect();
 
-			String query = " insert into Rezension values (?, ?, ?, ?, ?)";
+			String query = " insert into Rezension values (?, ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
 			preparedStmt.setString(1, new_rez.getId().toString());
@@ -278,7 +278,9 @@ public class RezensionenDAL {
 			preparedStmt.setString(3, new_rez.getLocationid().toString());
 			
 			preparedStmt.setInt(4, new_rez.getBewertung());
-			preparedStmt.setTimestamp(5, new_rez.getTimestamp());
+			preparedStmt.setString(5, new_rez.getText());
+
+			preparedStmt.setTimestamp(6, new_rez.getTimestamp());
 
 			
 			preparedStmt.execute();
