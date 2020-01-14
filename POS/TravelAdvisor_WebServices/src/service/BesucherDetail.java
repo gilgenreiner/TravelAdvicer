@@ -2,38 +2,29 @@ package service;
 
 import java.io.IOException;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.google.gson.Gson;
-
 import bll.Besitzer;
-import bll.Branche;
+import bll.Besucher;
 import dal.BesitzerDAL;
-import dal.BrancheDAL;
+import dal.BesucherDAL;
 
-@Path("besitzerDetail")
-public class BesitzerDetail {
-
-	
-    @POST
+@Path("besucherDetail")
+public class BesucherDetail {
+	@POST
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public Response newBesitzer(Besitzer new_bes) throws Exception {
+    public Response newBesitzer(Besucher new_bes) throws Exception {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
-        System.out.println("======================NEW Besitzer: ");
         
-        System.out.println("ID: " + new_bes.getId());
         try {
-        	BesitzerDAL.create(new_bes);
+        	BesucherDAL.create(new_bes);
         	response.status(Response.Status.CREATED);
             response.entity(new_bes);
         } catch (Exception e) {
@@ -50,7 +41,7 @@ public class BesitzerDetail {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
 
         try {
-        	BesitzerDAL.delete(delete_id);
+        	BesucherDAL.delete(delete_id);
         	response.status(Response.Status.NO_CONTENT);
             response.entity("Branche deleted");
         } catch (Exception e) {
@@ -68,5 +59,4 @@ public class BesitzerDetail {
 
         return response.build();
     }
-
 }

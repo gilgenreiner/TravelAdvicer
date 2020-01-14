@@ -33,7 +33,7 @@
                 class="white--text align-end"
                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                 height="200px"
-                :src="'https://webserver.x-technik.com/upload/images/107403.jpg' || 'https://picsum.photos/510/300?random'"
+                :src="'https://picsum.photos/510/300?random'"
                 aspect-ratio="2"
               >
                 <v-card-title>{{ location.bezeichnung }}</v-card-title>

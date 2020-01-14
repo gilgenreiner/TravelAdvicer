@@ -58,6 +58,7 @@ public class LocationDAL {
 				l.setAktiv(false);
 
 			l.setKoordinaten(new Point(X, Y));
+			l.setBesitzer(new Besitzer(id_besitzer));
 			System.out.println(l.getId().toString());
 			if(loadBranchen == true)
 				l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
@@ -68,6 +69,60 @@ public class LocationDAL {
 		//Locations lokal zwischenspeichern
 		LocationList.changed = false;
 		LocationList.locations_saved = locations;
+		
+		st.close();
+		conn.close();
+
+		return locations;
+	}
+	
+	public static List<Location> getByBesitzer(boolean loadBranchen, String id_besitzer) throws SQLException, Error404 {
+		Connection conn = Database.connect();
+
+		String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
+				+ "tl.koordinaten.SDO_POINT.Y as Y, UTL_RAW.CAST_TO_VARCHAR2(bild) as img FROM TravelLocation tl where id_besitzer = '" + id_besitzer + "'";
+		Statement st = conn.createStatement();
+
+		System.out.println(query);
+		ResultSet rs = st.executeQuery(query);
+
+		// iterate through the java resultset
+		List<Location> locations = new ArrayList<Location>();
+
+		while (rs.next()) {
+
+			String id = rs.getString("id");
+			String bezeichnung = rs.getString("bezeichnung");
+			String beschreibung = rs.getString("beschreibung");
+
+			int punkte = rs.getInt("punkte");
+			String aktiv = rs.getString("aktiv");
+			double X = rs.getDouble("X");
+			double Y = rs.getDouble("Y");
+			String img = rs.getString("img");
+			
+			Location l = new Location();
+			l.setId(id);
+			// ToDO:
+			l.setBesitzer(null);
+			l.setBezeichnung(bezeichnung);
+			l.setBeschreibung(beschreibung);
+			l.setPunkte(punkte);
+			l.setBesitzer(new Besitzer(id_besitzer));
+			
+			if (aktiv.equals("J"))
+				l.setAktiv(true);
+			else
+				l.setAktiv(false);
+
+			l.setKoordinaten(new Point(X, Y));
+			System.out.println(l.getId().toString());
+			if(loadBranchen == true)
+				l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
+			//l.setImg(img);
+
+			locations.add(l);
+		}
 		
 		st.close();
 		conn.close();
@@ -118,7 +173,7 @@ public class LocationDAL {
 			Location l = new Location();
 			l.setId(id);
 			// ToDO:
-			l.setBesitzer(null);
+			l.setBesitzer(new Besitzer(id_besitzer));
 			l.setBezeichnung(bezeichnung);
 			l.setPunkte(punkte);
 			if (aktiv.equals("J"))
@@ -324,7 +379,7 @@ public class LocationDAL {
 				Location l = new Location();
 				l.setId(id);
 				// ToDO:
-				l.setBesitzer(null);
+				l.setBesitzer(new Besitzer(id_besitzer));
 				l.setBezeichnung(bezeichnung);
 				l.setBeschreibung(beschreibung);
 				l.setPunkte(punkte);
