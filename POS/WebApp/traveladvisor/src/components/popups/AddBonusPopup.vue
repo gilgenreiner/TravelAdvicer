@@ -48,7 +48,7 @@ export default {
   methods: {
     doAddBonus() {
       this.$emit("update:dialog", false);
-      this.bonus.locationId = "5e010350-72a3-4435-8455-17f4e9f3ff66"; //TODO: noch holen /mitgeben
+      //this.bonus.locationId = "5e010350-72a3-4435-8455-17f4e9f3ff66"; //TODO: noch holen /mitgeben
       this.$store.dispatch("addBonus", this.bonus);
       this.isDoCreateButtonPressed = true;
     }
