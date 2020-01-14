@@ -24,8 +24,6 @@ public class LocationList {
 	@Context
     private UriInfo context;
 	
-	public static List<Location> locations_saved;
-	public static boolean changed = false;
 	
 	public LocationList() {
     }
@@ -33,7 +31,7 @@ public class LocationList {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAll(@QueryParam("distanz") Double distanz, @QueryParam("x") Double x, 
-    		@QueryParam("y") Double y, @QueryParam("loadBranchen") boolean loadBranchen, @QueryParam("besitzer") String id_besitzer) {
+    		@QueryParam("y") Double y, @QueryParam("loadBranchen") Boolean loadBranchen, @QueryParam("besitzer") String id_besitzer) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
         	if(distanz != null && x != null && y != null)
@@ -41,10 +39,10 @@ public class LocationList {
         	else if (id_besitzer != null)
     		response.entity(new Gson().toJson(LocationDAL.getByBesitzer(loadBranchen, id_besitzer)));
         	else {
-        		if(locations_saved != null && changed == false)
-        			response.entity(new Gson().toJson(locations_saved));
-        		else
+        		if(loadBranchen == null)
         			response.entity(new Gson().toJson(LocationDAL.getAll(true)));
+        		else
+        			response.entity(new Gson().toJson(LocationDAL.getAll(loadBranchen)));
         	}
         	
         } catch (Exception e) {

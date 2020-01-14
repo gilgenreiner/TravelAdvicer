@@ -33,22 +33,7 @@ public class LocationDetail {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getById(@PathParam("id") String id) {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
-        try {
-        	if(LocationList.locations_saved != null && LocationList.changed == false) {
-        		Location searched = null;
-        		for(Location l : LocationList.locations_saved) {
-        			if(l.getId().toString().equals(id)) {
-        				searched = l;
-        				break;
-        			}
-        		}
-        		if(searched == null) {
-        			throw new Exception("Location nicht gefunden");
-        		}
-        		response.entity(new Gson().toJson(searched));
-        	}
-        		
-        	else
+        try {	
         		response.entity(new Gson().toJson(LocationDAL.getById(id)));
         } catch (Exception e) {
             response.status(Response.Status.NOT_FOUND);

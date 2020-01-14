@@ -62,7 +62,10 @@ public class Location {
 		this.branchen = branche;
 	}
 	public void addBranche(Branche branche) {
-		this.branchen.add(branche);
+		if(this.branchen == null)
+			this.branchen = new ArrayList<Branche>();
+		if(!this.branchen.contains(branche))
+			this.branchen.add(branche);
 	}
 	public Besitzer getBesitzer() {
 		return besitzer;

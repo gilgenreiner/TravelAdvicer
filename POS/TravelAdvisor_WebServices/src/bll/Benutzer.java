@@ -13,8 +13,8 @@ public class Benutzer {
 		this.id = id;
 	}
 
-	public String getId() throws Exception {
-		return id.toString();
+	public String getId() {
+		return id;
 	}
 
 	public void setId(String firebaseId) {

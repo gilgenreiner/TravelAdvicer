@@ -20,7 +20,14 @@ import bll.Location;
 
 public class LocationDAL {
 
+	private static List<Location> cache = null;
+	private static boolean changed = true;
+	
 	public static List<Location> getAll(boolean loadBranchen) throws SQLException, Error404 {
+		if(cache != null && changed == false) {
+			return cache;
+		}
+		
 		Connection conn = Database.connect();
 
 		String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
@@ -47,8 +54,6 @@ public class LocationDAL {
 			
 			Location l = new Location();
 			l.setId(id);
-			// ToDO:
-			l.setBesitzer(null);
 			l.setBezeichnung(bezeichnung);
 			l.setBeschreibung(beschreibung);
 			l.setPunkte(punkte);
@@ -66,9 +71,14 @@ public class LocationDAL {
 
 			locations.add(l);
 		}
+		
 		//Locations lokal zwischenspeichern
-		LocationList.changed = false;
-		LocationList.locations_saved = locations;
+		//aber nur, wenn Branchen mitgeladen wurden, sonst ist es nicht vollständig
+		
+		if(loadBranchen == true) {
+			changed = false;
+			cache = locations;
+		}
 		
 		st.close();
 		conn.close();
@@ -77,6 +87,17 @@ public class LocationDAL {
 	}
 	
 	public static List<Location> getByBesitzer(boolean loadBranchen, String id_besitzer) throws SQLException, Error404 {
+		if(cache != null && changed == false) {
+			List<Location> result = new ArrayList<Location>();
+			for(Location l : cache) {
+				if(l.getBesitzer().getId() != null) {
+					if(l.getBesitzer().getId().equals(id_besitzer))
+						result.add(l);
+				}
+				
+			}
+			return result;
+		}
 		Connection conn = Database.connect();
 
 		String query = "SELECT id, id_besitzer, bezeichnung, beschreibung,  punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
@@ -130,28 +151,13 @@ public class LocationDAL {
 		return locations;
 	}
 
-	public static List<Location> test() throws Error404 {
-
-		List<Location> Locationn = new ArrayList<Location>();
-
-		Location l = new Location();
-		l.setId(UUID.randomUUID().toString());
-		l.setBesitzer(new Besitzer(UUID.randomUUID().toString()));
-		l.setBezeichnung("Raceres");
-		l.setBeschreibung("Essen");
-		l.setPunkte(9500);
-		l.setAktiv(true);
-		List<Branche> branchen = new ArrayList<Branche>();
-		branchen.add(new Branche(UUID.randomUUID().toString(), "Gastronomie"));
-		l.setBranchen(branchen);
-		l.setKoordinaten(new Point(46.604887, 13.869746));
-
-		Locationn.add(l);
-
-		return Locationn;
-	}
-
 	public static Location getById(String id) throws Exception {
+		if(cache != null && changed == false) {
+			for(Location l : cache) {
+				if(l.getId().toString().equals(id))
+					return l;
+			}
+		}
 		Connection conn = Database.connect();
 
 		String query = "SELECT  id, id_besitzer, bezeichnung, punkte, aktiv, tl.koordinaten.SDO_POINT.X as X, "
@@ -231,8 +237,25 @@ public class LocationDAL {
 			System.out.println("Statement ausgeführt!");
 
 			conn.close();
+			System.out.println("Verbindung abgebaut");
+			//changed = true;
 			
-			LocationList.changed = true;
+			System.out.println("Cache: " + cache.size() + ":   " + cache);
+			if(cache != null) {
+				Location locToRemove = null;
+				for(Location l : cache) {
+					System.out.println(l.getId().toString());
+					if(l.getId().toString().equals(id)) {
+						locToRemove = l;
+						System.out.println("Location gefunden");
+					}
+				}
+				if(locToRemove != null) {
+					cache.remove(locToRemove);
+					new_loc.setId(id);
+					cache.add(new_loc);
+				}
+			}
 			
 			//System.out.println("Verbindung geschlossen");
 			if (result == 0)
@@ -266,7 +289,17 @@ public class LocationDAL {
 
 			conn.close();
 			
-			LocationList.changed = true;
+			//changed = true;
+			if(cache != null) {
+				Location locToRemove = null;
+				for(Location l : cache) {
+					if(l.getId().toString().equals(id)) {
+						locToRemove = l;
+						
+					}
+				}
+				cache.remove(locToRemove);
+			}
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten! ");
 			System.err.println(e.getMessage());
@@ -309,7 +342,11 @@ public class LocationDAL {
 			
 			conn.close();
 
-			LocationList.changed = true;
+			//changed = true;
+			
+			if(cache != null) {
+				cache.add(new_loc);
+			}
 			
 			System.out.println("Location erstellt!");
 			for (Branche b : new_loc.getBranchen()) {
@@ -338,6 +375,8 @@ public class LocationDAL {
 
 			conn.close();
 			System.out.println("Branche " + branche+ " erfolgreich zur Location " + l + " hinzugefügt!");
+			
+	
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten!");
 			System.err.println(e.getMessage());
