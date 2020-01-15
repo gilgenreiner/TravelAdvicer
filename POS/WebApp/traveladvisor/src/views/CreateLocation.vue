@@ -57,8 +57,8 @@ export default {
         aktiv: false,
         punkte: 0,
         branchen: [],
-        besitzer: { id: "b7b2de55-5221-4b4d-afe5-af44d6345b59" },
-        koordinaten: { X: 0, Y: 0 }
+        besitzer: { id: "" },
+        koordinaten: { X: 0, Y: 0 },
       },
       mode: "create",
       isDoCreateButtonPressed: false,
@@ -98,13 +98,14 @@ export default {
       this.$refs.map.validateForCreate();
       this.valid = this.$refs.map.valid;
       if (this.$refs.details.valid && this.$refs.map.valid) {
+        this.defaultLocation.besitzer.id = this.user.data.id;
         this.$store.dispatch("addLocation", this.defaultLocation);
         this.isDoCreateButtonPressed = true;
       }
     }
   },
   computed: {
-    ...mapGetters(["isLoadingLocations", "errorLocations", "errorBranchen"])
+    ...mapGetters(["isLoadingLocations", "errorLocations", "errorBranchen", "user"])
   }
 };
 </script>

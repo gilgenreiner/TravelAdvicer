@@ -24,12 +24,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "AddRezensionPopup",
   data() {
     return {
       defaultRezension: {
-        id: "asdf",
+        locationid: "",
+        besucherid: "",
         bewertung: 2.5,
         text: ""
       },
@@ -46,6 +49,7 @@ export default {
     location: Object,
     dialogAddPopup: Boolean
   },
+  computed: mapGetters(["user"]),
   methods: {
     saveRezension() {
       this.$refs.form.validate();
@@ -59,7 +63,8 @@ export default {
     dialogAddPopup() {
       if (this.dialogAddPopup) {
         this.defaultRezension = {
-          id: "asdf",
+          locationid: this.location.id,
+          besucherid: this.user.data.id,
           bewertung: 2.5,
           text: ""
         };

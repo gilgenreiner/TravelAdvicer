@@ -71,10 +71,11 @@ export default {
           data.user.updateProfile({
             displayName: this.user.firstname
           });
-          
+
           this.user.id = data.user.uid;
           this.registerUserToOracle();
           this.writeUserDataToFirestore();
+          this.$router.push({ name: "Account" });
         })
         .catch(err => {
           this.error = err.message;

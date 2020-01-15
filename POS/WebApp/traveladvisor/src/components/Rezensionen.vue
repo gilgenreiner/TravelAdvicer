@@ -12,7 +12,7 @@
         <v-row>
           <v-col cols="12">{{ r.text }}</v-col>
         </v-row>
-        <v-row>
+        <v-row v-if="r.besucherid == user.data.id">
           <v-col cols="1" offset="11">
             <v-spacer></v-spacer>
             <v-btn icon @click="dialogUpdateRezension = !dialogUpdateRezension">
@@ -22,7 +22,10 @@
               <v-icon>delete</v-icon>
             </v-btn>
             <UpdateRezensionPopup :rezension="r" :dialogUpdatePopup.sync="dialogUpdateRezension" />
-            <DeleteRezensionPopup :rezension="r" :dialogDeleteRezension.sync="dialogDeleteRezension" />
+            <DeleteRezensionPopup
+              :rezension="r"
+              :dialogDeleteRezension.sync="dialogDeleteRezension"
+            />
           </v-col>
         </v-row>
       </v-expansion-panel-content>
@@ -31,6 +34,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 import DeleteRezensionPopup from "@/components/popups/DeleteRezensionPopup";
 import UpdateRezensionPopup from "@/components/popups/UpdateRezensionPopup";
 
@@ -48,6 +53,7 @@ export default {
   },
   props: {
     rezensionen: Array
-  }
+  },
+  computed: mapGetters(["user"])
 };
 </script>

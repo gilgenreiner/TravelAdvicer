@@ -31,7 +31,7 @@ export default {
       text: ""
     };
   },
-  computed: mapGetters(["allLocations", "errorLocations"]),
+  computed: mapGetters(["allLocations", "errorLocations", "user"]),
   watch: {
     error() {
       if (this.errorLocations) {
@@ -41,7 +41,10 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch("loadLocations");
+    this.$store.dispatch("loadLocations", {
+      besitzer: this.user.data.id,
+      loadBranchen: true
+    });
   }
 };
 </script>

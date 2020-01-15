@@ -4,7 +4,12 @@
       <v-card-title>
         Rezensionen
         <v-spacer></v-spacer>
-        <v-btn text class="mr-2" @click="dialogAddPopup = !dialogAddPopup">Erstellen</v-btn>
+        <v-btn
+          v-if="user.data.typ == 'besucher'"
+          class="mr-2"
+          @click="dialogAddPopup = !dialogAddPopup"
+          text
+        >Erstellen</v-btn>
         <v-btn icon @click="$emit('update:dialog', false)">
           <v-icon>close</v-icon>
         </v-btn>
@@ -38,9 +43,9 @@ export default {
     location: Object,
     dialog: Boolean
   },
-  computed: mapGetters(["allRezensionen"]),
+  computed: mapGetters(["allRezensionen", "user"]),
   created() {
-    this.$store.dispatch("loadRezensionen");
+    this.$store.dispatch("loadRezensionen", this.location.id);
   }
 };
 </script>

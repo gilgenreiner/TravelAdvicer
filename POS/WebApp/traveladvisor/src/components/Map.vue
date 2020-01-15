@@ -141,19 +141,18 @@ export default {
 
       //this.emit --> triggered method that is saved under event in MapView.vue with the data passed through
       if (!this.isGeolocateOn) {
-        event.component.showUserLocation = false;
         this.$emit("event", null);
       } else {
         this.$emit("event", {
           distanz: 3000,
           x: event.mapboxEvent.coords.latitude,
-          y: event.mapboxEvent.coords.longitude
+          y: event.mapboxEvent.coords.longitude,
+          loadBranchen: true
         });
 
         event.map.addSource(
           "polygon",
-          this.createGeoJSONCircle(event.mapboxEvent.coords, 3.3)
-          //this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
+          this.createGeoJSONCircle(event.mapboxEvent.coords, 3)
         );
 
         event.map.addLayer({
