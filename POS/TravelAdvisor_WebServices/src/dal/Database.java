@@ -31,17 +31,36 @@ public class Database {
  	
  	public static Connection connect() throws SQLException {
 	      try {
-		      String myDriver = "oracle.jdbc.driver.OracleDriver";
-		      //212.152.179.117
-		      //10.0.6.111
-		      String myUrl = "jdbc:oracle:thin:@212.152.179.117:1521:ora11g";
-		      Class.forName(myDriver);
-		      conn = DriverManager.getConnection(myUrl, "d5a17", "d5a");
-		      return conn;
+		      return connectIntern();
 		} catch (Exception e) {
-			System.err.println("Got an exception when connecting to DB! ");
-			System.err.println(e.getMessage());
-			return null;
+			try {
+				return connectExtern();
+			}
+			catch(Exception e2) {
+				System.err.println("Got an exception when connecting to DB! ");
+				System.err.println(e2.getMessage());
+				return null;
+			}
 		} 
 	}
+ 	
+ 	public static Connection connectIntern() throws SQLException, ClassNotFoundException {
+ 		String myDriver = "oracle.jdbc.driver.OracleDriver";
+	      //212.152.179.117
+	      //10.0.6.111
+	      String myUrl = "jdbc:oracle:thin:@10.0.6.111:1521:ora11g";
+	      Class.forName(myDriver);
+	      conn = DriverManager.getConnection(myUrl, "d5a17", "d5a");
+	      return conn;
+ 	}
+ 	
+ 	public static Connection connectExtern() throws SQLException, ClassNotFoundException {
+ 		String myDriver = "oracle.jdbc.driver.OracleDriver";
+	      //212.152.179.117
+	      //10.0.6.111
+	      String myUrl = "jdbc:oracle:thin:@212.152.179.117:1521:ora11g";
+	      Class.forName(myDriver);
+	      conn = DriverManager.getConnection(myUrl, "d5a17", "d5a");
+	      return conn;
+ 	}
 }

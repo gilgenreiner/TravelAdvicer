@@ -96,7 +96,7 @@ public class PraemienDAL {
 		return result;
 	}
 
-	public static Aktion getByLocation(String loc_id) throws Exception {
+	public static List<Aktion> getByLocation(String loc_id) throws Exception {
 		Connection conn = Database.connect();
 
 		//String query = "SELECT id_aktion, id_location, beschreibung, punkte, aktiv FROM Aktion";
@@ -108,7 +108,7 @@ public class PraemienDAL {
 		ResultSet rs = st.executeQuery(query);
 
 		// iterate through the java resultset
-		Aktion result = null;
+		List<Aktion> result = new ArrayList<Aktion>();
 		while (rs.next()) {
 			String beschreibung = rs.getString("beschreibung");
 			String id_aktion = rs.getString("id_aktion");
@@ -126,7 +126,7 @@ public class PraemienDAL {
 				a.setAktiv(false);
 			a.setLocationId(locationId);
 
-			result = a;
+			result.add(a);
 		}
 		st.close();
 

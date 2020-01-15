@@ -134,30 +134,7 @@ public class LocationDetail {
 
         return response.build();
     }
-
-    @POST
-    @Path("test")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public Response test(Location new_loc) throws Exception {
-        Response.ResponseBuilder response = Response.status(Response.Status.OK);
-
-        new_loc.generateUUID();
         
-        System.out.println("ID: " + new_loc.getId());
-        System.out.println("Besitzer: " + new_loc.getBesitzer());
-        try {
-        	response.status(Response.Status.CREATED);
-            response.entity(new_loc);
-        } catch (Exception e) {
-            response.status(Response.Status.BAD_REQUEST);
-            response.entity("[ERROR] " + e.getMessage());
-        }
-
-        return response.build();
-    }
-    
-    
     
     @PUT
     @Path("{id}")

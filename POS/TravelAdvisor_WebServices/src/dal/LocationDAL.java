@@ -86,7 +86,7 @@ public class LocationDAL {
 		return locations;
 	}
 	
-	public static List<Location> getByBesitzer(boolean loadBranchen, String id_besitzer) throws SQLException, Error404 {
+	public static List<Location> getByBesitzer(Boolean loadBranchen, String id_besitzer) throws SQLException, Error404 {
 		if(cache != null && changed == false) {
 			List<Location> result = new ArrayList<Location>();
 			for(Location l : cache) {
@@ -138,7 +138,7 @@ public class LocationDAL {
 
 			l.setKoordinaten(new Point(X, Y));
 			System.out.println(l.getId().toString());
-			if(loadBranchen == true)
+			if(loadBranchen != null && loadBranchen == true)
 				l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
 			//l.setImg(img);
 
@@ -384,7 +384,7 @@ public class LocationDAL {
 	}
 	
 	
-	public static List<Location> getWithinDistance(double distanz, double x, double y, boolean loadBranchen) throws Exception{
+	public static List<Location> getWithinDistance(double distanz, double x, double y, Boolean loadBranchen) throws Exception{
 		List<Location> locations = new ArrayList<Location>();
 		try {
 			Connection conn = Database.connect();
@@ -429,7 +429,7 @@ public class LocationDAL {
 
 				l.setKoordinaten(new Point(X, Y));
 				System.out.println(l.getId().toString());
-				if(loadBranchen == true)
+				if(loadBranchen != null && loadBranchen == true)
 					l.setBranchen(BrancheDAL.getByLocationId(l.getId().toString()));
 
 				locations.add(l);
