@@ -1,7 +1,10 @@
 <template>
   <v-hover v-slot:default="{ hover }">
-    <v-card class="mx-auto" color="grey lighten-4" max-width="600">
-      <v-img :aspect-ratio="16/9" :src="'https://picsum.photos/510/300?random'">
+    <v-card class="mx-auto" max-width="600">
+      <v-img
+        :aspect-ratio="16/9"
+        :src="'https://banner2.cleanpng.com/20180421/btq/kisspng-computer-icons-discounts-and-allowances-price-tag-discounted-5adb9998873486.5906501115243411445538.jpg' || 'https://www.in-australien.com/img/large/reisen/vorbereitung/rabatte-internationaler-studentenausweis/Rabatte.jpg'"
+      >
         <v-expand-transition>
           <div
             v-if="hover"
@@ -10,9 +13,7 @@
           >{{ bonus.punkte }}</div>
         </v-expand-transition>
       </v-img>
-      <v-card-text class="pt-6" style="position: relative;">
-        <h3 class="display-1 font-weight-light green--text mb-2">{{bonus.bezeichnung}}</h3>
-      </v-card-text>
+      <v-card-text class="black--text">{{ bonus.bezeichnung }}</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn icon>
@@ -24,9 +25,9 @@
         <v-btn icon @click="deleteDialog = true">
           <v-icon>delete</v-icon>
         </v-btn>
-        <DeleteBonusPopup :dialog.sync="deleteDialog" :bonus="bonus" />
-        <PopupUpdateBoni :dialog.sync="updateDialog" :bonus="bonus" />
       </v-card-actions>
+      <DeleteBonusPopup :dialog.sync="deleteDialog" :bonus="bonus" />
+      <PopupUpdateBoni :dialog.sync="updateDialog" :bonus="bonus" />
     </v-card>
   </v-hover>
 </template>
@@ -57,7 +58,7 @@ export default {
   align-items: center;
   bottom: 0;
   justify-content: center;
-  opacity: 0.5;
+  opacity: 0.7;
   position: absolute;
   width: 100%;
 }

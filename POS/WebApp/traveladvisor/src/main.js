@@ -6,8 +6,8 @@ import vuetify from './plugins/vuetify';
 import router from './router'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import VueRadioToggleButtons from 'vue-radio-toggle-buttons';
-import firebase from 'firebase'
 import 'vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css';
+import firebase from 'firebase'
 import store_idx from "./store/index"
 
 Vue.config.productionTip = false
@@ -16,10 +16,6 @@ Vue.use(VueRadioToggleButtons)
 firebase.auth().onAuthStateChanged(user => {
   if(user) {
     store_idx.dispatch("fetchUser", user);
-  }
-  else {
-    //wie den status des users von hier setzen ??
-    console.log("nobody logged in . . .")
   }
 });
 

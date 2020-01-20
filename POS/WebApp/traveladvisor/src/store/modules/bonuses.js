@@ -22,9 +22,9 @@ const getters = {
 };
 
 const actions = {
-    loadBonuses({ commit }) {
+    loadBonuses({ commit }, id) {
         commit('setBonuses', []);
-        axiosWithLoader.get(baseURL + "/TravelAdvisor_WebServices/TravelGuide/praemienList")
+        axiosWithLoader.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}/praemien`)
             .then(response => {
                 commit('setBonuses', response.data)
             })

@@ -4,35 +4,7 @@ import axios from 'axios';
 const baseURL = process.env.VUE_APP_API_URL;
 
 const state = {
-    rezensionen: [
-        {
-            besucherid: "350e7145-5f8d-4203-94e0-8aa6e208c73f",
-            bewertung: 4,
-            text:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            id: "9e71af73-2e47-412d-9e89-6b90d7bf7955",
-            locationid: "5e010350-72a3-4435-8455-17f4e9f3ff66",
-            timestamp: "2019-11-14T14:33:21.917Z[UTC]"
-        },
-        {
-            besucherid: "350e7145-5f8d-4203-94e0-8aa6e208c738",
-            bewertung: 1,
-            text:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            id: "9e71af73-2e47-412d-9e89-6b90d7bf7956",
-            locationid: "5e010350-72a3-4435-8455-17f4e9f3ff66",
-            timestamp: "2019-11-14T14:33:21.917Z[UTC]"
-        },
-        {
-            besucherid: "350e7145-5f8d-4203-94e0-8aa6e208c734",
-            bewertung: 2.5,
-            text:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            id: "9e71af73-2e47-412d-9e89-6b90d7bf7952",
-            locationid: "5e010350-72a3-4435-8455-17f4e9f3ff66",
-            timestamp: "2019-11-14T14:33:21.917Z[UTC]"
-        }
-    ],
+    rezensionen: [],
     isLoadingRezensionen: false
 };
 
@@ -41,21 +13,47 @@ const getters = {
 };
 
 const actions = {
-    loadRezensionen({ commit }) {
-        //webservicecall
-        commit('setRezensionen', state.rezensionen);
+    loadRezensionen({ commit }, id) {
+        commit('setRezensionen', []);
+        axiosWithLoader.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}/rezensionen`)
+            .then(response => {
+                commit('setRezensionen', response.data);
+                //commit('errorOccurred', null);
+            })
+            .catch(err => commit('errorOccurred', err));
     },
     saveRezension({ commit }, rezension) {
-        //webservicecall
-        commit('addRezension', rezension);
+        //commit('updateStateLoadingLocations', true);
+
+        axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/rezensionenDetail`, rezension)
+            .then(response => {
+                commit('addRezension', response.data);
+                //commit('errorOccurred', null);
+            })
+            .catch(err => commit('errorOccurred', err))
+            .finally(() => commit('updateStateLoadingLocations', false));
     },
     updateRezension({ commit }, rezension) {
-        //webservicecall
-        commit('updateRezension', rezension);
+        //commit('updateStateLoadingLocations', true);
+
+        axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/rezensionenDetail/${rezension.id}`, location)
+            .then(response => {
+                commit('updateRezension', response.data);
+                commit('errorOccurred', null);
+            })
+            .catch(err => commit('errorOccurred', err))
+            .finally(() => commit('updateStateLoadingLocations', false));
     },
     deleteRezension({ commit }, id) {
-        //webservicecall
-        commit('deleteRezension', id);
+        // commit('updateStateLoadingLocations', true);
+
+        axios.delete(baseURL + `/TravelAdvisor_WebServices/TravelGuide/rezensionenDetail/${id}`)
+            .then(response => {
+                commit('deleteRezension', id);
+                commit('errorOccurred', null);
+            })
+            .catch(err => commit('errorOccurred', err))
+            .finally(() => commit('updateStateLoadingLocations', false));
     }
 };
 

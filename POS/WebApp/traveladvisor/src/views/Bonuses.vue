@@ -3,17 +3,18 @@
     <v-container fluid>
       <v-row>
         <v-col cols="3">
-        <v-combobox
-          v-model="selectedLocation"
-          :items="allLocations"
-          item-text="bezeichnung"
-          return-object
-          label="Select a favorite activity"
-        ></v-combobox>
+          <v-combobox
+            v-model="selectedLocation"
+            :items="allLocations"
+            item-text="bezeichnung"
+            return-object
+            label="Location auswählen"
+            @change="selectLocation"
+          ></v-combobox>
         </v-col>
         <v-col>
-        <v-btn @click="openDialog">Bonus hinzufügen</v-btn>
-        <PopupAddBoni :dialog.sync="dialog" :bonus="bonus" />
+          <v-btn @click="openDialog">Bonus hinzufügen</v-btn>
+          <PopupAddBoni :dialog.sync="dialog" :bonus="bonus" />
         </v-col>
       </v-row>
       <v-row>
@@ -45,12 +46,15 @@ export default {
         aktiv: false,
         locationId: null
       },
-      selectedLocation: {}
+      selectedLocation: {
+        bezeichnung: '',
+        id: 0
+      }
     };
   },
   methods: {
-    ...mapActions(["loadBonuses", "loadLocations"]),
-    openDialog() {     
+    ...mapActions(["loadBonuses", "loadLocations", "user"]),
+    openDialog() {
       this.bonus = {
         bezeichnung: null,
         punkte: null,
@@ -58,15 +62,17 @@ export default {
         locationId: this.selectedLocation.id
       };
       this.dialog = !this.dialog;
+    },
+    selectLocation() {
+      this.loadBonuses(this.selectedLocation.id);
     }
   },
   computed: mapGetters(["allBonuses", "allLocations"]),
   created() {
-    this.loadBonuses();
     //todo get id from logged in user
     this.loadLocations({
       loadBranchen: false,
-      besitzer: "b717f71a-a902-4c1a-9fa9-00000659fc8ck"
+      besitzer: this.user.data.id
     });
   }
 };

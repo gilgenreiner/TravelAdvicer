@@ -1,4 +1,3 @@
-import axiosWithLoader from '../../http';
 import axios from 'axios';
 import firebase from 'firebase'
 
@@ -17,7 +16,6 @@ const getters = {
 
 const actions = {
   fetchUser({ commit }, user) {
-    console.log("fetching user");
     commit("SET_LOGGED_IN", user !== null);
     if (user) {
       commit("SET_USER", {
@@ -28,12 +26,11 @@ const actions = {
 
       let db = firebase.firestore();
       let docRef = db.collection("users").doc(user.uid);
-      console.log("loading userdata from firestore . . . ");
+
       docRef
         .get()
         .then(function (doc) {
           if (doc.exists) {
-            console.log("Document data:", doc.data());
             commit("SET_USER", {
               displayName: doc.data().vorname,
               email: doc.data().email,
@@ -54,24 +51,17 @@ const actions = {
     }
   },
   registerUser({ commit }, user) {
-    console.log(state.user.data);
-    console.log(user.type);
-    var route;
-    if(user.type == 'besitzer')
-      route = `/TravelAdvisor_WebServices/TravelGuide/besitzerDetail`;
-    else
-      route = `/TravelAdvisor_WebServices/TravelGuide/besucherDetail`;
-    
-    axios.post(baseURL + route, user)
-        .then(response => {
-            commit('setUser', response.data);
-            commit('errorOccurred', null);
-        })
-        .catch(err => commit('errorOccurred', err));
-        
-}
-}
+    var route = "/TravelAdvisor_WebServices/TravelGuide/";
+    route += (user.type == 'besitzer') ? "besitzerDetail" : "besucherDetail";
 
+    axios.post(baseURL + route, user)
+      .then(response => {
+        //commit('SET_USER', response.data);
+        commit('errorOccurred', null);
+      })
+      .catch(err => commit('errorOccurred', err));
+  }
+}
 
 const mutations = {
   SET_LOGGED_IN(state, value) {

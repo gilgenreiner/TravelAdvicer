@@ -9,10 +9,7 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetail
-          ref="details"
-          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation"
-        />
+        <LocationDetail ref="details" :selectedLocation.sync="getSelectedLocation" />
       </v-col>
       <v-col cols="8">
         <v-hover v-slot:default="{ hover }">
@@ -62,6 +59,7 @@ export default {
         aktiv: false,
         punkte: 0,
         branchen: [],
+        besitzer: { id: ""},
         koordinaten: { x: 0, y: 0 }
       }
     };
