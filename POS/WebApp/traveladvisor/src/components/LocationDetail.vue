@@ -6,7 +6,7 @@
           class="white--text align-end"
           height="200px"
           gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-          :src="`https://x.kinja-static.com/assets/images/logos/placeholders/default.png`"
+          :src="'https://picsum.photos/510/300?random' || `https://x.kinja-static.com/assets/images/logos/placeholders/default.png`"
           :key="selectedLocation.img"
           @click="pickFile"
           aspect-ratio="2"

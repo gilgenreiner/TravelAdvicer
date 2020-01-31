@@ -6,10 +6,13 @@
           <v-btn :to="{ name: 'Location erstellen' }">Location hinzufügen</v-btn>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="allLocations.length > 0">
         <v-col v-for="location in allLocations" :key="location.id" lg="3" md="4" sm="6">
           <LocationListItem :location="location" />
         </v-col>
+      </v-row>
+      <v-row v-else justify="center">
+        <v-label>Keine locations vorhanden</v-label>
       </v-row>
     </v-container>
     <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
@@ -53,5 +56,9 @@ export default {
 .locations {
   margin-left: 20px;
   padding-right: 20px;
+}
+
+.v-label {
+  font-size: 30px;
 }
 </style>

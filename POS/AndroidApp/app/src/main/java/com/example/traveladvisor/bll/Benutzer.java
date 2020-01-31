@@ -3,14 +3,14 @@ package com.example.traveladvisor.bll;
 import java.util.UUID;
 
 public class Benutzer {
-	private UUID id;
+	private String id;
 
 	public Benutzer() {
 	}
 
 	public Benutzer(String id) {
 		super();
-		this.id = UUID.fromString(id);
+		this.id = id;
 	}
 
 	public String getId() throws Exception {
@@ -24,14 +24,10 @@ public class Benutzer {
 
 	public void setId(String firebaseId) {
 		try {
-			this.id = UUID.fromString(firebaseId);
+			this.id = firebaseId;
 		} catch (Exception e) {
 			this.id = null;
 		}
-	}
-
-	public void generateUUID() {
-		this.id = UUID.randomUUID();
 	}
 
 }

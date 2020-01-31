@@ -14,11 +14,8 @@
         </v-expand-transition>
       </v-img>
       <v-card-text class="black--text">{{ bonus.bezeichnung }}</v-card-text>
-      <v-card-actions>
+      <v-card-actions v-if="edit==true">
         <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon>expand_more</v-icon>
-        </v-btn>
         <v-btn icon @click="updateDialog=true">
           <v-icon>edit</v-icon>
         </v-btn>
@@ -48,7 +45,8 @@ export default {
     };
   },
   props: {
-    bonus: Object
+    bonus: Object,
+    edit: Boolean
   }
 };
 </script>

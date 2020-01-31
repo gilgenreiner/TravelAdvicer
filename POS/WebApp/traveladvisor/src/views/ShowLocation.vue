@@ -29,6 +29,14 @@
         </v-hover>
       </v-col>
     </v-row>
+    <v-row class="mt-4 ml-0" v-if="allBonuses.length > 0">
+      <v-label>Prämien:</v-label>
+    </v-row>
+    <v-row>
+      <v-col v-for="bonus in allBonuses" :key="bonus.id" lg="3" md="4" sm="6">
+        <BonusListItem :bonus="bonus" :edit="false" />
+      </v-col>
+    </v-row>
     <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
@@ -39,12 +47,14 @@ import { mapGetters } from "vuex";
 import Map from "@/components/Map";
 import LocationDetailReadonly from "@/components/LocationDetailReadonly";
 import RezensionenPopup from "@/components/popups/ShowRezensionenPopup";
+import BonusListItem from "@/components/BonusListItem";
 
 export default {
   name: "LocationDetails",
   components: {
     Map,
     LocationDetailReadonly,
+    BonusListItem,
     RezensionenPopup
   },
   data() {
@@ -65,7 +75,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["allLocations", "errorLocations"]),
+    ...mapGetters(["allLocations", "errorLocations", "allBonuses"]),
     getSelectedLocation() {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
@@ -92,6 +102,13 @@ export default {
     if (this.allLocations.length === 0) {
       this.$store.dispatch("loadLocationById", this.$route.params.id);
     }
+    this.$store.dispatch("loadBonuses", this.$route.params.id);
   }
 };
 </script>
+
+<style >
+.v-label {
+  font-size: 20px;
+}
+</style>

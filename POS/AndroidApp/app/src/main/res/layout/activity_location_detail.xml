@@ -9,7 +9,8 @@
         android:layout_width="633dp"
         android:layout_height="222dp"
         android:layout_gravity="center"
-        android:src="@drawable/default_image" />
+        android:src="@drawable/default_image"
+        android:visibility="gone"/>
 
     <androidx.cardview.widget.CardView
         style="@style/MyCardViewStyle"

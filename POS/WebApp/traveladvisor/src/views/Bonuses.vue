@@ -17,10 +17,13 @@
           <PopupAddBoni :dialog.sync="dialog" :bonus="bonus" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="allBonuses.length > 0"> 
         <v-col v-for="bonus in allBonuses" :key="bonus.id" lg="3" md="4" sm="6">
-          <BonusListItem :bonus="bonus" />
+          <BonusListItem :bonus="bonus" :edit="true"/>
         </v-col>
+      </v-row>
+       <v-row v-else justify="center">
+        <v-label>Keine Prämien vorhanden</v-label>
       </v-row>
     </v-container>
   </div>
@@ -70,6 +73,7 @@ export default {
   computed: mapGetters(["allBonuses", "allLocations"]),
   created() {
     //todo get id from logged in user
+    this.$store.commit("setBonuses", []);
     this.loadLocations({
       loadBranchen: false,
       besitzer: this.user.data.id
@@ -82,5 +86,9 @@ export default {
 .locations {
   margin-left: 20px;
   padding-right: 20px;
+}
+
+.v-label {
+  font-size: 30px;
 }
 </style>

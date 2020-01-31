@@ -4,15 +4,7 @@ import axios from 'axios';
 const baseURL = process.env.VUE_APP_API_URL;
 
 const state = {
-    bonuses: [
-        {
-            id: 1,
-            bezeichnung: "10% auf mich",
-            punkte: "punkte",
-            aktiv: false,
-            locationId: "teset"
-        }
-    ],
+    bonuses: [],
     selectedBonus: {}
 };
 
