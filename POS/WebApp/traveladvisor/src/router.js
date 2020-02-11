@@ -1,12 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import firebase from 'firebase';
+
 import MapView from '@/views/MapView.vue'
 import Account from '@/views/Account.vue'
 import Locations from '@/views/Locations.vue'
 import UpdateLocation from '@/views/UpdateLocation.vue'
 import CreateLocation from '@/views/CreateLocation.vue'
 import ShowLocation from '@/views/ShowLocation.vue'
-import PageNotFound from '@/components/error/PageNotFound.vue'
+import PageNotFound from '@/views/PageNotFound.vue'
 import Bonuses from '@/views/Bonuses.vue'
 import Register from '@/views/Register'
 import Login from '@/views/Login'
@@ -24,33 +26,51 @@ const router = new Router({
     {
       path: '/account',
       name: 'Account',
-      component: Account
+      component: Account,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/locations',
       name: 'Locations',
-      component: Locations
+      component: Locations,
+      meta: {
+        requiresAuth: true,
+        requiresTypBesitzer: true
+      }
     },
     {
       path: '/locations/view/:id',
       name: 'Location anzeigen',
-      component: ShowLocation,
-      props: true
+      component: ShowLocation
     },
     {
       path: '/locations/update/:id',
       name: 'Location aktualisieren',
-      component: UpdateLocation
+      component: UpdateLocation,
+      meta: {
+        requiresAuth: true,
+        requiresTypBesitzer: true
+      }
     },
     {
       path: '/locations/create',
       name: 'Location erstellen',
-      component: CreateLocation
+      component: CreateLocation,
+      meta: {
+        requiresAuth: true,
+        requiresTypBesitzer: true
+      }
     },
     {
       path: '/bonuses',
       name: 'Bonuses',
-      component: Bonuses
+      component: Bonuses,
+      meta: {
+        requiresAuth: true,
+        requiresTypBesitzer: true
+      }
     },
     {
       path: '/register',
@@ -69,15 +89,15 @@ const router = new Router({
   ]
 })
 
-router.beforeResolve((to, from, next) => {
-  if (to.name) {
-    NProgress.start()
-  }
-  next()
-})
+router.beforeEach((to, from, next) => {
+  const currentUser = firebase.auth().currentUser;
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresTypBesitzer = to.matched.some(record => record.meta.requiresTypBesitzer);
+  const typ = (currentUser != null) ? localStorage.getItem('typ') : null;
 
-router.afterEach((to, from) => {
-  NProgress.done()
+  if (requiresAuth && !currentUser) next('login');
+  else if (requiresTypBesitzer && currentUser && typ != 'besitzer') next('*')
+  else next();
 })
 
 export default router

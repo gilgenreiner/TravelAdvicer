@@ -4,62 +4,35 @@
       <v-card :elevation="hover ? 12 : 4" class="mx-auto mt-5" width="800">
         <v-card-title>Information</v-card-title>
         <v-card-text>
-          <v-form ref="form">
-            <v-text-field v-model="user.data.vorname" label="Vorname" readonly />
-            <v-text-field v-model="user.data.nachname" label="Nachname" readonly />
-            <v-text-field v-model="user.data.displayName" label="Displayname" readonly />
-            <v-text-field v-model="user.data.email" label="Email" readonly />
+          <v-form ref="form" v-if="user != null">
+            <v-text-field v-model="user.vorname" label="Vorname" readonly />
+            <v-text-field v-model="user.nachname" label="Nachname" readonly />
+            <v-text-field v-model="user.displayName" label="Displayname" readonly />
+            <v-text-field v-model="user.email" label="Email" readonly />
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="signOut()" text>Abmelden</v-btn>
+          <v-btn color="green" @click="signOut()" text>Abmelden</v-btn>
         </v-card-actions>
       </v-card>
     </v-hover>
   </div>
 </template>
 <script>
-import { mapGetters, mapMutations } from "vuex";
-import firebase from "firebase";
+import { mapGetters } from "vuex";
 
 export default {
-  data() {
-    return {
-      userdata: {
-        vorname: "",
-        nachname: "",
-        email: "",
-        typ: "",
-        uid: ""
-      }
-    };
-  },
+  name: "Account",
   computed: {
     ...mapGetters({
-      user: "user"
+      user: "users/user"
     })
   },
   methods: {
     signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          this.$router.replace({
-            name: "Login"
-          });
-          this.$store.commit("SET_LOGGED_IN", false);
-          this.$store.commit("SET_USER", null);
-        });
-    },
-    setData(data) {
-      this.userdata = data;
-    }
-  },
-  created() {
-    if (!this.user.loggedIn) {
-      this.$router.push({ name: "Login" });
+      this.$store.dispatch("users/signOut");
+      this.$router.replace({ name: "Login" });
     }
   }
 };

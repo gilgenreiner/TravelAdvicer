@@ -1,33 +1,34 @@
 import Vue from 'vue'
-import './firebase'
 import App from './App.vue'
 import store from './store'
 import vuetify from './plugins/vuetify';
 import router from './router'
-import 'material-design-icons-iconfont/dist/material-design-icons.css'
-import VueRadioToggleButtons from 'vue-radio-toggle-buttons';
-import 'vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css';
 import firebase from 'firebase'
-import store_idx from "./store/index"
+import './firebase';
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.config.productionTip = false
-Vue.use(VueRadioToggleButtons)
+let app;
 
-firebase.auth().onAuthStateChanged(user => {
-  if(user) {
-    store_idx.dispatch("fetchUser", user);
-  }
-});
-
-//filter
 Vue.filter('shorterText', (value) => {
   if (value.length <= 51) return value;
   return value.slice(0, 48) + "...";
 });
 
-new Vue({
-  vuetify,
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    store.dispatch("users/fetchUser", user);
+  } else {
+    store.commit("users/setUser", null);
+    localStorage.removeItem('typ');
+  }
+
+  if (!app) {
+    app = new Vue({
+      vuetify,
+      router,
+      store,
+      render: h => h(App)
+    }).$mount('#app')
+  }
+})

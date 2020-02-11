@@ -3,10 +3,16 @@
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <v-btn :to="{ name: 'Location erstellen' }">Location hinzufügen</v-btn>
+          <v-btn :to="{ name: 'Location erstellen' }" class="green" dark>Location hinzufügen</v-btn>
         </v-col>
       </v-row>
-      <v-row v-if="allLocations.length > 0">
+      <v-row v-if="isLoadingLocations">
+        <v-col v-for="i in 3" :key="i" lg="3" md="4" sm="6">
+          <v-skeleton-loader transition="fade-transition" type="card" />
+          <v-skeleton-loader transition="fade-transition" type="actions" />
+        </v-col>
+      </v-row>
+      <v-row v-else-if="allLocations.length > 0">
         <v-col v-for="location in allLocations" :key="location.id" lg="3" md="4" sm="6">
           <LocationListItem :location="location" />
         </v-col>
@@ -15,37 +21,26 @@
         <v-label>Keine locations vorhanden</v-label>
       </v-row>
     </v-container>
-    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-
-import LocationListItem from "@/components/LocationListItem";
+import firebase from 'firebase';
+import LocationListItem from "@/components/listItems/LocationListItem";
 
 export default {
+  name: "Locations",
   components: {
     LocationListItem
   },
-  data() {
-    return {
-      snackbar: false,
-      text: ""
-    };
-  },
-  computed: mapGetters(["allLocations", "errorLocations", "user"]),
-  watch: {
-    error() {
-      if (this.errorLocations) {
-        this.text = "Konnte nicht geladen werden - " + this.errorLocations;
-        this.snackbar = true;
-      }
-    }
-  },
+  computed: mapGetters({
+    allLocations: "locations/allLocations",
+    isLoadingLocations: "locations/isLoading"
+  }),
   created() {
-    this.$store.dispatch("loadLocations", {
-      besitzer: this.user.data.id,
+    this.$store.dispatch("locations/loadLocations", {
+      besitzer: firebase.auth().currentUser.uid,
       loadBranchen: true
     });
   }

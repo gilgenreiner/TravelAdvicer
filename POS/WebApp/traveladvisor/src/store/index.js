@@ -5,8 +5,6 @@ import branchen from '@/store/modules/branchen';
 import bonuses from '@/store/modules/bonuses';
 import rezensionen from '@/store/modules/rezensionen';
 import users from '@/store/modules/users';
-import firebase from "firebase";
-
 
 //Load Vuex
 Vue.use(Vuex);

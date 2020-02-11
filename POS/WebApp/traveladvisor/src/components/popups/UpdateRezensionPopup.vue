@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialogUpdatePopup" max-width="800" persistent>
+  <v-dialog v-model="dialog" max-width="800" persistent>
     <v-card>
       <v-card-title>Rezensionen updaten</v-card-title>
       <v-card-text>
@@ -16,60 +16,68 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="green" text @click="$emit('update:dialogUpdatePopup', false)">Abbrechen</v-btn>
-        <v-btn color="green" text @click="updateRezension">Akutalisieren</v-btn>
+        <v-btn color="green" text @click="$emit('update:dialog', false)">Abbrechen</v-btn>
+        <v-btn color="green" text @click="updateRezension" :loading="isLoadingRezension">Akutalisieren</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
-  name: "AddRezensionPopup",
+  name: "UpdateRezensionPopup",
   data() {
     return {
-      defaultRezension: {
-        text: "",
-        bewertung: 2.5,
-        id: ""
-      },
       valid: false,
       rules: {
         length: len => v =>
           (v || "").length <= len ||
           `Zu viele Zeichen, es dürfen höchstens ${len} sein`,
         required: v => !!v || "Dieses Feld ist verpflichtend"
+      },
+      defaultRezension: {
+        text: "",
+        bewertung: 2.5,
+        id: ""
       }
     };
   },
   props: {
     rezension: Object,
-    dialogUpdatePopup: Boolean
+    dialog: Boolean
   },
+  computed: mapGetters({
+    isLoadingRezension: "rezensionen/isLoadingActions"
+  }),
   methods: {
     updateRezension() {
       this.$refs.form.validate();
+
       if (this.valid) {
-        this.$store.dispatch("updateRezension", this.defaultRezension);
-        this.$emit("update:dialogUpdatePopup", false);
+        this.$store.dispatch("rezensionen/updateRezension", this.defaultRezension);
+        this.$emit("update:dialog", false);
       }
     }
   },
   watch: {
-    //update problem lösen, dass er nur untere öffnen kann keine oberen von liste her
-    dialogUpdatePopup() {
-      if (this.dialogUpdatePopup) {
+    dialog() {
+      if (this.dialog) {
         this.defaultRezension = {
-          text: "",
-          bewertung: 2.5,
-          id: ""
+          text: this.rezension.text,
+          bewertung: this.rezension.bewertung,
+          id: this.rezension.id
         };
-        console.log(this.defaultRezension);
-        this.defaultRezension.text = this.rezension.text;
-        this.defaultRezension.bewertung = this.rezension.bewertung;
-        this.defaultRezension.id = this.rezension.id;
-         console.log(this.defaultRezension);
-        this.$refs.form.resetValidation();
+
+        if (this.$refs.form != undefined) {
+          this.$refs.form.resetValidation();
+        }
+      }
+    },
+    isLoadingRezension() {
+      if (!this.isLoadingRezension) {
+        this.$emit("update:dialog", false);
       }
     }
   }

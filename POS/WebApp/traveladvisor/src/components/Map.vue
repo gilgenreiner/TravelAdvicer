@@ -16,8 +16,8 @@
       <MglNavigationControl position="top-right" />
       <MglGeolocateControl position="top-right" v-if="mode == 'showAll'" @geolocate="geoLocate" />
 
-      <!--v-container is there to help the create mode, because if i want to create a new location a default marker at (0/0) would be shown,
-      so with that it only displays the marker when the user sets one on the map-->
+      <!-- v-container is there to help the create mode, because if i want to create a new location a default marker at (0/0) 
+      would be displayed, so with that it only displays the marker when the user sets one on the map-->
       <v-container v-if="mode != 'create' || isMarkerSet == true">
         <MglMarker
           v-for="location in locations"

@@ -4,36 +4,39 @@ const baseURL = process.env.VUE_APP_API_URL;
 
 const state = {
     branchen: [],
-    isLoadingBranchen: false,
-    errorBranchen: null
+    isLoading: false,
+    error: null
 };
 
 const getters = {
     allBranchen: state => state.branchen,
-    isLoadingBranchen: state => state.isLoadingBranchen,
-    errorBranchen: state => state.errorBranchen
+    isLoading: state => state.isLoading,
+    error: state => state.error
 };
 
 const actions = {
     loadBranchen({ commit }) {
-        commit('updateStateLoadingBranchen', true);
+        commit('setBranchen', []);
+        commit('setIsLoading', true);
+        commit('setError', null)
+
         axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/brancheList`)
             .then(response => {
                 commit('setBranchen', response.data);
-                commit('errorOccurred', null);
             })
-            .catch(err => commit('errorOccurred', err))
-            .finally(() => commit('updateStateLoadingBranchen', false));
+            .catch(err => commit('setError', err + ' - Branchen konnten nicht geladen werden'))
+            .finally(() => commit('setIsLoading', false));
     }
 };
 
 const mutations = {
-    setBranchen: (state, branchen) => (state.branchen = branchen),
-    updateStateLoadingBranchen: (state, updateLoading) => (state.isLoadingBranchen = updateLoading),
-    errorOccurred: (state, error) => (state.errorBranchen = error)
+    setBranchen: (state, branchen) => state.branchen = branchen,
+    setIsLoading: (state, updateLoading) => state.isLoading = updateLoading,
+    setError: (state, err) => state.error = err
 };
 
 export default {
+    namespaced: true,
     state,
     getters,
     actions,

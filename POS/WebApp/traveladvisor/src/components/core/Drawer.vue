@@ -29,7 +29,7 @@
         :key="i"
         :to="link.to"
         active-class="green white--text"
-        v-show="(user.data != null && link.type.includes(user.data.typ)) || link.type.includes(null)"
+        v-show="(user != null && link.type.includes(user.typ)) || link.type.includes(null)"
       >
         <v-list-item-action>
           <v-icon>{{ link.icon }}</v-icon>
@@ -47,12 +47,32 @@ import { mapGetters } from "vuex";
 export default {
   data: () => ({
     links: [
-      { icon: "home", text: "Home", to: "/", type: ["besitzer", "besucher", null] },
-      { icon: "person", text: "Account", to: "/account", type: ["besitzer", "besucher", null] },
-      { icon: "room", text: "Locations", to: "/locations", type: ["besitzer"] },
-      { icon: "card_giftcard", text: "Prämien", to: "/bonuses", type: ["besitzer"] }
+      {
+        icon: "home",
+        text: "Home",
+        to: "/",
+        type: ["besitzer", "besucher", null]
+      },
+      {
+        icon: "person",
+        text: "Account",
+        to: "/account",
+        type: ["besitzer", "besucher", null]
+      },
+      {
+        icon: "room",
+        text: "Locations",
+        to: "/locations",
+        type: ["besitzer"]
+      },
+      {
+        icon: "card_giftcard",
+        text: "Prämien",
+        to: "/bonuses",
+        type: ["besitzer"]
+      }
     ]
   }),
-  computed: mapGetters(["user"])
+  computed: mapGetters({ user: "users/user" })
 };
 </script>

@@ -5,9 +5,10 @@
         Rezensionen
         <v-spacer></v-spacer>
         <v-btn
-          v-if="user.data.typ == 'besucher'"
+          v-if="user != null && user.typ == 'besucher'"
           class="mr-2"
-          @click="dialogAddPopup = !dialogAddPopup"
+          color="green"
+          @click="dialogAdd = !dialogAdd"
           text
         >Erstellen</v-btn>
         <v-btn icon @click="$emit('update:dialog', false)">
@@ -15,9 +16,13 @@
         </v-btn>
       </v-card-title>
       <Rezensionen :rezensionen="allRezensionen" />
+      <v-progress-linear
+        :active="isLoadingRezensionen"
+        :indeterminate="isLoadingRezensionen"
+        color="green"
+      />
     </v-card>
-    <AddRezensionPopup :location="location" :dialogAddPopup.sync="dialogAddPopup" />
-    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
+    <AddRezensionPopup :location="location" :dialog.sync="dialogAdd" />
   </v-dialog>
 </template>
 
@@ -34,18 +39,23 @@ export default {
   },
   data() {
     return {
-      snackbar: false,
-      text: "",
-      dialogAddPopup: false
+      dialogAdd: false
     };
   },
   props: {
     location: Object,
     dialog: Boolean
   },
-  computed: mapGetters(["allRezensionen", "user"]),
-  created() {
-    this.$store.dispatch("loadRezensionen", this.location.id);
+  computed: mapGetters({
+    allRezensionen: "rezensionen/allRezensionen",
+    isLoadingRezensionen: "rezensionen/isLoading",
+    user: "users/user"
+  }),
+  watch: {
+    location() {
+      //start loading rezensionen first, when the location data is ready
+      this.$store.dispatch("rezensionen/loadRezensionen", this.location.id);
+    }
   }
 };
 </script>

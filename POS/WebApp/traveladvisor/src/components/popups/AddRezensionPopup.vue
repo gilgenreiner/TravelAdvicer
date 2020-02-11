@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialogAddPopup" max-width="800" persistent>
+  <v-dialog v-model="dialog" max-width="800" persistent>
     <v-card>
       <v-card-title>Rezensionen erstellen</v-card-title>
       <v-card-text>
@@ -16,8 +16,8 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="green" text @click="$emit('update:dialogAddPopup', false)">Abbrechen</v-btn>
-        <v-btn color="green" text @click="saveRezension">Speichern</v-btn>
+        <v-btn color="green" text @click="$emit('update:dialog', false)">Abbrechen</v-btn>
+        <v-btn color="green" text @click="saveRezension" :loading="isLoadingRezension">Speichern</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -25,6 +25,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import firebase from "firebase";
 
 export default {
   name: "AddRezensionPopup",
@@ -47,28 +48,38 @@ export default {
   },
   props: {
     location: Object,
-    dialogAddPopup: Boolean
+    dialog: Boolean
   },
-  computed: mapGetters(["user"]),
-  methods: {
-    saveRezension() {
-      this.$refs.form.validate();
-      if (this.valid) {
-        this.$store.dispatch("saveRezension", this.defaultRezension);
-        this.$emit("update:dialogAddPopup", false);
-      }
-    }
-  },
+  computed: mapGetters({
+    isLoadingRezension: "rezensionen/isLoadingActions"
+  }),
   watch: {
-    dialogAddPopup() {
-      if (this.dialogAddPopup) {
+    dialog() {
+      if (this.dialog) {
         this.defaultRezension = {
           locationid: this.location.id,
-          besucherid: this.user.data.id,
+          besucherid: firebase.auth().currentUser.uid,
           bewertung: 2.5,
           text: ""
         };
-        this.$refs.form.resetValidation();
+
+        if (this.$refs.form != undefined) {
+          this.$refs.form.reset();
+        }
+      }
+    },
+    isLoadingRezension() {
+      if (!this.isLoadingRezension) {
+        this.$emit("update:dialog", false);
+      }
+    }
+  },
+  methods: {
+    saveRezension() {
+      this.$refs.form.validate();
+
+      if (this.valid) {
+        this.$store.dispatch("rezensionen/addRezension", this.defaultRezension);
       }
     }
   }

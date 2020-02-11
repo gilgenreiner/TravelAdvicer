@@ -16,7 +16,7 @@
         <v-card-text>
           <v-text-field v-model="selectedLocation.bezeichnung" label="Bezeichnung" readonly />
           <v-textarea v-model="selectedLocation.beschreibung" label="Beschreibung" readonly />
-          <v-combobox
+          <v-select
             v-model="selectedLocation.branchen"
             item-text="bezeichnung"
             label="Branch(en)"
@@ -24,7 +24,11 @@
             return-object
             readonly
           />
-          <v-text-field v-model="selectedLocation.punkte" label="Punkte pro Besuch" readonly />
+          <v-text-field
+            v-model="selectedLocation.punkte"
+            label="Punkte pro Besuch"
+            readonly
+          />
         </v-card-text>
       </v-card>
     </v-hover>
@@ -33,7 +37,7 @@
 
 <script>
 export default {
-  name: "LocationDetail",
+  name: "LocationDetailReadonly",
   props: {
     selectedLocation: Object
   }
