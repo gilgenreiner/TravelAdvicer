@@ -13,7 +13,6 @@
       <v-card-text class="black--text">{{ location.beschreibung | shorterText }}</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-
         <v-btn icon :to="{ name: 'Location anzeigen', params: { id: location.id }}">
           <v-icon>expand_more</v-icon>
         </v-btn>

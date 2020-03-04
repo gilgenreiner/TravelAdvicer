@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col cols="12">
-        <v-btn class="ml-0" @click="$router.go(-1)">
+        <v-btn class="green" dark @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
       </v-col>
@@ -27,22 +27,20 @@
     </v-row>
     <v-row class="buttons">
       <v-col cols="12">
-        <v-btn class="mr-2" @click="$router.go(-1)">Cancel</v-btn>
-        <v-btn @click="doUpdateLocation()" :loading="isLoadingLocations">Location aktualisieren</v-btn>
+        <v-btn class="green mr-1" dark @click="$router.go(-1)">Cancel</v-btn>
+        <v-btn class="green" dark @click="doUpdateLocation()" :loading="isLoadingLocations">Location aktualisieren</v-btn>
       </v-col>
     </v-row>
-    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-
 import Map from "@/components/Map";
 import LocationDetail from "@/components/LocationDetail";
 
 export default {
-  name: "LocationDetails",
+  name: "UpdateLocation",
   components: {
     Map,
     LocationDetail
@@ -51,41 +49,22 @@ export default {
     return {
       mode: "update",
       isDoUpdateButtonPressed: false,
-      snackbar: false,
-      text: "",
       defaultLocation: {
         bezeichnung: "",
         beschreibung: "",
         aktiv: false,
         punkte: 0,
         branchen: [],
-        besitzer: { id: ""},
+        besitzer: { id: "" },
         koordinaten: { x: 0, y: 0 }
       }
     };
   },
   watch: {
     isLoadingLocations() {
-      if (
-        !this.isLoadingLocations &&
-        this.isDoUpdateButtonPressed &&
-        !this.error
-      ) {
+      if (!this.isLoadingLocations && this.isDoUpdateButtonPressed) {
         this.isDoUpdateButtonPressed = false;
         this.$router.push({ name: "Locations" });
-      }
-    },
-    errorLocations() {
-      if (this.errorLocations) {
-        this.text = "Konnte nicht aktualisiert werden - " + this.errorLocations;
-        this.snackbar = true;
-      }
-    },
-    errorBranchen() {
-      if (this.errorBranchen) {
-        this.text =
-          "Branchen konnten nicht geladen werden - " + this.errorBranchen;
-        this.snackbar = true;
       }
     }
   },
@@ -93,18 +72,19 @@ export default {
     doUpdateLocation() {
       this.$refs.details.validate();
       if (this.$refs.details.valid === true) {
-        this.$store.dispatch("updateLocationById", this.getSelectedLocation);
+        this.$store.dispatch(
+          "locations/updateLocationById",
+          this.getSelectedLocation
+        );
         this.isDoUpdateButtonPressed = true;
       }
     }
   },
   computed: {
-    ...mapGetters([
-      "allLocations",
-      "isLoadingLocations",
-      "errorLocations",
-      "errorBranchen"
-    ]),
+    ...mapGetters({
+      allLocations: "locations/allLocations",
+      isLoadingLocations: "locations/isLoadingActions"
+    }),
     getSelectedLocation() {
       return this.allLocations.filter(
         location => location.id == this.$route.params.id
@@ -119,7 +99,7 @@ export default {
   },
   created() {
     if (this.allLocations.length == 0) {
-      this.$store.dispatch("loadLocationById", this.$route.params.id);
+      this.$store.dispatch("locations/loadLocationById", this.$route.params.id);
     }
   }
 };

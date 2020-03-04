@@ -5,19 +5,23 @@
         <Map
           width="100%"
           height="87vh"
-          :locations.sync="allActiveLocations"
+          :locations.sync="allActivatedLocations"
           :center="[13.844549, 46.614073]"
           :mode="mode"
           @event="searchLocations"
         />
+        <v-progress-linear
+          :active="isLoadingLocations"
+          :indeterminate="isLoadingLocations"
+          color="green"
+        />
       </v-card>
     </v-hover>
-    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
 
@@ -28,30 +32,22 @@ export default {
   },
   data() {
     return {
-      mode: "showAll",
-      snackbar: false,
-      text: ""
+      mode: "showAll"
     };
   },
-  watch: {
-    errorLocations() {
-      if (this.errorLocations) {
-        this.text = "Konnte nicht geladen werden - " + this.errorLocations;
-        this.snackbar = true;
-      }
+  computed: {
+    ...mapGetters({
+      allActivatedLocations: "locations/allActivatedLocations",
+      isLoadingLocations: "locations/isLoading"
+    })
+  },
+  methods: {
+    searchLocations(data) {
+      this.$store.dispatch("locations/loadLocations", data);
     }
   },
   created() {
-    this.loadLocations();
-  },
-  methods: {
-    ...mapActions(["loadLocations"]),
-    searchLocations(data) {
-      this.loadLocations(data);
-    }
-  },
-  computed: {
-    ...mapGetters(["allActiveLocations", "errorLocations"])
+    this.$store.dispatch("locations/loadLocations");
   }
 };
 </script>

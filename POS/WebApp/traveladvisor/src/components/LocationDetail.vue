@@ -38,7 +38,7 @@
               :rules="[rules.required, rules.length(400)]"
               counter="400"
             />
-            <v-combobox
+            <v-select
               v-model="selectedLocation.branchen"
               @change="$emit('update:selectedLocation.branchen', selectedLocation.branchen)"
               :items="allBranchen"
@@ -58,6 +58,7 @@
             />
             <v-checkbox
               v-model="selectedLocation.aktiv"
+              color="green"
               @change="$emit('update:selectedLocation.aktiv', selectedLocation.aktiv)"
               :label="`Die Location ist ${(selectedLocation.aktiv === true) ? 'aktiviert' : 'deaktiviert'}`"
               type="checkbox"
@@ -89,6 +90,10 @@ export default {
   props: {
     selectedLocation: Object
   },
+  computed: mapGetters({
+    allBranchen: "branchen/allBranchen",
+    isLoadingBranchen: "branchen/isLoading"
+  }),
   methods: {
     pickFile() {
       this.$refs.image.click();
@@ -110,9 +115,8 @@ export default {
       this.$refs.form.validate();
     }
   },
-  computed: mapGetters(["allBranchen", "isLoadingBranchen"]),
   created() {
-    this.$store.dispatch("loadBranchen");
+    this.$store.dispatch("branchen/loadBranchen");
   }
 };
 </script>

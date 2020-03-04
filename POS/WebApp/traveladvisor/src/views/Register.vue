@@ -11,21 +11,18 @@
               v-model="user.password"
               type="password"
               label="Password"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.length(6)]"
             />
-            <RadioToggleButtons
-              v-model="user.type"
-              :values="values"
-              color="green"
-              textColor="#000"
-              selectedTextColor="#fff"
-            />
+            <v-radio-group v-model="user.type" :mandatory="false" row>
+              <v-radio label="Besucher" value="besucher" color="green"></v-radio>
+              <v-radio label="Besitzer" value="besitzer" color="green"></v-radio>
+            </v-radio-group>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="$router.go(-1)" text>Abbrechen</v-btn>
-          <v-btn @click="submit()" text>Registrieren</v-btn>
+          <v-btn color="green" text @click="$router.go(-1)">Abbrechen</v-btn>
+          <v-btn color="green" text @click="submit()" :loading="isLoading">Registrieren</v-btn>
         </v-card-actions>
       </v-card>
     </v-hover>
@@ -33,12 +30,12 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import { mapGetters } from "vuex";
 
 export default {
+  name: "Register",
   data() {
     return {
-      error: null,
       valid: false,
       user: {
         firstname: "",
@@ -46,61 +43,36 @@ export default {
         email: "",
         password: "",
         id: "",
-        type: "Besitzer"
+        type: "besitzer"
       },
-      values: [
-        { label: "Besucher", value: "besucher" },
-        { label: "Besitzer", value: "besitzer" }
-      ],
       rules: {
         length: len => v =>
-          (v || "").length <= len ||
-          `Zu viele Zeichen, es dürfen höchstens ${len} sein`,
+          (v || "").length >= len ||
+          `Es muss mindestens ${len} Zeichen lang sein`,
         required: v => !!v || "Dieses Feld ist verpflichtend"
       }
     };
+  },
+  computed: {
+    ...mapGetters({
+      isLoading: "users/isLoading",
+      errorUser: "users/error"
+    })
+  },
+  watch: {
+    isLoading() {
+      if (!this.isLoading && this.errorUser == null) {
+        this.$router.push({ name: "Account" });
+      }
+    }
   },
   methods: {
     submit() {
       this.$refs.form.validate();
 
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.user.email, this.user.password)
-        .then(data => {
-          data.user.updateProfile({
-            displayName: this.user.firstname
-          });
-
-          this.user.id = data.user.uid;
-          this.registerUserToOracle();
-          this.writeUserDataToFirestore();
-          this.$router.push({ name: "Account" });
-        })
-        .catch(err => {
-          this.error = err.message;
-        });
-    },
-    registerUserToOracle() {
-      this.$store.dispatch("registerUser", this.user);
-    },
-    writeUserDataToFirestore() {
-      var db = firebase.firestore();
-      db.collection("users")
-        .doc(this.user.id)
-        .set({
-          vorname: this.user.firstname,
-          email: this.user.email,
-          nachname: this.user.lastname,
-          typ: this.user.type,
-          uid: this.user.id
-        })
-        .then(function() {
-          console.log("Document successfully written!");
-        })
-        .catch(function(error) {
-          console.error("Error writing document: ", error);
-        });
+      if (this.valid) {
+        this.$store.dispatch("users/register", this.user);
+      }
     }
   }
 };

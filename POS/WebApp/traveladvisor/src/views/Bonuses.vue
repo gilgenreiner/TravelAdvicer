@@ -10,29 +10,42 @@
             return-object
             label="Location auswählen"
             @change="selectLocation"
+            :loading="isLoadingLocations"
           ></v-combobox>
         </v-col>
         <v-col>
-          <v-btn @click="openDialog">Bonus hinzufügen</v-btn>
+          <v-btn
+            class="green"
+            dark
+            @click="openDialog"
+            :disabled="!selectedLocation"
+          >Bonus hinzufügen</v-btn>
           <PopupAddBoni :dialog.sync="dialog" :bonus="bonus" />
         </v-col>
       </v-row>
-      <v-row v-if="allBonuses.length > 0"> 
-        <v-col v-for="bonus in allBonuses" :key="bonus.id" lg="3" md="4" sm="6">
-          <BonusListItem :bonus="bonus" :edit="true"/>
+      <v-row v-if="selectedLocation && isLoadingBoni">
+        <v-col v-for="i in 3" :key="i" lg="3" md="4" sm="6">
+          <v-skeleton-loader transition="fade-transition" type="card" />
+          <v-skeleton-loader transition="fade-transition" type="actions" />
         </v-col>
       </v-row>
-       <v-row v-else justify="center">
-        <v-label>Keine Prämien vorhanden</v-label>
+      <v-row v-else-if="allBonuses.length > 0">
+        <v-col v-for="bonus in allBonuses" :key="bonus.id" lg="3" md="4" sm="6">
+          <BonusListItem :bonus="bonus" :edit="true" />
+        </v-col>
+      </v-row>
+      <v-row v-else justify="center">
+        <v-label v-if="!selectedLocation">Keine Location ausgewählt</v-label>
+        <v-label v-else>Keine Prämien vorhanden</v-label>
       </v-row>
     </v-container>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-
-import BonusListItem from "@/components/BonusListItem";
+import { mapGetters } from "vuex";
+import firebase from 'firebase';
+import BonusListItem from "@/components/listItems/BonusListItem";
 import PopupAddBoni from "@/components/popups/AddBonusPopup";
 
 export default {
@@ -42,21 +55,23 @@ export default {
   },
   data() {
     return {
-      dialog: false,
       bonus: {
         bezeichnung: null,
         punkte: null,
         aktiv: false,
         locationId: null
       },
-      selectedLocation: {
-        bezeichnung: '',
-        id: 0
-      }
+      dialog: false,
+      selectedLocation: null
     };
   },
+  computed: mapGetters({
+    allBonuses: "bonuses/allBonuses",
+    allLocations: "locations/allLocations",
+    isLoadingLocations: "locations/isLoading",
+    isLoadingBoni: "bonuses/isLoading"
+  }),
   methods: {
-    ...mapActions(["loadBonuses", "loadLocations", "user"]),
     openDialog() {
       this.bonus = {
         bezeichnung: null,
@@ -64,20 +79,19 @@ export default {
         aktiv: false,
         locationId: this.selectedLocation.id
       };
+
       this.dialog = !this.dialog;
     },
     selectLocation() {
-      this.loadBonuses(this.selectedLocation.id);
+      this.$store.dispatch("bonuses/loadBonuses", this.selectedLocation.id);
     }
   },
-  computed: mapGetters(["allBonuses", "allLocations"]),
   created() {
-    //todo get id from logged in user
-    this.$store.commit("setBonuses", []);
-    this.loadLocations({
-      loadBranchen: false,
-      besitzer: this.user.data.id
+    this.$store.dispatch("locations/loadLocations", {
+      besitzer: firebase.auth().currentUser.uid,
+      loadBranchen: true
     });
+    this.$store.commit("bonuses/setBonuses", []);
   }
 };
 </script>

@@ -4,75 +4,106 @@ import firebase from 'firebase'
 const baseURL = process.env.VUE_APP_API_URL;
 
 const state = {
-  user: {
-    loggedIn: false,
-    data: null
-  }
+  user: null,
+  isLoading: false,
+  error: null
 }
 
 const getters = {
-  user: state => state.user
+  user: state => state.user,
+  isLoading: state => state.isLoading,
+  error: state => state.error
 }
 
 const actions = {
-  fetchUser({ commit }, user) {
-    commit("SET_LOGGED_IN", user !== null);
-    if (user) {
-      commit("SET_USER", {
-        displayName: user.displayName,
-        email: user.email,
-        id: user.uid
-      });
+  register({ commit, dispatch }, user) {
+    commit('setIsLoading', true);
+    commit('setError', null)
 
-      let db = firebase.firestore();
-      let docRef = db.collection("users").doc(user.uid);
-
-      docRef
-        .get()
-        .then(function (doc) {
-          if (doc.exists) {
-            commit("SET_USER", {
-              displayName: doc.data().vorname,
-              email: doc.data().email,
-              id: doc.data().uid,
-              vorname: doc.data().vorname,
-              nachname: doc.data().nachname,
-              typ: doc.data().typ
-            })
-          } else {
-            console.log("No such document!");
-          }
-        })
-        .catch(function (error) {
-          console.log("Error getting document:", error);
-        });
-    } else {
-      commit("SET_USER", null);
-    }
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(user.email, user.password)
+      .then(data => {
+        user.id = data.user.uid;
+        return user;
+      })
+      .then(user => {
+        dispatch('registerUser', user);
+        return user;
+      })
+      .then(user => {
+        return firebase.firestore().collection("users")
+          .doc(user.id)
+          .set({
+            vorname: user.firstname,
+            email: user.email,
+            nachname: user.lastname,
+            typ: user.type,
+            uid: user.id
+          })
+      })
+      .catch(err => commit('setError', err + ' - User konnte bei firebase nicht registriert werden'))
+      .finally(() => commit('setIsLoading', false));
   },
   registerUser({ commit }, user) {
-    var route = "/TravelAdvisor_WebServices/TravelGuide/";
-    route += (user.type == 'besitzer') ? "besitzerDetail" : "besucherDetail";
+    commit('setError', null);
+    let type = (user.typ == 'besitzer') ? "besitzerDetail" : "besucherDetail";
 
-    axios.post(baseURL + route, user)
-      .then(response => {
-        //commit('SET_USER', response.data);
-        commit('errorOccurred', null);
+    axios.post(baseURL + `/TravelAdvisor_WebServices/TravelGuide/${type}`, user)
+      .catch(err => commit('setError', err + ' - User konnte bei oracle nicht registriert werden'));
+  },
+  fetchUser({ commit }, user) {
+    commit('setError', null);
+    let docRef = firebase.firestore().collection("users").doc(user.uid);
+
+    docRef
+      .get()
+      .then(function (doc) {
+        if (doc.exists) {
+          commit("setUser", {
+            displayName: doc.data().vorname,
+            email: doc.data().email,
+            id: doc.data().uid,
+            vorname: doc.data().vorname,
+            nachname: doc.data().nachname,
+            typ: doc.data().typ
+          })
+          localStorage.setItem('typ', doc.data().typ);
+        } else {
+          commit('setError', 'Document konnte bei firestore nicht gefunden werden');
+        }
       })
-      .catch(err => commit('errorOccurred', err));
+      .catch(err => commit('setError', err + ' - User konnte bei firestore nicht geladen werden'));
+  },
+  signIn({ commit }, user) {
+    commit('setIsLoading', true);
+    commit('setError', null);
+
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(user.email, user.password)
+      .catch(err => commit('setError', err + ' - User konnte bei firebase nicht angemeldet werden'))
+      .finally(() => commit('setIsLoading', false));
+  },
+  signOut({ commit }) {
+    commit('setError', null);
+
+    firebase
+      .auth()
+      .signOut()
+      .then(() => commit("setUser", null))
+      .catch(err => commit('setError', err + ' - User konnte bei firebase nicht abgemeldet werden'));
   }
 }
 
 const mutations = {
-  SET_LOGGED_IN(state, value) {
-    state.user.loggedIn = value;
-  },
-  SET_USER(state, data) {
-    state.user.data = data;
-  }
+  setUser: (state, data) => state.user = data,
+  setIsLoading: (state, updateLoading) => state.isLoading = updateLoading,
+  setError: (state, err) => state.error = err
 }
 
 export default {
+  namespaced: true,
   state,
   getters,
   actions,

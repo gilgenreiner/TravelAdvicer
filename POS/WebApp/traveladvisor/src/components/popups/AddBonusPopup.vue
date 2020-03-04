@@ -17,13 +17,13 @@
               type="number"
               :rules="[rules.required]"
             ></v-text-field>
-            <v-switch v-model="bonus.aktiv" :label="`Bonus aktiv`"></v-switch>
+            <v-switch v-model="bonus.aktiv" :label="`Bonus aktiv`" color="green"></v-switch>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green" text @click="$emit('update:dialog', false)">Close</v-btn>
-          <v-btn color="green" text @click="doAddBonus(bonus)">Save</v-btn>
+          <v-btn color="green" text @click="$emit('update:dialog', false)">Abbrechen</v-btn>
+          <v-btn color="green" text @click="doAddBonus(bonus)" :loading="isLoadingBoni">Speichern</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -49,20 +49,22 @@ export default {
     bonus: Object,
     dialog: Boolean
   },
+  computed: mapGetters({
+    isLoadingBoni: "bonuses/isLoadingActions"
+  }),
   methods: {
     doAddBonus() {
       this.$refs.form.validate();
 
       if (this.valid) {
-        //this.bonus.locationId = "5e010350-72a3-4435-8455-17f4e9f3ff66"; //TODO: noch holen /mitgeben
-        this.$store.dispatch("addBonus", this.bonus);
+        this.$store.dispatch("bonuses/addBonus", this.bonus);
         this.$emit("update:dialog", false);
       }
     }
   },
   watch: {
     dialog() {
-      if(this.dialog) {
+      if (this.dialog && this.$refs.form != undefined) {
         this.$refs.form.reset();
       }
     }

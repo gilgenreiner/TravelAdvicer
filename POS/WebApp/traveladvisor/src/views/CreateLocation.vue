@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col cols="12">
-        <v-btn class="ml-0" @click="$router.go(-1)">
+        <v-btn class="green" dark @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
       </v-col>
@@ -24,27 +24,31 @@
             />
           </v-card>
         </v-hover>
-        <p v-if="valid == false" class="red--text mt-1 mb-0">Es muss eine Location ausgewählt sein!</p>
+        <p v-show="!valid" class="red--text mt-1 mb-0">Es muss eine Location ausgewählt sein!</p>
       </v-col>
     </v-row>
     <v-row class="buttons">
       <v-col cols="12">
-        <v-btn class="mr-2" @click="$router.go(-1)">Cancel</v-btn>
-        <v-btn @click="doAddLocation()" :loading="isLoadingLocations">Location hinzufügen</v-btn>
+        <v-btn class="green mr-1" dark @click="$router.go(-1)">Cancel</v-btn>
+        <v-btn
+          class="green"
+          dark
+          @click="doAddLocation()"
+          :loading="isLoadingActions"
+        >Location hinzufügen</v-btn>
       </v-col>
     </v-row>
-    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-
+import firebase from "firebase";
 import Map from "@/components/Map";
 import LocationDetail from "@/components/LocationDetail";
 
 export default {
-  name: "LocationDetails",
+  name: "CreateLocation",
   components: {
     Map,
     LocationDetail
@@ -58,37 +62,21 @@ export default {
         punkte: 0,
         branchen: [],
         besitzer: { id: "" },
-        koordinaten: { X: 0, Y: 0 },
+        koordinaten: { X: 0, Y: 0 }
       },
       mode: "create",
-      isDoCreateButtonPressed: false,
-      valid: true,
-      snackbar: false,
-      text: ""
+      isButtonPressed: false, //because the isLoading could be change somewhere else
+      valid: true //for the <p>-errormessage of the map
     };
   },
+  computed: mapGetters({
+    isLoadingActions: "locations/isLoadingActions"
+  }),
   watch: {
-    isLoadingLocations() {
-      if (
-        !this.isLoadingLocations &&
-        this.isDoCreateButtonPressed &&
-        !this.error
-      ) {
-        this.isDoCreateButtonPressed = false;
+    isLoadingActions() {
+      if (!this.isLoadingActions && this.isButtonPressed) {
+        this.isButtonPressed = false;
         this.$router.push({ name: "Locations" });
-      }
-    },
-    errorLocations() {
-      if (this.errorLocations) {
-        this.text = "Konnte nicht gespeichert werden - " + this.errorLocations;
-        this.snackbar = true;
-      }
-    },
-    errorBranchen() {
-      if (this.errorBranchen) {
-        this.text =
-          "Branchen konnten nicht geladen werden - " + this.errorBranchen;
-        this.snackbar = true;
       }
     }
   },
@@ -97,15 +85,14 @@ export default {
       this.$refs.details.validate();
       this.$refs.map.validateForCreate();
       this.valid = this.$refs.map.valid;
+
       if (this.$refs.details.valid && this.$refs.map.valid) {
-        this.defaultLocation.besitzer.id = this.user.data.id;
-        this.$store.dispatch("addLocation", this.defaultLocation);
-        this.isDoCreateButtonPressed = true;
+        this.isButtonPressed = true;
+
+        this.defaultLocation.besitzer.id = firebase.auth().currentUser.uid;
+        this.$store.dispatch("locations/addLocation", this.defaultLocation);
       }
     }
-  },
-  computed: {
-    ...mapGetters(["isLoadingLocations", "errorLocations", "errorBranchen", "user"])
   }
 };
 </script>

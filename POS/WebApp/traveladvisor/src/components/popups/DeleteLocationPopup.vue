@@ -5,16 +5,15 @@
       <v-card-text>Wollen Sie die Location "{{ location.bezeichnung }}" wirklich löschen</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="green" text @click="$emit('update:dialog', false)">Cancel</v-btn>
+        <v-btn color="green" text @click="$emit('update:dialog', false)">Abbrechen</v-btn>
         <v-btn
           color="green"
           text
           @click="deleteLocation(location.id)"
-          :loading="isLoadingLocations"
+          :loading="isLoadingActions"
         >OK</v-btn>
       </v-card-actions>
     </v-card>
-    <v-snackbar v-model="snackbar" color="red" :timeout="4000">{{ text }}</v-snackbar>
   </v-dialog>
 </template>
 
@@ -22,31 +21,19 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "DeleteRezensionPopup",
-  data() {
-    return {
-      snackbar: false,
-      text: ""
-    };
-  },
+  name: "DeleteLocationPopup",
   props: {
     location: Object,
     dialog: Boolean
   },
+  computed: mapGetters({
+    isLoadingActions: "locations/isLoadingActions"
+  }),
   methods: {
     deleteLocation(id) {
-      this.$store.dispatch("deleteLocation", id);
+      this.$store.dispatch("locations/deleteLocation", id);
     }
-  },
-  watch: {
-    errorLocations() {
-      if (this.errorLocations) {
-        this.text = "Konnte nicht gelöscht werden - " + this.errorLocations;
-        this.snackbar = true;
-      }
-    }
-  },
-  computed: mapGetters(["isLoadingLocations", "errorLocations"])
+  }
 };
 </script>
 

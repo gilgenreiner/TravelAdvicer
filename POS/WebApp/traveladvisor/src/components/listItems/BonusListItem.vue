@@ -8,7 +8,7 @@
         <v-expand-transition>
           <div
             v-if="hover"
-            class="d-flex transition-fast-in-fast-out green darken-2 v-card--reveal display-3 white--text"
+            :class="`d-flex transition-fast-in-fast-out ${ (bonus.aktiv) ? 'green': 'red' } darken-2 v-card--reveal display-3 white--text`"
             style="height: 100%;"
           >{{ bonus.punkte }}</div>
         </v-expand-transition>
