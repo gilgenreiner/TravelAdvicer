@@ -1,27 +1,27 @@
 package bll;
 
 public class Point {
-	private double X;
-	private double Y;
+	private double lon;
+	private double lat;
 	
 	public Point() {}
 	
 	public Point(double x, double y) {
 		super();
-		X = x;
-		Y = y;
+		lon = x;
+		lat = y;
 	}
-	public double getX() {
-		return X;
+	public double getLon() {
+		return lon;
 	}
-	public void setX(double x) {
-		X = x;
+	public void setLon(double x) {
+		lon = x;
 	}
-	public double getY() {
-		return Y;
+	public double getLat() {
+		return lat;
 	}
-	public void setY(double y) {
-		Y = y;
+	public void setLat(double y) {
+		lat = y;
 	}
 	
 	

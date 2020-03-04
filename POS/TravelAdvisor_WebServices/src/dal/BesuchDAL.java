@@ -52,6 +52,7 @@ public class BesuchDAL {
 			b.setBesucherId(besucherid);
 			b.setLocationId(locationid);
 			b.setId(id);
+			b.setZeitpunkt(ts);
 			
 			besuche.add(b);
 		}
@@ -73,7 +74,7 @@ public class BesuchDAL {
 			preparedStmt.setString(1, new_besuch.getId().toString());
 			preparedStmt.setString(3, new_besuch.getBesucherId().toString());
 			preparedStmt.setString(2, new_besuch.getLocationId().toString());
-			preparedStmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+			preparedStmt.setTimestamp(4, new_besuch.getZeitpunkt());
 						
 			preparedStmt.execute();
 

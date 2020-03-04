@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class Besuch {
 	private UUID id;
-	private UUID besucherId;
+	private String besucherId;
 	private UUID locationId;
 	private Timestamp zeitpunkt;
 	
@@ -22,15 +22,13 @@ public class Besuch {
 	public void setId(String id) {
 		this.id = UUID.fromString(id);
 	}
-	public UUID getBesucherId() {
+	public String getBesucherId() {
 		return besucherId;
 	}
-	public void setBesucherId(UUID besucherId) {
+	public void setBesucherId(String besucherId) {
 		this.besucherId = besucherId;
 	}
-	public void setBesucherId(String besucherId) {
-		this.besucherId = UUID.fromString(besucherId);
-	}
+
 	public UUID getLocationId() {
 		return locationId;
 	}
