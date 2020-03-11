@@ -33,7 +33,7 @@
       <v-label>Prämien:</v-label>
     </v-row>
     <v-row v-if="isLoadingBoni">
-      <v-col v-for="i in 3" :key="i" lg="3" md="4" sm="6">
+      <v-col v-for="i in 4" :key="i" lg="3" md="4" sm="6">
         <v-skeleton-loader transition="fade-transition" type="card" />
       </v-col>
     </v-row>

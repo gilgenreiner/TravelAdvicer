@@ -5,6 +5,7 @@ import branchen from '@/store/modules/branchen';
 import bonuses from '@/store/modules/bonuses';
 import rezensionen from '@/store/modules/rezensionen';
 import users from '@/store/modules/users';
+import application from '@/store/modules/application';
 
 //Load Vuex
 Vue.use(Vuex);
@@ -16,6 +17,7 @@ export default new Vuex.Store({
         branchen,
         bonuses,
         rezensionen,
-        users
+        users,
+        application
     }
 })

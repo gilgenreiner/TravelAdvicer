@@ -14,6 +14,11 @@ export default {
     CoreDrawer: () => import("@/components/core/Drawer"),
     CoreAppBar: () => import("@/components/core/AppBar"),
     CoreView: () => import("@/components/core/View")
+  },
+  mounted() {
+    if (localStorage.getItem("dark")) {
+      this.$vuetify.theme.dark = localStorage.getItem("dark");
+    }
   }
 };
 </script>

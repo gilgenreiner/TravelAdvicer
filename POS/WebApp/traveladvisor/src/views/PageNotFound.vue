@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <svg
       width="380px"
       height="500px"
@@ -54,20 +54,19 @@
         />
       </g>
     </svg>
-    <div class="message-box">
-      <h1>404 - Page not found</h1>
-      <p>
+    <v-card class="message-box">
+      <v-card-title>404 - Page not found</v-card-title>
+      <v-card-text>
         Unfortunately the page you were looking for could not be found. It may be
         temporarily unavailable, moved or no longer exist.
-      </p>
-
-      <p>Check the URL you entered for any mistakes and try again. Alternatively, go back to where you came from or go to our homepage.</p>
-      <div>
+        Check the URL you entered for any mistakes and try again. Alternatively, go back to where you came from or go to our homepage.
+      </v-card-text>
+      <v-card-actions>
         <v-btn @click="$router.go(-1)" class="green mr-2" dark>Go Back</v-btn>
         <v-btn :to="{ name: 'Map' }" class="green" dark>Go to Home Page</v-btn>
-      </div>
-    </div>
-  </div>
+      </v-card-actions>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -88,23 +87,15 @@ svg {
   margin-left: -400px;
 }
 .message-box {
-  height: 200px;
+  height: 220px;
   width: 500px;
   position: absolute;
   top: 40%;
   left: 50%;
   margin-top: -100px;
   margin-left: 50px;
-  color: #fff;
   font-family: Roboto;
   font-weight: 300;
-  color: black;
-}
-.message-box h1 {
-  font-size: 50px;
-  line-height: 46px;
-  margin-bottom: 40px;
-  color: black;
 }
 
 #Polygon-1,

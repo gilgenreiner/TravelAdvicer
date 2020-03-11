@@ -62,7 +62,7 @@ export default {
         punkte: 0,
         branchen: [],
         besitzer: { id: "" },
-        koordinaten: { X: 0, Y: 0 }
+        koordinaten: { lat: 0, lon: 0 }
       },
       mode: "create",
       isButtonPressed: false, //because the isLoading could be change somewhere else
