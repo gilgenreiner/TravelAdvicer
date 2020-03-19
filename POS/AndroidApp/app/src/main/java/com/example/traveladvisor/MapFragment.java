@@ -198,7 +198,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                         mapboxMap.getUiSettings().setLogoEnabled(false);
                         mapboxMap.getUiSettings().setAttributionEnabled(false);
                         mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
-                        mapboxMap.setMinZoomPreference(5);
+                        //mapboxMap.setMinZoomPreference(5);
                         new AddLocationsToMapTask(MapFragment.this).execute();
                         mapboxMap.addOnMapClickListener(MapFragment.this);
 
@@ -673,7 +673,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
             List<Feature> symbolLayerIconFeatureList = new ArrayList<>();
 
             for (Location location : activity.getData()) {
-                Feature feature = Feature.fromGeometry(Point.fromLngLat(location.getKoordinaten().getY(), location.getKoordinaten().getX()));
+                Feature feature = Feature.fromGeometry(Point.fromLngLat(location.getKoordinaten().getLon(), location.getKoordinaten().getLat()));
                 feature.addStringProperty("title", location.getBezeichnung());
                 feature.addStringProperty("description", location.getBeschreibung());
                 feature.addBooleanProperty("selected", false);

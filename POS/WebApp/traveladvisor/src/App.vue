@@ -16,8 +16,12 @@ export default {
     CoreView: () => import("@/components/core/View")
   },
   mounted() {
-    if (localStorage.getItem("dark")) {
-      this.$vuetify.theme.dark = localStorage.getItem("dark");
+    if (JSON.parse(localStorage.getItem("dark"))) {
+      this.$vuetify.theme.dark = JSON.parse(localStorage.getItem("dark"));
+      this.$store.dispatch(
+        "application/setDarkMode",
+        JSON.parse(localStorage.getItem("dark"))
+      );
     }
   }
 };

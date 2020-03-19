@@ -25,15 +25,20 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
       title: "TravelAdvisor",
       responsive: true,
       icon: "brightness_5",
-      darkModeOn: false
+      darkModeOn: this.darkModeOnState
     };
   },
+  computed: mapGetters({
+    darkModeOnState: "application/isDarkModeOn"
+  }),
   watch: {
     $route(val) {
       this.title = val.name;
@@ -55,11 +60,15 @@ export default {
     },
     onSwitchChange() {
       localStorage.setItem("dark", this.darkModeOn);
+      this.$store.dispatch("application/setDarkMode", this.darkModeOn);
       this.icon = this.darkModeOn ? "brightness_3" : "brightness_5";
+
       this.$vuetify.theme.dark = this.darkModeOn;
     }
   },
   mounted() {
+    this.darkModeOn = this.darkModeOnState;
+
     this.onResponsiveInverted();
     window.addEventListener("resize", this.onResponsiveInverted);
   },
@@ -67,9 +76,7 @@ export default {
     window.removeEventListener("resize", this.onResponsiveInverted);
   },
   created() {
-    if (localStorage.getItem("dark")) {
-      this.darkModeOn = localStorage.getItem("dark");
-    }
+
   }
 };
 </script>

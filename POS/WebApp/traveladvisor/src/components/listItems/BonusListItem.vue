@@ -13,7 +13,7 @@
           >{{ bonus.punkte }}</div>
         </v-expand-transition>
       </v-img>
-      <v-card-text class="black--text">{{ bonus.bezeichnung }}</v-card-text>
+      <v-card-text>{{ bonus.bezeichnung }}</v-card-text>
       <v-card-actions v-if="edit==true">
         <v-spacer></v-spacer>
         <v-btn icon @click="updateDialog=true">

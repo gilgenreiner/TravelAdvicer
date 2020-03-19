@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class DatabaseManager {
     private static DatabaseManager db = null;
-    private static String ipHost = "http://192.168.193.88:8080/";
+    private static String ipHost = "http://192.168.178.40:8080/";
 
     private DatabaseManager() {
     }

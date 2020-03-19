@@ -9,7 +9,11 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetail ref="details" :selectedLocation.sync="getSelectedLocation" />
+        <LocationDetail
+          ref="details"
+          :selectedLocation.sync="getSelectedLocation"
+          :readonly="false"
+        />
       </v-col>
       <v-col cols="8">
         <v-hover v-slot:default="{ hover }">
@@ -28,7 +32,12 @@
     <v-row class="buttons">
       <v-col cols="12">
         <v-btn class="green mr-1" dark @click="$router.go(-1)">Cancel</v-btn>
-        <v-btn class="green" dark @click="doUpdateLocation()" :loading="isLoadingLocations">Location aktualisieren</v-btn>
+        <v-btn
+          class="green"
+          dark
+          @click="doUpdateLocation()"
+          :loading="isLoadingLocations"
+        >Location aktualisieren</v-btn>
       </v-col>
     </v-row>
   </div>
@@ -48,16 +57,7 @@ export default {
   data() {
     return {
       mode: "update",
-      isDoUpdateButtonPressed: false,
-      defaultLocation: {
-        bezeichnung: "",
-        beschreibung: "",
-        aktiv: false,
-        punkte: 0,
-        branchen: [],
-        besitzer: { id: "" },
-        koordinaten: { x: 0, y: 0 }
-      }
+      isDoUpdateButtonPressed: false
     };
   },
   watch: {
@@ -92,8 +92,8 @@ export default {
     },
     getCoordsFromSelected() {
       return [
-        this.getSelectedLocation.koordinaten.Y,
-        this.getSelectedLocation.koordinaten.X
+        this.getSelectedLocation.koordinaten.lon,
+        this.getSelectedLocation.koordinaten.lat
       ];
     }
   },

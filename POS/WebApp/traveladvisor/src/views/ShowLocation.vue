@@ -11,8 +11,8 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetailReadonly
-          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation"
+        <LocationDetail
+          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation" :readonly="true"
         />
       </v-col>
       <v-col cols="8">
@@ -49,7 +49,7 @@
 import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
-import LocationDetailReadonly from "@/components/LocationDetailReadonly";
+import LocationDetail from "@/components/LocationDetail";
 import RezensionenPopup from "@/components/popups/ShowRezensionenPopup";
 import BonusListItem from "@/components/listItems/BonusListItem";
 
@@ -57,7 +57,7 @@ export default {
   name: "LocationDetails",
   components: {
     Map,
-    LocationDetailReadonly,
+    LocationDetail,
     BonusListItem,
     RezensionenPopup
   },
@@ -89,8 +89,8 @@ export default {
     getCoordsFromSelected() {
       return this.allLocations.length !== 0
         ? [
-            this.getSelectedLocation.koordinaten.Y,
-            this.getSelectedLocation.koordinaten.X
+            this.getSelectedLocation.koordinaten.lon,
+            this.getSelectedLocation.koordinaten.lat
           ]
         : [0, 0];
     }

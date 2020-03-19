@@ -25,7 +25,7 @@
           :key="location.id"
           :coordinates="[location.koordinaten.lon, location.koordinaten.lat]"
           :draggable="mode == 'update'"
-          color="blue"
+          :color="colorMarker"
           @dragend="dragend"
         >
           <MglPopup v-if="mode === 'showAll'">
@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 import Mapbox from "mapbox-gl";
 import MglGeocoderControl from "vue-mapbox-geocoder";
 import {
@@ -80,6 +82,7 @@ export default {
       mapStyleDay: "mapbox://styles/mkleinegger/ck4movtpa21z71ctalv5mt7e5",
       mapStyleNight: "mapbox://styles/mkleinegger/ck7gqe9oi3ren1imlk29tq0ws",
       mapStyleCurrent: this.mapStyleDay,
+      colorMarker: "blue",
       isGeolocateOn: false,
       defaultInput: "",
       valid: true,
@@ -93,9 +96,25 @@ export default {
     mode: String,
     center: Array
   },
+  computed: mapGetters({
+    darkMode: "application/isDarkModeOn"
+  }),
   created() {
     this.mapbox = Mapbox;
-    this.mapStyleCurrent = localStorage.getItem('dark') ? this.mapStyleNight : this.mapStyleDay;
+    this.mapStyleCurrent = this.darkMode
+      ? this.mapStyleNight
+      : this.mapStyleDay;
+
+    this.colorMarker = this.darkMode ? "green" : "blue";
+  },
+  watch: {
+    darkMode() {
+      this.mapStyleCurrent = this.darkMode
+        ? this.mapStyleNight
+        : this.mapStyleDay;
+
+      this.colorMarker = this.darkMode ? "green" : "blue";
+    }
   },
   methods: {
     async onMapLoad(event) {
