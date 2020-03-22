@@ -280,7 +280,7 @@ public class LocationDAL {
 		try {
 			BrancheDAL.removeBranchen(id);
 			RezensionenDAL.deleteWithLocId(id);
-			
+			PraemienDAL.deletyWithLocId(id);
 			Connection conn = Database.connect();
 
 			String query = "delete from TravelLocation where id = ?";

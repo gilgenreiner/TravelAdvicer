@@ -321,7 +321,5 @@ public class RezensionenDAL {
 		preparedStmt.execute();
 
 		conn.close();
-
-
 	}
 }
