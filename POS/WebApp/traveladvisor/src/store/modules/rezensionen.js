@@ -40,7 +40,7 @@ const actions = {
         commit('setIsLoadingActions', true);
         commit('setError', null)
 
-        axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/rezensionenDetail/${rezension.id}`, location)
+        axios.put(baseURL + `/TravelAdvisor_WebServices/TravelGuide/rezensionenDetail/${rezension.id}`, rezension)
             .then(response => commit('updateRezension', response.data))
             .catch(err => commit('setError', err + ' - Rezension konnten nicht upgedatet werden'))
             .finally(() => commit('setIsLoadingActions', false));

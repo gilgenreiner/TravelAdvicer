@@ -71,15 +71,9 @@ export default {
   computed: {
     ...mapGetters({
       user: "users/user",
-      isLoading: "users/isLoading"
     })
   },
   watch: {
-    isLoading() {
-      if (!this.isLoading) {
-        this.update = !this.update;
-      }
-    },
     update() {
       if (!this.update) {
         this.$store.dispatch("users/fetchUser", firebase.auth().currentUser);
@@ -96,6 +90,7 @@ export default {
     },
     updateUser() {
       this.$store.dispatch("users/updateUser", this.user);
+      this.update = !this.update;
     }
   }
 };

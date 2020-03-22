@@ -5,6 +5,9 @@
         <v-btn class="green" dark @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
+        <v-btn class="green" dark @click="createQRCode">
+          QR-Code erzeugen
+        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -78,6 +81,9 @@ export default {
         );
         this.isDoUpdateButtonPressed = true;
       }
+    },
+    createQRCode() {
+      
     }
   },
   computed: {

@@ -59,6 +59,13 @@ export default {
   watch: {
     location() {
       //start loading rezensionen first, when the location data is ready
+      if (this.location) {
+        this.$store.dispatch("rezensionen/loadRezensionen", this.location.id);
+      }
+    }
+  },
+  created() {
+    if (this.location) {
       this.$store.dispatch("rezensionen/loadRezensionen", this.location.id);
     }
   }
