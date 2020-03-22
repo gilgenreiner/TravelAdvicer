@@ -281,6 +281,8 @@ public class LocationDAL {
 			BrancheDAL.removeBranchen(id);
 			RezensionenDAL.deleteWithLocId(id);
 			PraemienDAL.deletyWithLocId(id);
+			BesuchDAL.deleteWithLocId(id);
+			
 			Connection conn = Database.connect();
 
 			String query = "delete from TravelLocation where id = ?";
@@ -383,7 +385,6 @@ public class LocationDAL {
 			System.err.println(e.getMessage());
 		}
 	}
-	
 	
 	public static List<Location> getWithinDistance(double distanz, double x, double y, Boolean loadBranchen) throws Exception{
 		List<Location> locations = new ArrayList<Location>();

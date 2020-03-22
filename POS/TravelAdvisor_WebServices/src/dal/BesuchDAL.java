@@ -153,4 +153,17 @@ public class BesuchDAL {
 
 		return verlauf;
 	}
+
+
+	public static void deleteWithLocId(String id) throws SQLException {
+		Connection conn = Database.connect();
+
+		String query = "delete from Location_besuch where id_location = ?";
+		PreparedStatement preparedStmt = conn.prepareStatement(query);
+		preparedStmt.setString(1, id);
+
+		preparedStmt.execute();
+
+		conn.close();
+	}
 }
