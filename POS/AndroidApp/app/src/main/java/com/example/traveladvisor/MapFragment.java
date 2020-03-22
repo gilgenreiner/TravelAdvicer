@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -161,6 +162,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
 
         buttonScanQr.setOnClickListener((View v) -> {
             Toast.makeText(getContext(), "Scan Qr Code", Toast.LENGTH_LONG).show();
+
+            Intent myIntent = new Intent(this.getActivity(), QrCodeScan.class);
+            this.startActivity(myIntent);
         });
 
         buttonLocateMe.setOnClickListener((View v) -> {
