@@ -95,13 +95,15 @@ public class BesuchDAL {
 	getByBesucherId(String id_besucher) throws SQLException, Error404 {
 		Connection conn = Database.connect();
 
-		PreparedStatement pstmt = conn.prepareStatement("select zeitpunkt, tl.BEZEICHNUNG, punkte, lb.ID_BESUCH as aktion, NVL(null, 'Besuch') as besuch  from location_besuch lb" + 
-				"   inner join travellocation tl on tl.id = lb.id_location" + 
-				"   where id_besucher = ?" + 
-				"   UNION" + 
-				"   select zeitpunkt, a.beschreibung, punkte, NVL(null, 'Aktion'), a.id_aktion from Besucher_loest_Aktion_ein blae" + 
-				"   inner join aktion a on a.ID_AKTION = blae.ID_AKTION" + 
-				"   where id_besucher = ?");
+		PreparedStatement pstmt = conn.prepareStatement(
+					"   select zeitpunkt, tl.BEZEICHNUNG, punkte, lb.ID_BESUCH as aktion, NVL(null, 'Besuch') as besuch, tl.BEZEICHNUNG as location  from location_besuch lb" + 
+					"   inner join travellocation tl on tl.id = lb.id_location" + 
+					"   where id_besucher = ?" + 
+					"   UNION" + 
+					"   select zeitpunkt, a.beschreibung, a.punkte, NVL(null, 'Aktion'), a.id_aktion, tl.BEZEICHNUNG from Besucher_loest_Aktion_ein blae" + 
+					"   inner join aktion a on a.ID_AKTION = blae.ID_AKTION" + 
+					"   inner join travellocation tl on tl.id = a.ID_LOCATION" + 
+					"   where id_besucher = ?");
   
 		pstmt.setString(1, id_besucher);
 		pstmt.setString(2, id_besucher);
@@ -112,6 +114,7 @@ public class BesuchDAL {
 
 		Besucher_Verlauf verlauf = new Besucher_Verlauf();
 		verlauf.setBesucher(id_besucher);
+		System.out.println("start");
 		while (rs.next()) {
 
 			Taetigkeit t = new Taetigkeit();
@@ -120,8 +123,11 @@ public class BesuchDAL {
 			String bezeichnung = rs.getString("bezeichnung");
 			int punkte = rs.getInt("punkte");
 			
+			String location = rs.getString("location");
+			
 			t.setZeitpunkt(ts);
-			System.out.println(bezeichnung);
+			t.setLocation(location);
+			System.out.println(location);
 
 			if(rs.getString("aktion").equals("Aktion")) {
 				//Aktion

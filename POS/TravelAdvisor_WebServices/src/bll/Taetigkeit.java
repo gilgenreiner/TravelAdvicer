@@ -10,6 +10,7 @@ public class Taetigkeit {
 	private String beschreibung;
 	private int punkte;
 	private Timestamp zeitpunkt;
+	private String location; 
 	
 	public Taetigkeit() {}
 	
@@ -35,6 +36,16 @@ public class Taetigkeit {
 
 	public void setZeitpunkt(Timestamp zeitpunkt) {
 		this.zeitpunkt = zeitpunkt;
+	}
+
+
+	public String getLocation() {
+		return location;
+	}
+
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	
