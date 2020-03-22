@@ -12,10 +12,13 @@ import java.util.List;
 import javax.ws.rs.Path;
 
 import bll.Besuch;
+import bll.Besucher;
+import bll.Besucher_Verlauf;
 import bll.Branche;
 import bll.Error404;
 import bll.Location;
 import bll.Point;
+import bll.Taetigkeit;
 import service.LocationList;
 
 public class BesuchDAL {
@@ -87,4 +90,61 @@ public class BesuchDAL {
 		}
 	}
 
+	
+	public static Besucher_Verlauf
+	getByBesucherId(String id_besucher) throws SQLException, Error404 {
+		Connection conn = Database.connect();
+
+		PreparedStatement pstmt = conn.prepareStatement("select zeitpunkt, tl.BEZEICHNUNG, punkte, lb.ID_BESUCH as aktion, NVL(null, 'Besuch') as besuch  from location_besuch lb" + 
+				"   inner join travellocation tl on tl.id = lb.id_location" + 
+				"   where id_besucher = ?" + 
+				"   UNION" + 
+				"   select zeitpunkt, a.beschreibung, punkte, NVL(null, 'Aktion'), a.id_aktion from Besucher_loest_Aktion_ein blae" + 
+				"   inner join aktion a on a.ID_AKTION = blae.ID_AKTION" + 
+				"   where id_besucher = ?");
+  
+		pstmt.setString(1, id_besucher);
+		pstmt.setString(2, id_besucher);
+
+
+		ResultSet rs = pstmt.executeQuery();
+
+
+		Besucher_Verlauf verlauf = new Besucher_Verlauf();
+		verlauf.setBesucher(id_besucher);
+		while (rs.next()) {
+
+			Taetigkeit t = new Taetigkeit();
+			
+			Timestamp ts = rs.getTimestamp("zeitpunkt");
+			String bezeichnung = rs.getString("bezeichnung");
+			int punkte = rs.getInt("punkte");
+			
+			t.setZeitpunkt(ts);
+			System.out.println(bezeichnung);
+
+			if(rs.getString("aktion").equals("Aktion")) {
+				//Aktion
+				System.out.println(1);
+				t.setBeschreibung("aktion eingelöst: " + bezeichnung);
+				
+				t.setPunkte((-1) * punkte);
+				System.out.println(2);
+			}
+			else if(rs.getString("besuch").equals("Besuch")) {
+				//Besuch
+				t.setBeschreibung("Location besucht: " + bezeichnung);
+				t.setPunkte(punkte);
+			}			
+			
+			verlauf.addTaetigkeit(t);
+			
+			System.out.println("a");
+		}
+		
+		pstmt.close();
+		conn.close();
+
+		return verlauf;
+	}
 }
