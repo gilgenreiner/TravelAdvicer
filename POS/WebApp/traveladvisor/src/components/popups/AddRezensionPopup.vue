@@ -5,7 +5,7 @@
       <v-card-text>
         <v-form ref="form" v-model="valid">
           Bewertung:
-          <v-rating v-model="defaultRezension.bewertung" color="amber" dense half-increments></v-rating>
+          <v-rating v-model="defaultRezension.bewertung" color="amber" dense></v-rating>
           <v-textarea
             v-model="defaultRezension.text"
             :rules="[rules.required, rules.length(400)]"

@@ -5,6 +5,7 @@ const baseURL = process.env.VUE_APP_API_URL;
 
 const state = {
   user: null,
+  points: [],
   isLoading: false,
   error: null
 }
@@ -12,6 +13,7 @@ const state = {
 const getters = {
   user: state => state.user,
   isLoading: state => state.isLoading,
+  points: state => state.points,
   error: state => state.error
 }
 
@@ -117,11 +119,21 @@ const actions = {
       })
       .catch(err => commit('setError', err + ' - Userdaten konnte nicht upgedatet werden'))
       .finally(() => commit('setIsLoading', false));
+  },
+  getUserPoints({ commit }, userId) {
+    commit('setError', null);
+    commit('setIsLoading', true);
+
+    axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/besucherDetail/verlauf/${userId}`)
+      .then(response => commit('setPoints', response.data.aktionen))
+      .catch(err => commit('setError', err + ' - Userpunkte konnten nicht geladen werden'))
+      .finally(() => commit('setIsLoading', false));
   }
 }
 
 const mutations = {
   setUser: (state, data) => state.user = data,
+  setPoints: (state, data) => state.points = data,
   setIsLoading: (state, updateLoading) => state.isLoading = updateLoading,
   setError: (state, err) => state.error = err
 }
