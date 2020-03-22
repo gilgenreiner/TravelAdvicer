@@ -3,11 +3,12 @@
     <MglMap
       :style="`width: ${this.width}; height: ${this.height}; z-index=auto`"
       :accessToken="accessToken"
-      :mapStyle.sync="mapStyle"
+      :mapStyle.sync="mapStyleCurrent"
       @load="onMapLoad"
       @click="onClickMap"
     >
       <MglGeocoderControl
+        ref="geocoder"
         position="top-right"
         v-if="mode == 'showAll' || mode == 'create'"
         :accessToken="accessToken"
@@ -22,9 +23,9 @@
         <MglMarker
           v-for="location in locations"
           :key="location.id"
-          :coordinates="[location.koordinaten.Y, location.koordinaten.X]"
+          :coordinates="[location.koordinaten.lon, location.koordinaten.lat]"
           :draggable="mode == 'update'"
-          color="blue"
+          :color="colorMarker"
           @dragend="dragend"
         >
           <MglPopup v-if="mode === 'showAll'">
@@ -53,6 +54,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 import Mapbox from "mapbox-gl";
 import MglGeocoderControl from "vue-mapbox-geocoder";
 import {
@@ -64,6 +67,7 @@ import {
 } from "vue-mapbox";
 
 export default {
+  name: "Map",
   components: {
     MglMap,
     MglNavigationControl,
@@ -75,7 +79,10 @@ export default {
   data() {
     return {
       accessToken: process.env.VUE_APP_MAPKEY,
-      mapStyle: "mapbox://styles/mkleinegger/ck4movtpa21z71ctalv5mt7e5",
+      mapStyleDay: "mapbox://styles/mkleinegger/ck4movtpa21z71ctalv5mt7e5",
+      mapStyleNight: "mapbox://styles/mkleinegger/ck7gqe9oi3ren1imlk29tq0ws",
+      mapStyleCurrent: this.mapStyleDay,
+      colorMarker: "blue",
       isGeolocateOn: false,
       defaultInput: "",
       valid: true,
@@ -89,8 +96,25 @@ export default {
     mode: String,
     center: Array
   },
+  computed: mapGetters({
+    darkMode: "application/isDarkModeOn"
+  }),
   created() {
     this.mapbox = Mapbox;
+    this.mapStyleCurrent = this.darkMode
+      ? this.mapStyleNight
+      : this.mapStyleDay;
+
+    this.colorMarker = this.darkMode ? "green" : "blue";
+  },
+  watch: {
+    darkMode() {
+      this.mapStyleCurrent = this.darkMode
+        ? this.mapStyleNight
+        : this.mapStyleDay;
+
+      this.colorMarker = this.darkMode ? "green" : "blue";
+    }
   },
   methods: {
     async onMapLoad(event) {
@@ -111,27 +135,19 @@ export default {
       if (this.mode === "create") {
         this.isMarkerSet = true;
 
-        //set the coords for Mapbox Marker with the Obj X/Y
-        this.locations[0].koordinaten.X = event.mapboxEvent.lngLat.lat;
-        this.locations[0].koordinaten.Y = event.mapboxEvent.lngLat.lng;
-        //set the coords for the Webservice because it only takes x/y for update
-        this.locations[0].koordinaten.x = event.mapboxEvent.lngLat.lat;
-        this.locations[0].koordinaten.y = event.mapboxEvent.lngLat.lng;
+        this.locations[0].koordinaten.lat = event.mapboxEvent.lngLat.lat;
+        this.locations[0].koordinaten.lon = event.mapboxEvent.lngLat.lng;
       }
     },
     dragend(event) {
       if (this.mode === "update") {
-        //set the coords for Mapbox Marker with the Obj X/Y
-        this.locations[0].koordinaten.X = event.marker._lngLat.lat;
-        this.locations[0].koordinaten.Y = event.marker._lngLat.lng;
-        //set the coords for the Webservice because it only takes x/y for update
-        this.locations[0].koordinaten.x = event.marker._lngLat.lat;
-        this.locations[0].koordinaten.y = event.marker._lngLat.lng;
+        this.locations[0].koordinaten.lat = event.marker._lngLat.lat;
+        this.locations[0].koordinaten.lon = event.marker._lngLat.lng;
       }
     },
     geoLocate(event) {
       //if the isGeolocateOn is true you know the location circle an the nearest locations are shown.
-      //if its false you know all location are shown
+      //if it's false you know all location are shown
       this.isGeolocateOn = !this.isGeolocateOn;
 
       if (event.map.getSource("polygon")) {

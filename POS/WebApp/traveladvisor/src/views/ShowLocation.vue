@@ -11,8 +11,8 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetailReadonly
-          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation"
+        <LocationDetail
+          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation" :readonly="true"
         />
       </v-col>
       <v-col cols="8">
@@ -33,7 +33,7 @@
       <v-label>Prämien:</v-label>
     </v-row>
     <v-row v-if="isLoadingBoni">
-      <v-col v-for="i in 3" :key="i" lg="3" md="4" sm="6">
+      <v-col v-for="i in 4" :key="i" lg="3" md="4" sm="6">
         <v-skeleton-loader transition="fade-transition" type="card" />
       </v-col>
     </v-row>
@@ -49,7 +49,7 @@
 import { mapGetters } from "vuex";
 
 import Map from "@/components/Map";
-import LocationDetailReadonly from "@/components/LocationDetailReadonly";
+import LocationDetail from "@/components/LocationDetail";
 import RezensionenPopup from "@/components/popups/ShowRezensionenPopup";
 import BonusListItem from "@/components/listItems/BonusListItem";
 
@@ -57,7 +57,7 @@ export default {
   name: "LocationDetails",
   components: {
     Map,
-    LocationDetailReadonly,
+    LocationDetail,
     BonusListItem,
     RezensionenPopup
   },
@@ -89,8 +89,8 @@ export default {
     getCoordsFromSelected() {
       return this.allLocations.length !== 0
         ? [
-            this.getSelectedLocation.koordinaten.Y,
-            this.getSelectedLocation.koordinaten.X
+            this.getSelectedLocation.koordinaten.lon,
+            this.getSelectedLocation.koordinaten.lat
           ]
         : [0, 0];
     }

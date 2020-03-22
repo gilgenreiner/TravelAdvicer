@@ -209,7 +209,7 @@ public class LocationDAL {
 			System.out.println("Bezeichnung: " + new_loc.getBezeichnung());
 			System.out.println("Punkte: " + new_loc.getPunkte());
 
-			String koordinaten = "SDO_GEOMETRY( 2001, NULL, SDO_POINT_TYPE(" + new_loc.getKoordinaten().getX() +", " + new_loc.getKoordinaten().getY() +", NULL), NULL,"
+			String koordinaten = "SDO_GEOMETRY( 2001, NULL, SDO_POINT_TYPE(" + new_loc.getKoordinaten().getLon() +", " + new_loc.getKoordinaten().getLat() +", NULL), NULL,"
 					+ " NULL)";
 
 			String query = "update TravelLocation set id_besitzer = ?, bezeichnung = ?, beschreibung = ?, punkte = ?, aktiv = ?, koordinaten = " + koordinaten + " where id = ?";
@@ -279,6 +279,7 @@ public class LocationDAL {
 	public static void delete(String id) {
 		try {
 			BrancheDAL.removeBranchen(id);
+			RezensionenDAL.deleteWithLocId(id);
 			Connection conn = Database.connect();
 
 			String query = "delete from TravelLocation where id = ?";
@@ -314,7 +315,7 @@ public class LocationDAL {
 					+ "NULL)";
 
 			String query = " insert into TravelLocation values (?, ?, ?, ?, ?, ?, " + koordinaten + ""
-					+ ", utl_raw.cast_to_raw(?)"
+					+ ", utl_raw.cast_to_raw(?), 0"
 					+ ")";
 
 			PreparedStatement preparedStmt = conn.prepareStatement(query);
@@ -328,14 +329,14 @@ public class LocationDAL {
 			else
 				preparedStmt.setString(6, "N");
 
-			preparedStmt.setDouble(7, new_loc.getKoordinaten().getX());
-			preparedStmt.setDouble(8, new_loc.getKoordinaten().getY());
+			preparedStmt.setDouble(7, new_loc.getKoordinaten().getLon());
+			preparedStmt.setDouble(8, new_loc.getKoordinaten().getLat());
 			/*
 			String img = new_loc.getImg();
 			if(img != null)
 				preparedStmt.setString(9, img);
 			else*/
-				preparedStmt.setString(9, "empty blob");
+			preparedStmt.setString(9, "null");
 			
 			preparedStmt.execute();
 

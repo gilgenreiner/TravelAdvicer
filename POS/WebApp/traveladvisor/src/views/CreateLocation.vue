@@ -9,7 +9,7 @@
     </v-row>
     <v-row>
       <v-col cols="4">
-        <LocationDetail ref="details" :selectedLocation.sync="defaultLocation" />
+        <LocationDetail ref="details" :selectedLocation.sync="defaultLocation" :readonly="false" />
       </v-col>
       <v-col cols="8">
         <v-hover v-slot:default="{ hover }">
@@ -62,7 +62,7 @@ export default {
         punkte: 0,
         branchen: [],
         besitzer: { id: "" },
-        koordinaten: { X: 0, Y: 0 }
+        koordinaten: { lon: 0, lat: 0 }
       },
       mode: "create",
       isButtonPressed: false, //because the isLoading could be change somewhere else

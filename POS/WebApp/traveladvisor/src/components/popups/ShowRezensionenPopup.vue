@@ -5,7 +5,7 @@
         Rezensionen
         <v-spacer></v-spacer>
         <v-btn
-          v-if="user != null && user.typ == 'besucher'"
+          v-if="user != null && user.typ == 'besucher' && !doIhaveARezension"
           class="mr-2"
           color="green"
           @click="dialogAdd = !dialogAdd"
@@ -46,11 +46,16 @@ export default {
     location: Object,
     dialog: Boolean
   },
-  computed: mapGetters({
-    allRezensionen: "rezensionen/allRezensionen",
-    isLoadingRezensionen: "rezensionen/isLoading",
-    user: "users/user"
-  }),
+  computed: {
+    ...mapGetters({
+      allRezensionen: "rezensionen/allRezensionen",
+      isLoadingRezensionen: "rezensionen/isLoading",
+      user: "users/user"
+    }),
+    doIhaveARezension() {
+      return this.allRezensionen.some(r => r.besucherid == this.user.id);
+    }
+  },
   watch: {
     location() {
       //start loading rezensionen first, when the location data is ready

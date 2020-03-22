@@ -38,6 +38,7 @@ public class BesucheList {
         Response.ResponseBuilder response = Response.status(Response.Status.OK);
         try {
         		response.entity(new Gson().toJson(BesuchDAL.getAll(besucherid, locationid)));
+        
         } catch (Exception e) {
             response.status(Response.Status.BAD_REQUEST);
             response.entity("[ERROR] " + e.getMessage());

@@ -1,4 +1,3 @@
-import axiosWithLoader from '../../http';
 import axios from 'axios';
 
 const baseURL = process.env.VUE_APP_API_URL;
@@ -23,7 +22,7 @@ const actions = {
         commit('setIsLoading', true);
         commit('setError', null)
 
-        axiosWithLoader.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}/rezensionen`)
+        axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}/rezensionen`)
             .then(response => commit('setRezensionen', response.data))
             .catch(err => commit('setError', err + ' - Rezensionen konnten nicht geladen werden'))
             .finally(() => commit('setIsLoading', false));

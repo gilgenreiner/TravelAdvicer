@@ -1,6 +1,7 @@
 package service;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -12,8 +13,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
 import com.google.gson.Gson;
 
@@ -28,6 +34,9 @@ import dal.RezensionenDAL;
 @Path("locationDetail")
 public class LocationDetail {
 
+	@Context
+    private UriInfo context;
+	
 	@GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON})
@@ -169,8 +178,19 @@ public class LocationDetail {
 
         return response.build();
     }
+    /*
     
-    
+	@POST
+	@Path("bildupload")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response uploadFile(@FormDataParam("file") InputStream uploadedInputStream,
+			@FormDataParam("file") FormDataContentDisposition fileDetail
+			) {
+		
+		return Response.status(200)
+				.entity("File received").build();
+	}
+*/
     @OPTIONS
     @Path("/{id}")
     public Response preflightWithId() {

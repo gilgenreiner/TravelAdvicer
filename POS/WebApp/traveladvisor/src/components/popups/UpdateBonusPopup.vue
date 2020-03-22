@@ -70,6 +70,11 @@ export default {
           id: this.bonus.id
         };
       }
+    },
+    isLoadingBoni() {
+      if (!this.isLoadingBoni) {
+        this.$emit("update:dialog", false);
+      }
     }
   },
   methods: {
@@ -78,7 +83,6 @@ export default {
 
       if (this.valid) {
         this.$store.dispatch("bonuses/updateBonus", this.defaultBonus);
-        this.$emit("update:dialog", false);
       }
     }
   }

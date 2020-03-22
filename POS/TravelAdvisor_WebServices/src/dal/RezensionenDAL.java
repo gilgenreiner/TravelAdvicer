@@ -310,4 +310,18 @@ public class RezensionenDAL {
 	public static void getWithinDistance(double distanz) {
 		
 	}
+
+	public static void deleteWithLocId(String id) throws SQLException {
+		Connection conn = Database.connect();
+
+		String query = "delete from rezension where id_location = ?";
+		PreparedStatement preparedStmt = conn.prepareStatement(query);
+		preparedStmt.setString(1, id);
+
+		preparedStmt.execute();
+
+		conn.close();
+
+
+	}
 }

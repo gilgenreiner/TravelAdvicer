@@ -1,6 +1,7 @@
 <template>
   <v-navigation-drawer
     id="app-drawer"
+    v-model="inputValue"
     app
     src="https://images.unsplash.com/photo-1546299138-7574176aad1a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"
     dark
@@ -73,6 +74,29 @@ export default {
       }
     ]
   }),
-  computed: mapGetters({ user: "users/user" })
+  computed: {
+    ...mapGetters({ user: "users/user", drawer: "application/drawer" }),
+    inputValue: {
+      get() {
+        return this.drawer;
+      },
+      set(val) {
+        this.$store.dispatch("application/setDrawer", val);
+      }
+    }
+  }
 };
 </script>
+
+<style lang="scss">
+#app-drawer {
+  .v-list__tile {
+    border-radius: 4px;
+
+    &--buy {
+      margin-top: auto;
+      margin-bottom: 17px;
+    }
+  }
+}
+</style>

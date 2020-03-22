@@ -1,4 +1,3 @@
-import axiosWithLoader from '../../http';
 import axios from 'axios';
 
 const baseURL = process.env.VUE_APP_API_URL;
@@ -30,7 +29,7 @@ const actions = {
             .finally(() => commit('setIsLoading', false));
     },
     loadLocationById({ commit }, id) {
-        axiosWithLoader.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`)
+        axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/locationDetail/${id}`)
             .then(response => commit('setLocations', new Array(response.data)))
             .catch(err => commit('setError', err + ' - Location konnten nicht geladen werden'));
     },

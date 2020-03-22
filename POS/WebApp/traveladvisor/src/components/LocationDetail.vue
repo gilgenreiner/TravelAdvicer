@@ -30,6 +30,7 @@
               label="Bezeichnung"
               :rules="[rules.required, rules.length(100)]"
               counter="100"
+              :readonly="readonly"
             />
             <v-textarea
               v-model="selectedLocation.beschreibung"
@@ -37,6 +38,7 @@
               label="Beschreibung"
               :rules="[rules.required, rules.length(400)]"
               counter="400"
+              :readonly="readonly"
             />
             <v-select
               v-model="selectedLocation.branchen"
@@ -48,6 +50,7 @@
               return-object
               :loading="isLoadingBranchen"
               :rules="[rules.emptyArray]"
+              :readonly="readonly"
             />
             <v-text-field
               v-model="selectedLocation.punkte"
@@ -55,6 +58,7 @@
               label="Punkte pro Besuch"
               type="number"
               :rules="[rules.required]"
+              :readonly="readonly"
             />
             <v-checkbox
               v-model="selectedLocation.aktiv"
@@ -62,6 +66,7 @@
               @change="$emit('update:selectedLocation.aktiv', selectedLocation.aktiv)"
               :label="`Die Location ist ${(selectedLocation.aktiv === true) ? 'aktiviert' : 'deaktiviert'}`"
               type="checkbox"
+              v-if="!readonly"
             ></v-checkbox>
           </v-form>
         </v-card-text>
@@ -88,7 +93,8 @@ export default {
     };
   },
   props: {
-    selectedLocation: Object
+    selectedLocation: Object,
+    readonly: Boolean
   },
   computed: mapGetters({
     allBranchen: "branchen/allBranchen",

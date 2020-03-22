@@ -1,5 +1,5 @@
 <template>
-  <v-content class="grey lighten-3">
+    <v-content >
     <div id="core-view">
       <CaptureErrorSnackbar>
         <v-fade-transition mode="out-in">
@@ -27,13 +27,4 @@ export default {
 </script>
 
 <style>
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  font-size: 100%;
-}
 </style>

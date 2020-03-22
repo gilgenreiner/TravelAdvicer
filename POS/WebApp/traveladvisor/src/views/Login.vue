@@ -13,7 +13,9 @@
               prepend-icon="email"
               v-model="user.email"
               label="Email"
+              name="email"
               :rules="[rules.required]"
+              color="green"
             />
             <v-text-field
               prepend-icon="lock"
@@ -21,26 +23,36 @@
               label="Password"
               type="password"
               :rules="[rules.required]"
+              color="green"
             />
           </v-form>
+          <v-row :class="`d-flex justify-center`">
+            Passwort vergessen?&nbsp;
+            <a align="center" @click="resetPasswortViaEmail">Klick hier</a>
+          </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green" dark text :to="{ name: 'Register' }">Registrieren</v-btn>
-          <v-btn color="green" dark text @click="submit()" :loading="isLoading">Anmelden</v-btn>
+          <v-row :class="`d-flex justify-center`">
+            <v-btn color="green" dark text :to="{ name: 'Register' }">Registrieren</v-btn>
+            <v-btn color="green" dark text @click="submit()" :loading="isLoading">Anmelden</v-btn>
+          </v-row>
         </v-card-actions>
       </v-card>
     </v-hover>
+    <v-snackbar color="orange" :timeout="4000" v-model="snackbar">{{ text }}</v-snackbar>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import firebase from "firebase";
 
 export default {
   name: "Login",
   data() {
     return {
+      snackbar: false,
+      text: "",
       valid: false,
       rules: {
         required: v => !!v || "Dieses Feld ist verpflichtend"
@@ -71,6 +83,16 @@ export default {
       if (this.valid) {
         this.$store.dispatch("users/signIn", this.user);
       }
+    },
+    resetPasswortViaEmail() {
+      if (this.user.email == "") {
+        throw Error("Bitte geben Sie ihre Email-Adresse ins Email-Feld ein!");
+      }
+
+      this.$store.dispatch("users/resetPasswortViaEmail", this.user.email);
+
+      this.text = "Eine Email mit dem Reset-Link wurde an " + this.user.email + " gesendet";
+      this.snackbar = true;
     }
   }
 };
