@@ -17,7 +17,12 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="green" text @click="$emit('update:dialog', false)">Abbrechen</v-btn>
-        <v-btn color="green" text @click="updateRezension" :loading="isLoadingRezension">Akutalisieren</v-btn>
+        <v-btn
+          color="green"
+          text
+          @click="updateRezension"
+          :loading="isLoadingRezension"
+        >Akutalisieren</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -56,7 +61,10 @@ export default {
       this.$refs.form.validate();
 
       if (this.valid) {
-        this.$store.dispatch("rezensionen/updateRezension", this.defaultRezension);
+        this.$store.dispatch(
+          "rezensionen/updateRezension",
+          this.defaultRezension
+        );
         this.$emit("update:dialog", false);
       }
     }

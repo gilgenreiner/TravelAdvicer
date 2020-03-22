@@ -67,6 +67,11 @@ export default {
       if (this.dialog && this.$refs.form != undefined) {
         this.$refs.form.reset();
       }
+    },
+    isLoadingBoni() {
+      if (!this.isLoadingBoni) {
+        this.$emit("update:dialog", false);
+      }
     }
   }
 };

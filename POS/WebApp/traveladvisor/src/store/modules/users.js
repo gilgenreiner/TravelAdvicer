@@ -68,6 +68,7 @@ const actions = {
             nachname: doc.data().nachname,
             typ: doc.data().typ
           })
+
           localStorage.setItem('typ', doc.data().typ);
         } else {
           commit('setError', 'Document konnte bei firestore nicht gefunden werden');
@@ -79,9 +80,8 @@ const actions = {
     commit('setIsLoading', true);
     commit('setError', null);
 
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(user.email, user.password)
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => { return firebase.auth().signInWithEmailAndPassword(user.email, user.password); })
       .catch(err => commit('setError', err + ' - User konnte bei firebase nicht angemeldet werden'))
       .finally(() => commit('setIsLoading', false));
   },
@@ -93,6 +93,30 @@ const actions = {
       .signOut()
       .then(() => commit("setUser", null))
       .catch(err => commit('setError', err + ' - User konnte bei firebase nicht abgemeldet werden'));
+  },
+  resetPasswortViaEmail({ commit }, email) {
+    commit('setError', null);
+
+    firebase
+      .auth()
+      .sendPasswordResetEmail(email)
+      .catch(err => commit('setError', err + ' - Email konnte nicht gesendet werden'));
+  },
+  updateUser({ commit }, userData) {
+    commit('setError', null);
+    commit('setIsLoading', true);
+
+    let db = firebase.firestore();
+    let user = firebase.auth().currentUser;
+
+    db.collection("users")
+      .doc(user.uid)
+      .update({
+        vorname: userData.vorname,
+        nachname: userData.nachname
+      })
+      .catch(err => commit('setError', err + ' - Userdaten konnte nicht upgedatet werden'))
+      .finally(() => commit('setIsLoading', false));
   }
 }
 
