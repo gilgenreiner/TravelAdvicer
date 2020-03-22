@@ -231,4 +231,20 @@ public class PraemienDAL {
 			throw e;
 		}
 	}
+
+	public static void deletyWithLocId(String id) throws SQLException {
+
+		Connection conn = Database.connect();
+
+		String query = "delete from aktion where id_location = ?";
+		PreparedStatement preparedStmt = conn.prepareStatement(query);
+		preparedStmt.setString(1, id);
+
+		preparedStmt.execute();
+
+		conn.close();
+
+
+	
+	}
 }
