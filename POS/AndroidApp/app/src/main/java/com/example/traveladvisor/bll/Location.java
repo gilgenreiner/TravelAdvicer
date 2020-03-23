@@ -13,7 +13,7 @@ public class Location implements Parcelable {
     private String beschreibung;
     private boolean aktiv;
     public int punkte;
-    private List<Branche> branchen;
+    private List<Branche> branchen = new ArrayList<Branche>();;
     private Besitzer besitzer;
     private Point koordinaten;
 
