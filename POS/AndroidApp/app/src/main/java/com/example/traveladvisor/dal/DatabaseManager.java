@@ -1,8 +1,10 @@
 package com.example.traveladvisor.dal;
 
 
+import com.example.traveladvisor.bll.Besuch;
 import com.example.traveladvisor.bll.Location;
 import com.example.traveladvisor.services.ServiceGetLocationList;
+import com.example.traveladvisor.services.ServicePostBesuch;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 
 public class DatabaseManager {
     private static DatabaseManager db = null;
-    private static String ipHost = "http://192.168.178.40:8080/";
+    private static String ipHost = "http://192.168.8.141:8080/";
 
     private DatabaseManager() {
     }
@@ -42,12 +44,22 @@ public class DatabaseManager {
         controller.execute();
         String strFromWebService = controller.get();
         try {
-            Type colltype = new TypeToken<ArrayList<Location>>() { }.getType();
+            Type colltype = new TypeToken<ArrayList<Location>>() {
+            }.getType();
             retLocations = gson.fromJson(strFromWebService, colltype);
         } catch (Exception ex) {
             throw new Exception(strFromWebService);
         }
 
         return retLocations;
+    }
+
+    public String userVisitsLocations(Besuch besuch) throws Exception {
+        ServicePostBesuch controller = new ServicePostBesuch();
+        ServicePostBesuch.setIpHost(ipHost);
+
+        controller.setBesuch(besuch);
+        controller.execute();
+        return controller.get();
     }
 }
