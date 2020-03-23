@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import java.util.UUID;
 
 public class Branche implements Parcelable {
-
     private UUID id;
     private String bezeichnung;
 
@@ -76,5 +75,4 @@ public class Branche implements Parcelable {
     public String toString() {
         return this.bezeichnung + " mit der id: " + this.id;
     }
-
 }

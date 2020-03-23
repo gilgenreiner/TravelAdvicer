@@ -123,6 +123,7 @@ const actions = {
   getUserPoints({ commit }, userId) {
     commit('setError', null);
     commit('setIsLoading', true);
+    commit('setPoints', []);
 
     axios.get(baseURL + `/TravelAdvisor_WebServices/TravelGuide/besucherDetail/verlauf/${userId}`)
       .then(response => commit('setPoints', response.data.aktionen))

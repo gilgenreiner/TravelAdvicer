@@ -3,16 +3,19 @@ package com.example.traveladvisor;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.traveladvisor.bll.Location;
 import com.google.android.material.textfield.TextInputEditText;
+import com.squareup.picasso.Picasso;
 
 public class LocationDetailActivity extends AppCompatActivity {
     private TextInputEditText etxtBeschreibung;
     private TextInputEditText etxtBezeichnung;
     private TextInputEditText etxtBranchen;
     private TextInputEditText etxtPunkte;
+    private ImageView imageView;
 
     private Location location;
 
@@ -27,6 +30,7 @@ public class LocationDetailActivity extends AppCompatActivity {
         etxtBeschreibung = findViewById(R.id.etxtBeschreibung);
         etxtBranchen = findViewById(R.id.etxtBranchen);
         etxtPunkte = findViewById(R.id.etxtPunkte);
+        imageView = findViewById(R.id.imageView);
 
         etxtBezeichnung.setEnabled(false);
         etxtBeschreibung.setEnabled(false);
@@ -38,5 +42,6 @@ public class LocationDetailActivity extends AppCompatActivity {
         etxtBranchen.setText(location.getBranchenAsString());
         etxtPunkte.setText(String.valueOf(location.getPunkte()));
 
+        Picasso.get().load("https://picsum.photos/510/300?random").into(imageView);
     }
 }

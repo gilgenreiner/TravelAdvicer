@@ -5,16 +5,15 @@
         <v-btn class="green" dark @click="$router.go(-1)">
           <v-icon left>arrow_back</v-icon>Zurück
         </v-btn>
-        <v-btn class="green" dark @click="createQRCode">
-          QR-Code erzeugen
-        </v-btn>
+        <v-btn class="green ml-1" dark @click="createQRCode">QR-Code erzeugen</v-btn>
+        <div id="qrcode" v-show="false"></div>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="4">
         <LocationDetail
           ref="details"
-          :selectedLocation.sync="getSelectedLocation"
+          :selectedLocation.sync="(getSelectedLocation === undefined) ? defaultLocation : getSelectedLocation"
           :readonly="false"
         />
       </v-col>
@@ -24,7 +23,7 @@
             <Map
               :width="'100%'"
               :height="'676px'"
-              :locations="new Array(getSelectedLocation)"
+              :locations="(getSelectedLocation === undefined) ?  new Array(defaultLocation) : new Array(getSelectedLocation)"
               :center.sync="getCoordsFromSelected"
               :mode="mode"
             />
@@ -60,7 +59,15 @@ export default {
   data() {
     return {
       mode: "update",
-      isDoUpdateButtonPressed: false
+      isDoUpdateButtonPressed: false,
+      defaultLocation: {
+        bezeichnung: "",
+        beschreibung: "",
+        aktiv: false,
+        punkte: 0,
+        branchen: [],
+        koordinaten: { x: 0, y: 0 }
+      }
     };
   },
   watch: {
@@ -83,7 +90,19 @@ export default {
       }
     },
     createQRCode() {
-      
+      var qrcode = new QRCode($("#qrcode")[0], this.getSelectedLocation.id);
+
+      $(qrcode._el)
+        .find("img")
+        .on("load", function() {
+          var element = $("<a id='toDelete'></a>")
+            .attr("href", this.src)
+            .attr("download", "qr_code.png");
+
+          $("body").append(element);
+          document.getElementById("toDelete").click();
+          $("#toDelete").remove();
+        });
     }
   },
   computed: {
@@ -97,10 +116,12 @@ export default {
       )[0];
     },
     getCoordsFromSelected() {
-      return [
-        this.getSelectedLocation.koordinaten.lon,
-        this.getSelectedLocation.koordinaten.lat
-      ];
+      return this.allLocations.length !== 0
+        ? [
+            this.getSelectedLocation.koordinaten.lon,
+            this.getSelectedLocation.koordinaten.lat
+          ]
+        : [0, 0];
     }
   },
   created() {

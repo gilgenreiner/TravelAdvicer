@@ -3,9 +3,11 @@ package com.example.traveladvisor;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -15,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.traveladvisor.bll.Besuch;
+import com.example.traveladvisor.dal.DatabaseManager;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -23,123 +27,58 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import java.io.IOException;
 
 public class QrCodeScan extends AppCompatActivity {
-
-    private SurfaceView cameraPreview;
-
-    private BarcodeDetector qrcodeDetector;
-    private CameraSource qrcodecameraSource;
-    private CameraSource cameraSource;
-
-
-    private Button btnSave;
-    private Switch flashSwitch;
-    private TextView txtQRCODE;
-    private TextView txtEAN;
-
-    private final String KEY_QRCODE = "QR_CODE";
-
-    //final int RequestCameraPermissionID = 1001;
+    private static final String TAG = "QrCodeScan";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
+
+    private BarcodeDetector barcodeDetector;
+    private CameraSource cameraSource;
+    private String intentData = "";
+
+    private SurfaceView surfaceView;
+    private Button btnAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toast.makeText(getApplicationContext(), "Qr Code dings", Toast.LENGTH_LONG).show();
         setContentView(R.layout.activity_qr_code_scan);
-        initComponents();
-        //initialiseDetectorsAndSources();
-    }
 
-    private void initComponents() {
-        cameraPreview = findViewById(R.id.cameraPreview);
-        txtQRCODE = findViewById(R.id.txtQRCODE);
+        surfaceView = findViewById(R.id.surfaceView);
+        btnAction = findViewById(R.id.btnAction);
 
-
-        qrcodeDetector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.EAN_13 | Barcode.QR_CODE)
-                .build();
-        cameraSource = new CameraSource
-                .Builder(this, qrcodeDetector)
-                .setAutoFocusEnabled(true)
-                .build();
-        cameraPreview.getHolder().addCallback(new SurfaceHolder.Callback() {
+        btnAction.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    //Request permission
-                    ActivityCompat.requestPermissions(QrCodeScan.this,
-                            new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-                    return;
-                }
-                try {
-                    cameraSource.start(cameraPreview.getHolder());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            public void onClick(View v) {
+                if (intentData.length() > 0) {
+                    try {
+                        DatabaseManager.newInstance().userVisitsLocations(new Besuch(intentData, "6hNi7NMMXKg2LregaEx7UEQPMTC3")); //toDo: firebase-id setzen
 
-            @Override
-            public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-                cameraSource.stop();
-            }
-        });
-        qrcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
-            }
-
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> qrcodes = detections.getDetectedItems();
-                if (qrcodes.size() != 0) {
-                    if (qrcodes.valueAt(0).format == 256) {
-                        txtQRCODE.post(new Runnable() {
-
-                            @Override
-
-                            public void run() {
-
-                                //Create vibrate
-                                txtQRCODE.setText(qrcodes.valueAt(0).displayValue);
-                            }
-                        });
+                        finish();
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
                     }
-                    if (qrcodes.valueAt(0).format == 32) {
-                        txtEAN.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //Create vibrate
-                                txtEAN.setText(qrcodes.valueAt(0).displayValue);
-                            }
-                        });
-                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Kein QR-Code gefunden", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     private void initialiseDetectorsAndSources() {
-        Toast.makeText(getApplicationContext(), "Barcode scanner started", Toast.LENGTH_SHORT).show();
-
-        qrcodeDetector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.ALL_FORMATS)
+        barcodeDetector = new BarcodeDetector.Builder(this)
+                .setBarcodeFormats(Barcode.QR_CODE)
                 .build();
 
-        cameraSource = new CameraSource.Builder(this, qrcodeDetector)
+        cameraSource = new CameraSource.Builder(this, barcodeDetector)
                 .setRequestedPreviewSize(1920, 1080)
-                .setAutoFocusEnabled(true) //you should add this feature
+                .setAutoFocusEnabled(true)
                 .build();
 
-        cameraPreview.getHolder().addCallback(new SurfaceHolder.Callback() {
+        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 try {
                     if (ActivityCompat.checkSelfPermission(QrCodeScan.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        cameraSource.start(cameraPreview.getHolder());
+                        cameraSource.start(surfaceView.getHolder());
                     } else {
                         ActivityCompat.requestPermissions(QrCodeScan.this, new
                                 String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
@@ -159,45 +98,30 @@ public class QrCodeScan extends AppCompatActivity {
             }
         });
 
-        qrcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
+        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
-                Toast.makeText(getApplicationContext(), "To prevent memory leaks barcode scanner has been stopped", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> qrcodes = detections.getDetectedItems();
-                if (qrcodes.size() != 0) {
-                    if (qrcodes.valueAt(0).format == 256) {
-                        txtQRCODE.post(() -> {
-                            //Create vibrate
-                            txtQRCODE.setText(qrcodes.valueAt(0).displayValue);
-                        });
-                    }
+                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
+                if (barcodes.size() != 0) {
+                    intentData = barcodes.valueAt(0).displayValue;
                 }
             }
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        cameraSource.release();
+    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CAMERA_PERMISSION: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    try {
-                        cameraSource.start(cameraPreview.getHolder());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            break;
-        }
+    protected void onResume() {
+        super.onResume();
+        initialiseDetectorsAndSources();
     }
 }
