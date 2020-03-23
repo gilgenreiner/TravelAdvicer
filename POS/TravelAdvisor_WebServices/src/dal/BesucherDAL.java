@@ -23,7 +23,7 @@ public class BesucherDAL {
 		List<Besucher> list = new ArrayList<Besucher>();
 
 		while (rs.next()) {
-			String id = rs.getString("id");
+			String id = rs.getString("benutzer_id");
 
 			Besucher b = new Besucher(id);
 

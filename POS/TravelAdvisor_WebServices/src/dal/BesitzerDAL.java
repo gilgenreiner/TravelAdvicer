@@ -23,7 +23,7 @@ public class BesitzerDAL {
 		List<Besitzer> list = new ArrayList<Besitzer>();
 
 		while (rs.next()) {
-			String id = rs.getString("id");
+			String id = rs.getString("benutzer_id");
 
 			Besitzer b = new Besitzer(id);
 
