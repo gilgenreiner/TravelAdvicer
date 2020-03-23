@@ -13,11 +13,9 @@ public class Location implements Parcelable {
     private String beschreibung;
     private boolean aktiv;
     public int punkte;
-    private List<Branche> branchen = new ArrayList<Branche>();
+    private List<Branche> branchen;
     private Besitzer besitzer;
     private Point koordinaten;
-
-    //image[]
 
     public Location() {
         branchen = new ArrayList<Branche>();
@@ -34,33 +32,6 @@ public class Location implements Parcelable {
         punkte = in.readInt();
         in.readList(branchen, Branche.class.getClassLoader());
     }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id.toString());
-        dest.writeString(bezeichnung);
-        dest.writeString(beschreibung);
-        dest.writeByte((byte) (aktiv ? 1 : 0));
-        dest.writeInt(punkte);
-        dest.writeList(branchen);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Location> CREATOR = new Creator<Location>() {
-        @Override
-        public Location createFromParcel(Parcel in) {
-            return new Location(in);
-        }
-
-        @Override
-        public Location[] newArray(int size) {
-            return new Location[size];
-        }
-    };
 
     public UUID getId() {
         return id;
@@ -102,21 +73,24 @@ public class Location implements Parcelable {
         return branchen;
     }
 
-    public String getBranchenAsString() {
-        String result = "";
-
-        for(Branche b : branchen)
-            result += b.getBezeichnung() + ", ";
-
-        return result.substring(0, result.length() - 2);
-    }
-
     public void setBranchen(List<Branche> branche) {
         this.branchen = branche;
     }
 
     public void addBranche(Branche branche) {
-        this.branchen.add(branche);
+        if (this.branchen == null)
+            this.branchen = new ArrayList<Branche>();
+        if (!this.branchen.contains(branche))
+            this.branchen.add(branche);
+    }
+
+    public String getBranchenAsString() {
+        String result = "";
+
+        for (Branche b : branchen)
+            result += b.getBezeichnung() + ", ";
+
+        return result.substring(0, result.length() - 2);
     }
 
     public Besitzer getBesitzer() {
@@ -151,4 +125,31 @@ public class Location implements Parcelable {
     public String toString() {
         return this.bezeichnung + " mit der id: " + this.id;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int i) {
+        dest.writeString(id.toString());
+        dest.writeString(bezeichnung);
+        dest.writeString(beschreibung);
+        dest.writeByte((byte) (aktiv ? 1 : 0));
+        dest.writeInt(punkte);
+        dest.writeList(branchen);
+    }
+
+    public static final Creator<Location> CREATOR = new Creator<Location>() {
+        @Override
+        public Location createFromParcel(Parcel in) {
+            return new Location(in);
+        }
+
+        @Override
+        public Location[] newArray(int size) {
+            return new Location[size];
+        }
+    };
 }

@@ -169,7 +169,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
 
         buttonLocateMe.setOnClickListener((View v) -> {
             android.location.Location lastKnownLocation = mapboxMap.getLocationComponent().getLastKnownLocation();
-            animateCameraToSelection(Feature.fromGeometry(Point.fromLngLat(lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude())),14);
+            animateCameraToSelection(Feature.fromGeometry(Point.fromLngLat(lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude())), 14);
         });
 
         mapView = rootView.findViewById(R.id.mapView);
@@ -202,7 +202,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                         mapboxMap.getUiSettings().setLogoEnabled(false);
                         mapboxMap.getUiSettings().setAttributionEnabled(false);
                         mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
-                        //mapboxMap.setMinZoomPreference(5);
+                        mapboxMap.setMinZoomPreference(5);
                         new AddLocationsToMapTask(MapFragment.this).execute();
                         mapboxMap.addOnMapClickListener(MapFragment.this);
 

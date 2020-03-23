@@ -76,5 +76,4 @@ public class Branche implements Parcelable {
     public String toString() {
         return this.bezeichnung + " mit der id: " + this.id;
     }
-
 }

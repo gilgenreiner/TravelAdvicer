@@ -37,6 +37,5 @@ public class LocationDetailActivity extends AppCompatActivity {
         etxtBezeichnung.setText(location.getBezeichnung());
         etxtBranchen.setText(location.getBranchenAsString());
         etxtPunkte.setText(String.valueOf(location.getPunkte()));
-
     }
 }
