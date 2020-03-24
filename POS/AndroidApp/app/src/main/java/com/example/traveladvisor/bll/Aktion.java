@@ -63,4 +63,15 @@ public class Aktion {
     public void generateUUID() {
         this.id = UUID.randomUUID();
     }
+
+    @Override
+    public String toString() {
+        return "Aktion{" +
+                "id=" + id +
+                ", bezeichnung='" + bezeichnung + '\'' +
+                ", punkte=" + punkte +
+                ", aktiv=" + aktiv +
+                ", locationId=" + locationId +
+                '}';
+    }
 }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.traveladvisor.AktionsListActivity;
 import com.example.traveladvisor.LocationDetailActivity;
 import com.example.traveladvisor.MapFragment;
 import com.example.traveladvisor.R;
@@ -58,6 +59,12 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
         holder.buttonStartNavigation.setOnClickListener((View v) -> {
             activity.startNavigation();
         });
+
+        holder.buttonSchowAktionen.setOnClickListener((View v)->{
+            Intent myIntent = new Intent(activity.getActivity(), AktionsListActivity.class);
+            myIntent.putExtra("selectedLocation", location);
+            activity.startActivity(myIntent);
+        });
     }
 
     @Override
@@ -75,6 +82,7 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
         TextView branchen;
         CardView singleCard;
         Button buttonStartNavigation;
+        Button buttonSchowAktionen;
         MapFragment.ItemClickListener clickListener;
 
         MyViewHolder(View view) {
@@ -84,6 +92,7 @@ public class MapRecyclerViewAdapter extends RecyclerView.Adapter<MapRecyclerView
             points = view.findViewById(R.id.textview_punkte);
             branchen = view.findViewById(R.id.textview_branchen);
             buttonStartNavigation = view.findViewById(R.id.button_start_navigation);
+            buttonSchowAktionen = view.findViewById(R.id.button_show_aktionen);
             singleCard = view.findViewById(R.id.single_location_cardview);
             singleCard.setOnClickListener(this);
         }

@@ -1,9 +1,11 @@
 package com.example.traveladvisor.dal;
 
 
+import com.example.traveladvisor.bll.Aktion;
 import com.example.traveladvisor.bll.Besuch;
 import com.example.traveladvisor.bll.Location;
 import com.example.traveladvisor.services.ServiceGetLocationList;
+import com.example.traveladvisor.services.ServiceLocationAktionen;
 import com.example.traveladvisor.services.ServicePostBesuch;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -52,6 +54,27 @@ public class DatabaseManager {
         }
 
         return retLocations;
+    }
+
+    public ArrayList<Aktion> getAktionenFromLocation(Location location) throws Exception {
+        Gson gson = new Gson();
+        ArrayList<Aktion> retAktionen;
+
+        ServiceLocationAktionen controller = new ServiceLocationAktionen();
+        ServiceLocationAktionen.setIpHost(ipHost);
+        controller.setLocation(location);
+
+        controller.execute();
+        String strFromWebService = controller.get();
+        try {
+            Type colltype = new TypeToken<ArrayList<Aktion>>() {
+            }.getType();
+            retAktionen = gson.fromJson(strFromWebService, colltype);
+        } catch (Exception ex) {
+            throw new Exception(strFromWebService);
+        }
+
+        return retAktionen;
     }
 
     public String userVisitsLocations(Besuch besuch) throws Exception {

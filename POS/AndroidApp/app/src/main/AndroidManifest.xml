@@ -24,7 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".QrCodeScan"></activity>
+        <activity android:name=".AktionsListActivity"></activity>
+        <activity android:name=".QrCodeScan" />
 
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"

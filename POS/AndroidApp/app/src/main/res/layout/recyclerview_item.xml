@@ -61,11 +61,25 @@
             android:maxLines="2"
             tools:text="Delicious meal. Great ambiance with interesting guests. The best dinner we had during our stay in San Francisco. You can bring your own wine as long as you pay a corkage fee. Highly recommended." />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_start_navigation"
-            style="@style/MyButtonColorAccent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start navigation" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_start_navigation"
+                style="@style/MyButtonColorAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start navigation" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_show_aktionen"
+                style="@style/MyButtonColorAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Prämien" />
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
