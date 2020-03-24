@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -245,6 +246,71 @@ public class PraemienDAL {
 		conn.close();
 
 
+	
+	}
+
+	public static void einloesen(String id_besucher, String id_praemie) throws Exception {
+
+		try {
+			Connection conn = Database.connect();
+
+			String query = "insert into Besucher_loest_Aktion_ein values (?, ?, ?)";
+
+			PreparedStatement preparedStmt = conn.prepareStatement(query);
+			preparedStmt.setString(1, id_besucher);
+			preparedStmt.setString(2, id_praemie);
+			preparedStmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+
+			preparedStmt.execute();
+
+			conn.close();
+		} catch (Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten!");
+			System.err.println(e.getMessage());
+			throw new Exception("Fehler beim Einlösen der Aktion " + id_praemie + " durch besucher " + id_besucher 
+					+ "  \n Entweder Aktion oder Besucher existiert nicht");
+		}
+	
+	}
+	
+	public static List<Aktion> getEingeloesteAktionenByBesucher(String id_besucher) throws SQLException {
+
+		Connection conn = Database.connect();
+
+		
+		String query = "SELECT a.id_aktion, a.id_location, a.beschreibung, a.punkte, a.aktiv FROM Besucher_loest_Aktion_ein blae"
+				+ "   inner join Aktion a on blae.id_aktion = a.id_aktion"
+				+ "   WHERE id_besucher = ?";
+
+		PreparedStatement preparedStmt = conn.prepareStatement(query);
+		preparedStmt.setString(1, id_besucher);
+		
+		ResultSet rs = preparedStmt.executeQuery();
+
+		List<Aktion> result = new ArrayList<Aktion>();
+		while (rs.next()) {
+			String id_aktion = rs.getString("id_aktion");
+			String id_location = rs.getString("id_location");
+			String beschreibung = rs.getString("beschreibung");
+			int punkte = rs.getInt("punkte");
+			String aktiv = rs.getString("aktiv");
+			
+			Aktion a = new Aktion();
+			a.setId(id_aktion);
+			a.setLocationId(id_location);
+			a.setBezeichnung(beschreibung);
+			a.setPunkte(punkte);
+			
+			if(aktiv.equals("J"))
+				a.setAktiv(true);
+			else if (aktiv.equals("N"))
+				a.setAktiv(false);
+			
+			result.add(a);
+		}
+		preparedStmt.close();
+
+		return result;
 	
 	}
 }

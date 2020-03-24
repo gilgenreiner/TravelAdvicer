@@ -38,6 +38,22 @@ public class PraemienDetail {
         System.out.println("======================webservice GET called");
         return response.build();
     }
+	
+	@GET
+    @Path("eingeloest/{id_besucher}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getEingeloesteByBesucher(@PathParam("id_besucher") String id_besucher) {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        try {
+            response.entity(new Gson().toJson(PraemienDAL.getEingeloesteAktionenByBesucher(id_besucher)));
+        } catch (Exception e) {
+            response.status(Response.Status.NOT_FOUND);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+        System.out.println("======================webservice GET called");
+        return response.build();
+    }
+	
     
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
@@ -62,7 +78,24 @@ public class PraemienDetail {
         return response.build();
     }
 
-    
+    @POST
+    @Path("einloesen/{id_praemie}/{id_besucher}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    public Response einloesen(@PathParam("id_praemie") String id_praemie,
+    		@PathParam("id_besucher") String id_besucher) throws Exception {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        
+        try {
+        	PraemienDAL.einloesen(id_besucher, id_praemie);
+        	response.status(Response.Status.CREATED);
+        } catch (Exception e) {
+            response.status(Response.Status.BAD_REQUEST);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+
+        return response.build();
+    }
     
     @PUT
     @Path("{id}")
@@ -109,6 +142,9 @@ public class PraemienDetail {
         
         return response.build();
     }
+    
+    
+    
     
     
     @OPTIONS
