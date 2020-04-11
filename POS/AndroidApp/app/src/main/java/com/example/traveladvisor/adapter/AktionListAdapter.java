@@ -34,19 +34,19 @@ public class AktionListAdapter extends ArrayAdapter<Aktion> {
         Button btnEinloesen = convertView.findViewById((R.id.button_Aktion_Einsloesen));
 
         tvBezeichnung.setText(aktion.getBezeichnung());
-        tvPunkte.setText(""+aktion.getPunkte());
+        tvPunkte.setText("Punkte: " + aktion.getPunkte());
 
         btnEinloesen.setTag(aktion);
         btnEinloesen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Aktion aktion = (Aktion) view.getTag();
-                Toast.makeText(getContext() ,"Einlösen",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Einlösen", Toast.LENGTH_SHORT).show();
 
                 //einlösen Route noch nicht vorhanden
             }
         });
-        // Return the completed view to render on screen
+
         return convertView;
     }
 }

@@ -203,9 +203,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                         mapboxMap.getUiSettings().setAttributionEnabled(false);
                         mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
                         mapboxMap.setMinZoomPreference(5);
-                        new AddLocationsToMapTask(MapFragment.this).execute();
                         mapboxMap.addOnMapClickListener(MapFragment.this);
 
+                        new AddLocationsToMapTask(MapFragment.this).execute();
                         Log.i(TAG, "Map loaded");
                     }
                 });
@@ -661,6 +661,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
             try {
                 activityRef.get().setData(DatabaseManager.newInstance().getAllLocations());
             } catch (Exception e) {
+                Toast.makeText(activityRef.get().getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                 Log.e(TAG, e.getMessage(), e);
             }
         }

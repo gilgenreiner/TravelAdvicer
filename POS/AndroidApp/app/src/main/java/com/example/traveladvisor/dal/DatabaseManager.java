@@ -1,6 +1,5 @@
 package com.example.traveladvisor.dal;
 
-
 import com.example.traveladvisor.bll.Aktion;
 import com.example.traveladvisor.bll.Besuch;
 import com.example.traveladvisor.bll.Location;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 
 public class DatabaseManager {
     private static DatabaseManager db = null;
-    private static String ipHost = "http://192.168.8.141:8080/";
+    private static String ipHost = "http://192.168.178.40:8080/";
 
     private DatabaseManager() {
     }
@@ -44,10 +43,12 @@ public class DatabaseManager {
         ServiceGetLocationList.setIpHost(ipHost);
 
         controller.execute();
+
         String strFromWebService = controller.get();
         try {
             Type colltype = new TypeToken<ArrayList<Location>>() {
             }.getType();
+
             retLocations = gson.fromJson(strFromWebService, colltype);
         } catch (Exception ex) {
             throw new Exception(strFromWebService);

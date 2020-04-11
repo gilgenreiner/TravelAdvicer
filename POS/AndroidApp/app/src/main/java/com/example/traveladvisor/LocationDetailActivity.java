@@ -2,7 +2,10 @@ package com.example.traveladvisor;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +18,7 @@ public class LocationDetailActivity extends AppCompatActivity {
     private TextInputEditText etxtBezeichnung;
     private TextInputEditText etxtBranchen;
     private TextInputEditText etxtPunkte;
+    private Button buttonSchowAktionen;
     private ImageView imageView;
 
     private Location location;
@@ -30,6 +34,7 @@ public class LocationDetailActivity extends AppCompatActivity {
         etxtBeschreibung = findViewById(R.id.etxtBeschreibung);
         etxtBranchen = findViewById(R.id.etxtBranchen);
         etxtPunkte = findViewById(R.id.etxtPunkte);
+        buttonSchowAktionen = findViewById(R.id.button_show_aktionen);
         imageView = findViewById(R.id.imageView);
 
         etxtBezeichnung.setEnabled(false);
@@ -41,6 +46,12 @@ public class LocationDetailActivity extends AppCompatActivity {
         etxtBezeichnung.setText(location.getBezeichnung());
         etxtBranchen.setText(location.getBranchenAsString());
         etxtPunkte.setText(String.valueOf(location.getPunkte()));
+
+        buttonSchowAktionen.setOnClickListener((View v)->{
+            Intent myIntent = new Intent(this, AktionsListActivity.class);
+            myIntent.putExtra("selectedLocation", location);
+            this.startActivity(myIntent);
+        });
 
         Picasso.get().load("https://picsum.photos/510/300?random").into(imageView);
     }
