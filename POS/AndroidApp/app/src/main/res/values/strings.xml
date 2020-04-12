@@ -21,4 +21,6 @@
 
     <!--Text-->
     <string name="hello_blank_fragment">Usermanagement in kürze Verfügbar</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_register">RegisterActivity</string>
 </resources>
