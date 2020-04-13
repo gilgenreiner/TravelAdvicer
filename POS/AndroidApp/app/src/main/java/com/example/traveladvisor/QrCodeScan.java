@@ -9,11 +9,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -23,6 +20,7 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.IOException;
 
@@ -50,7 +48,7 @@ public class QrCodeScan extends AppCompatActivity {
             public void onClick(View v) {
                 if (intentData.length() > 0) {
                     try {
-                        DatabaseManager.newInstance().userVisitsLocations(new Besuch(intentData, "6hNi7NMMXKg2LregaEx7UEQPMTC3")); //toDo: firebase-id setzen
+                        DatabaseManager.newInstance().userVisitsLocations(new Besuch(intentData, FirebaseAuth.getInstance().getCurrentUser().getUid()));
 
                         finish();
                     } catch (Exception e) {

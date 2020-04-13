@@ -7,19 +7,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.text.TextUtils;
 import android.view.View;
@@ -28,7 +23,6 @@ import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
-    DatabaseReference databaseUser;
     FirebaseAuth firebaseAuth;
     boolean allowBack = true;
 
@@ -37,13 +31,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Intent intent = getIntent();
+
         if (intent.getExtras() != null) {
             allowBack = intent.getExtras().getBoolean("allowBack");
         }
 
-
-        final TextInputLayout txtEmail = findViewById(R.id.txtEmail);
-        final TextInputLayout txtPassword = findViewById(R.id.txtPassword);
+        final TextInputEditText txtEmail = findViewById(R.id.txtEmail);
+        final TextInputEditText txtPassword = findViewById(R.id.txtPassword);
         final Button btnLogin = findViewById(R.id.btnLogin);
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -56,9 +50,9 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = txtEmail.getEditText().getText().toString();
-                String password = txtPassword.getEditText().getText().toString();
-                if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+                String email = txtEmail.getText().toString();
+                String password = txtPassword.getText().toString();
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
                     Toast.makeText(getApplicationContext(), "Above fields are required", Toast.LENGTH_SHORT).show();
                 } else {
                     firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -78,12 +72,8 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             });
                 }
-
-
-
             }
         });
-
     }
 
     @Override
@@ -98,14 +88,13 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void forgetPasswordClicked(View v) {
+        TextInputEditText txtEmail = findViewById(R.id.txtEmail);
+        String email = txtEmail.getText().toString();
 
-    public void forgetPasswordClicked (View v){
-        TextInputLayout txtEmail = findViewById(R.id.txtEmail);
-        String email = txtEmail.getEditText().getText().toString();
-
-        if(TextUtils.isEmpty(email)){
+        if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), "Please enter your E-Mail", Toast.LENGTH_SHORT).show();
-        }else {
+        } else {
             FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         public static final String TAG = "TAG String";
@@ -114,12 +103,11 @@ public class LoginActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Toast.makeText(getApplicationContext(), "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
-                            }else{
+                            } else {
                                 Toast.makeText(getApplicationContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
         }
     }
-
 }

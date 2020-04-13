@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.traveladvisor.bll.Location;
 import com.google.android.material.textfield.TextInputEditText;
