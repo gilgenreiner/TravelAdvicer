@@ -2,6 +2,7 @@ package com.example.traveladvisor.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +60,7 @@ public class AktionListAdapter extends ArrayAdapter<Aktion> {
                             builder.setMessage("Sie haben die Aktion " + aktion.getBezeichnung() + " eingelöst. Zeigen Sie die Nachricht an der Kassa." +
                                     "\n\nSobald sie das Fenster schließen können Sie nicht wieder auf die eingelöste Aktion zugreifen." +
                                     "\n\nNeuer Punktestand: " + (currentPoints-aktionsPunkte))
-                                    .setTitle("Aktion eingelöst");
+                                    .setTitle(Html.fromHtml("<font color='"+getContext().getResources().getColor(R.color.colorPrimary)+"'>Aktion eingelöst</font>"));
 
                             AlertDialog dialog = builder.create();
                             dialog.show();
