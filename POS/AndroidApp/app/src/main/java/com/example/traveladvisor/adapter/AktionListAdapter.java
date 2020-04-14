@@ -1,6 +1,8 @@
 package com.example.traveladvisor.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +13,12 @@ import android.widget.Toast;
 
 import com.example.traveladvisor.R;
 import com.example.traveladvisor.bll.Aktion;
+import com.example.traveladvisor.dal.DatabaseManager;
 
 import java.util.ArrayList;
 
 public class AktionListAdapter extends ArrayAdapter<Aktion> {
+
 
     public AktionListAdapter(Context context, ArrayList<Aktion> aktionen) {
         super(context, 0, aktionen);
@@ -41,7 +45,33 @@ public class AktionListAdapter extends ArrayAdapter<Aktion> {
             @Override
             public void onClick(View view) {
                 Aktion aktion = (Aktion) view.getTag();
+                int aktionsPunkte = aktion.getPunkte();
                 Toast.makeText(getContext(), "Einlösen", Toast.LENGTH_SHORT).show();
+                try {
+                    int currentPoints = DatabaseManager.newInstance().getCurrentAmountOfPoints();
+                    if (aktionsPunkte > currentPoints) {
+                        Toast.makeText(getContext(), "Ihnen fehlen " + (aktionsPunkte - currentPoints) + " Punkte um die Prämie einzulösen.", Toast.LENGTH_LONG).show();
+                    } else {
+                        String result = DatabaseManager.newInstance().userRedeemAktion(aktion);
+                        if (result.split(",")[0].equals("Successful")) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                            builder.setMessage("Sie haben die Aktion " + aktion.getBezeichnung() + " eingelöst. Zeigen Sie die Nachricht an der Kassa." +
+                                    "\n\nSobald sie das Fenster schließen können Sie nicht wieder auf die eingelöste Aktion zugreifen." +
+                                    "\n\nNeuer Punktestand: " + (currentPoints-aktionsPunkte))
+                                    .setTitle("Aktion eingelöst");
+
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                        } else {
+                            Toast.makeText(getContext(), "Ein Fehler ist aufgetreten: " + result, Toast.LENGTH_LONG).show();
+                            Log.e("AktionListAdapter",result);
+                        }
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 //einlösen Route noch nicht vorhanden
             }

@@ -3,19 +3,22 @@ package com.example.traveladvisor.dal;
 import com.example.traveladvisor.bll.Aktion;
 import com.example.traveladvisor.bll.Besuch;
 import com.example.traveladvisor.bll.Location;
+import com.example.traveladvisor.services.ServiceGetCurrentPointsFromUser;
 import com.example.traveladvisor.services.ServiceGetLocationList;
 import com.example.traveladvisor.services.ServiceLocationAktionen;
+import com.example.traveladvisor.services.ServicePostAktionEinloesen;
 import com.example.traveladvisor.services.ServicePostBesuch;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 
 public class DatabaseManager {
     private static DatabaseManager db = null;
-    private static String ipHost = "http://192.168.178.40:8080/";
+    private static String ipHost = "http://192.168.8.143:8080/";
 
     private DatabaseManager() {
     }
@@ -83,6 +86,23 @@ public class DatabaseManager {
         ServicePostBesuch.setIpHost(ipHost);
 
         controller.setBesuch(besuch);
+        controller.execute();
+        return controller.get();
+    }
+
+    public int getCurrentAmountOfPoints() throws Exception {
+        ServiceGetCurrentPointsFromUser controller = new ServiceGetCurrentPointsFromUser();
+        ServiceGetCurrentPointsFromUser.setIpHost(ipHost);
+
+        controller.execute();
+        return Integer.parseInt(controller.get());
+    }
+
+    public String userRedeemAktion(Aktion aktion) throws Exception{
+        ServicePostAktionEinloesen controller = new ServicePostAktionEinloesen();
+        ServicePostAktionEinloesen.setIpHost(ipHost);
+
+        controller.setAktion(aktion);
         controller.execute();
         return controller.get();
     }
