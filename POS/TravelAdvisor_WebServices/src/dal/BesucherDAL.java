@@ -69,7 +69,8 @@ public class BesucherDAL {
 			}
 			
 			conn.close();
-			
+			if(punkte == -1)
+				throw new Exception("Benutzer mit id '" + id + "' nicht gefunden");
 			return punkte;
 		} catch (Exception e) {
 			System.err.println("Ein Fehler ist aufgetreten! ");
