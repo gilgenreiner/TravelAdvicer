@@ -60,7 +60,12 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(AuthResult authResult) {
 
+                                    User user = User.getInstance();
+                                    user.setUid(authResult.getUser().getUid());
+                                    user.setEmail(authResult.getUser().getEmail());
+
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
                                 }

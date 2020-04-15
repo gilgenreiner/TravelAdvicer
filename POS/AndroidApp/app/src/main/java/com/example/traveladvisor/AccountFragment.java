@@ -4,11 +4,25 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 /**
@@ -28,6 +42,17 @@ public class AccountFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+
+    private TextView tvUid;
+    private TextView tvEmail;
+    private TextView tvVorname;
+    private TextView tvNachname;
+    private TextView tvTyp;
+
+    private View view;
+
+    private FirebaseFirestore db;
 
     private OnFragmentInteractionListener mListener;
 
@@ -60,13 +85,57 @@ public class AccountFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_account, container, false);
+        this.view = inflater.inflate(R.layout.fragment_account, container, false);
+
+        tvUid = this.view.findViewById(R.id.tvUid);
+        tvEmail = this.view.findViewById(R.id.tvEmail);
+        tvVorname = this.view.findViewById(R.id.tvVorname);
+        tvNachname = this.view.findViewById(R.id.tvNachname);
+        tvTyp = this.view.findViewById(R.id.tvTyp);
+
+        User user = User.getInstance();
+
+
+        db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("users").document(user.getUid());
+
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        Log.d("Account", "DocumentSnapshot data: " + document.getData());
+
+                        user.setFistname(document.getData().get("vorname").toString());
+                        user.setLastname(document.getData().get("nachname").toString());
+                        user.setTyp(document.getData().get("typ").toString());
+
+                        tvUid.setText(user.getUid());
+                        tvEmail.setText(user.getEmail());
+                        tvVorname.setText(user.getFistname());
+                        tvNachname.setText(user.getLastname());
+                        tvTyp.setText(user.getTyp());
+                    } else {
+                        Log.d("Account", "No such document");
+                    }
+                } else {
+                    Log.d("Account", "get failed with ", task.getException());
+                }
+            }
+        });
+
+        return this.view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
