@@ -95,7 +95,7 @@ router.beforeEach((to, from, next) => {
   const requiresTypBesitzer = to.matched.some(record => record.meta.requiresTypBesitzer);
   const typ = (currentUser != null) ? localStorage.getItem('typ') : null;
 
-  if (requiresAuth && !currentUser) next('login');
+  if (requiresAuth && !currentUser) next('/login');
   else if (requiresTypBesitzer && currentUser && typ != 'besitzer') next('*')
   else next();
 })

@@ -15,7 +15,10 @@
           <v-icon>close</v-icon>
         </v-btn>
       </v-card-title>
-      <Rezensionen :rezensionen="allRezensionen" />
+      <Rezensionen v-if="allRezensionen.length != 0" :rezensionen="allRezensionen" />
+      <v-card-text  v-else>
+        <v-label>Es gibt noch keine Rezensionen</v-label>
+      </v-card-text>
       <v-progress-linear
         :active="isLoadingRezensionen"
         :indeterminate="isLoadingRezensionen"
