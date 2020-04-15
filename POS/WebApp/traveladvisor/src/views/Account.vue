@@ -5,7 +5,7 @@
         <v-card-title>
           Profil {{ ( update ) ? 'bearbeiten' : '' }}
           <v-spacer></v-spacer>
-          <v-btn v-if="!update" @click="dialog = !dialog" text>Punkte</v-btn>
+          <v-btn v-if="!update && user != null && user.typ == 'besucher' " @click="dialog = !dialog" text>Punkte</v-btn>
           <v-btn icon @click="update = !update">
             <v-icon>edit</v-icon>
           </v-btn>
