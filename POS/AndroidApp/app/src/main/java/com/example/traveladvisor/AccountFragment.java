@@ -1,6 +1,7 @@
 package com.example.traveladvisor;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -11,10 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,6 +52,7 @@ public class AccountFragment extends Fragment {
     private TextView tvVorname;
     private TextView tvNachname;
     private TextView tvTyp;
+    private Button btLogout;
 
     private View view;
 
@@ -101,6 +105,20 @@ public class AccountFragment extends Fragment {
         tvNachname = this.view.findViewById(R.id.tvNachname);
         tvTyp = this.view.findViewById(R.id.tvTyp);
 
+
+        btLogout = this.view.findViewById(R.id.btnLogout);
+
+        btLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+
+                setAttributes(true);
+
+                backToLogin();
+            }
+        });
+
         User user = User.getInstance();
 
 
@@ -121,11 +139,7 @@ public class AccountFragment extends Fragment {
                         user.setLastname(document.getData().get("nachname").toString());
                         user.setTyp(document.getData().get("typ").toString());
 
-                        tvUid.setText(user.getUid());
-                        tvEmail.setText(user.getEmail());
-                        tvVorname.setText(user.getFistname());
-                        tvNachname.setText(user.getLastname());
-                        tvTyp.setText(user.getTyp());
+                        setAttributes(false);
                     } else {
                         Log.d("Account", "No such document");
                     }
@@ -136,6 +150,30 @@ public class AccountFragment extends Fragment {
         });
 
         return this.view;
+    }
+
+    private void backToLogin() {
+        Intent myIntent = new Intent(this.getActivity(), LoginActivity.class);
+        this.startActivity(myIntent);
+
+    }
+    private void setAttributes(boolean setNull) {
+        if(setNull != true) {
+            User user = User.getInstance();
+            tvUid.setText(user.getUid());
+            tvEmail.setText(user.getEmail());
+            tvVorname.setText(user.getFistname());
+            tvNachname.setText(user.getLastname());
+            tvTyp.setText(user.getTyp());
+        }
+        else {
+            tvUid.setText(null);
+            tvEmail.setText(null);
+            tvVorname.setText(null);
+            tvNachname.setText(null);
+            tvTyp.setText(null);
+        }
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
