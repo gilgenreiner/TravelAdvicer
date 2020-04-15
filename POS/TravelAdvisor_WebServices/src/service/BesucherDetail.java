@@ -40,6 +40,20 @@ public class BesucherDetail {
     }
 	
 	
+	@GET
+    @Path("{id}/punkte")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getPunkteById(@PathParam("id") String id_besucher) {
+        Response.ResponseBuilder response = Response.status(Response.Status.OK);
+        try {	
+        		response.entity(new Gson().toJson(BesucherDAL.getPunkte(id_besucher)));
+        } catch (Exception e) {
+            response.status(Response.Status.NOT_FOUND);
+            response.entity("[ERROR] " + e.getMessage());
+        }
+        System.out.println("======================webservice GET called");
+        return response.build();
+    }
 	
 	@POST
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})

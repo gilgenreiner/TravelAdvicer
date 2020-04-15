@@ -18,6 +18,7 @@ import bll.Branche;
 import bll.Error404;
 import bll.Location;
 import bll.Point;
+import bll.Rezension;
 import bll.Taetigkeit;
 import service.LocationList;
 
@@ -165,5 +166,46 @@ public class BesuchDAL {
 		preparedStmt.execute();
 
 		conn.close();
+	}
+	
+	public static void deleteWithBesuchId(String id) throws SQLException {
+		Connection conn = Database.connect();
+
+		String query = "delete from Location_besuch where id_besuch = ?";
+		PreparedStatement preparedStmt = conn.prepareStatement(query);
+		preparedStmt.setString(1, id);
+
+		preparedStmt.execute();
+
+		conn.close();
+	}
+	
+	public static Besuch getById(String id) throws Exception {
+		Connection conn = Database.connect();
+
+		String query = "SELECT * FROM Location_besuch WHERE id_besuch = '" + id + "'";
+
+		Statement st = conn.createStatement();
+
+		ResultSet rs = st.executeQuery(query);
+
+		Besuch b = null;
+		while (rs.next()) {
+			String idLocation = rs.getString("id_location");
+			String idBesucher = rs.getString("id_besucher");
+			Timestamp ts = rs.getTimestamp("zeitpunkt");
+
+			b = new Besuch();
+			
+			b.setId(id);
+			b.setZeitpunkt(ts);
+			b.setLocationId(idLocation);
+			b.setBesucherId(idBesucher);
+		}
+		st.close();
+
+		if(b == null)
+			throw new Error404("Besuch nicht gefunden");
+		return b;
 	}
 }

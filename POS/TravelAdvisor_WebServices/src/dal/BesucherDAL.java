@@ -53,6 +53,32 @@ public class BesucherDAL {
 		}
 	}
 
+	public static int getPunkte(String id) throws Exception {
+		try {
+			Connection conn = Database.connect();
+
+			String query = "select punkte from Besucher where benutzer_id = ?";
+			PreparedStatement preparedStmt = conn.prepareStatement(query);
+			preparedStmt.setString(1, id);
+
+			ResultSet rs = preparedStmt.executeQuery();
+
+			int punkte = -1;
+			while (rs.next()) {
+				punkte = rs.getInt("punkte");
+			}
+			
+			conn.close();
+			if(punkte == -1)
+				throw new Exception("Benutzer mit id '" + id + "' nicht gefunden");
+			return punkte;
+		} catch (Exception e) {
+			System.err.println("Ein Fehler ist aufgetreten! ");
+			System.err.println(e.getMessage());
+			throw e;
+		}
+	}
+	
 	public static void create(Besucher new_bes) throws Exception {
 		try {
 			Connection conn = Database.connect();

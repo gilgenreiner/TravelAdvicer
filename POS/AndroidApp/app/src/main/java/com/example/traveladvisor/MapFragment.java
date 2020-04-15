@@ -205,7 +205,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Permiss
                         mapboxMap.setMinZoomPreference(5);
                         mapboxMap.addOnMapClickListener(MapFragment.this);
 
-                        new AddLocationsToMapTask(MapFragment.this).execute();
+                        //new AddLocationsToMapTask(MapFragment.this).execute();
                         Log.i(TAG, "Map loaded");
                     }
                 });
