@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
@@ -11,6 +13,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import androidx.annotation.NonNull;
@@ -32,7 +36,6 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        final TextInputEditText txtTyp = findViewById(R.id.txtTyp);
         final TextInputEditText txtEmail = findViewById(R.id.txtEmail);
         final TextInputEditText txtPassword = findViewById(R.id.txtPassword);
         final TextInputEditText txtRepeatPassword = findViewById(R.id.txtRepeatPassword);
@@ -47,7 +50,6 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String email = txtEmail.getText().toString();
-                final String typ = txtTyp.getText().toString();
                 final String password = txtPassword.getText().toString();
                 String repeatPassword = txtRepeatPassword.getText().toString();
                 final String firstname = txtFirstname.getText().toString();
@@ -55,11 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 boolean error = false;
 
-                if (TextUtils.isEmpty(typ) || (typ != "besucher" && typ != "besitzer")) {
-                    txtTyp.setError("Please fill in your typ.");
-                    Toast.makeText(getApplicationContext(), "Please fill in a valid typ.", Toast.LENGTH_SHORT).show();
-                    error = true;
-                }
+
                 if (TextUtils.isEmpty(email)) {
                     txtEmail.setError("Please fill in your email address.");
                     Toast.makeText(getApplicationContext(), "Please fill in your email address.", Toast.LENGTH_SHORT).show();
@@ -98,25 +96,36 @@ public class RegisterActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                                 String userId = firebaseUser.getUid();
-                                database = FirebaseDatabase.getInstance().getReference("Users").child(userId);
-                                HashMap<String, String> newUser = new HashMap<>();
-                                newUser.put("id", userId);
-                                newUser.put("email", email);
-                                newUser.put("typ", typ);
-                                newUser.put("vorname", firstname);
-                                newUser.put("token", FirebaseInstanceId.getInstance().getToken());
+                                //database = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                                database.setValue(newUser)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                                HashMap<String, String> newUser = new HashMap<>();
+                                newUser.put("uid", userId);
+                                newUser.put("email", email);
+                                newUser.put("typ", "besucher");
+                                newUser.put("vorname", firstname);
+                                //newUser.put("token", FirebaseInstanceId.getInstance().getToken());
+                                newUser.put("nachname", lastname);
+
+                                db.collection("users").document(userId)
+                                        .set(newUser)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    startNewIntent();
-                                                }
+                                            public void onSuccess(Void aVoid) {
+                                                firebaseAuth.signInWithEmailAndPassword(email, password);
+                                                startNewIntent();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getApplicationContext(), "Register not successful: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                             }
                                         });
                             } else {
-                                Toast.makeText(getApplicationContext(), "Register not successful.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Register not successful: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+
                             }
                         }
                     });

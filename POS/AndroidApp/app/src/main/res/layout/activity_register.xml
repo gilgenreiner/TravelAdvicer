@@ -61,20 +61,6 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textview_Typ"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Typ">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/txtTyp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/backgroundColorLogo"
-            android:textColor="@color/textColorSecondary" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textview_Password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
