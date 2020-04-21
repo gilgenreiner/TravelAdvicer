@@ -8,6 +8,7 @@ import com.example.traveladvisor.services.ServiceGetLocationList;
 import com.example.traveladvisor.services.ServiceLocationAktionen;
 import com.example.traveladvisor.services.ServicePostAktionEinloesen;
 import com.example.traveladvisor.services.ServicePostBesuch;
+import com.example.traveladvisor.services.ServiceSaveUser;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -90,6 +91,14 @@ public class DatabaseManager {
         return controller.get();
     }
 
+    public String postUser() throws Exception {
+        ServiceSaveUser controller = new ServiceSaveUser();
+        ServiceSaveUser.setIpHost(ipHost);
+
+        controller.execute();
+        return controller.get();
+    }
+
     public int getCurrentAmountOfPoints() throws Exception {
         ServiceGetCurrentPointsFromUser controller = new ServiceGetCurrentPointsFromUser();
         ServiceGetCurrentPointsFromUser.setIpHost(ipHost);
@@ -105,5 +114,9 @@ public class DatabaseManager {
         controller.setAktion(aktion);
         controller.execute();
         return controller.get();
+    }
+
+    public void saveUser(String uid) {
+
     }
 }
