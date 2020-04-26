@@ -113,8 +113,17 @@ public class RegisterActivity extends AppCompatActivity {
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                firebaseAuth.signInWithEmailAndPassword(email, password);
-                                                startNewIntent();
+                                                //Benutzer in SQL DB speichern
+
+                                                try {
+                                                    User.getInstance().saveToSQLDB();
+                                                    firebaseAuth.signInWithEmailAndPassword(email, password);
+                                                    startNewIntent();
+                                                }
+                                                catch(Exception ex) {
+                                                    Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG);
+                                                }
+
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {

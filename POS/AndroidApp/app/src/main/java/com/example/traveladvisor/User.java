@@ -1,7 +1,10 @@
 package com.example.traveladvisor;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 
+import com.example.traveladvisor.dal.DatabaseManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -113,7 +116,7 @@ public class User {
                 '}';
     }
 
-    public void laod() {
-
+    public void saveToSQLDB() throws Exception {
+        DatabaseManager.newInstance().postUser();
     }
 }
